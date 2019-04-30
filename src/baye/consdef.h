@@ -37,10 +37,10 @@ extern U16 g_screenHeight;
 #define	SCR_LINE		((SCR_WID+7)/8)             /* 屏幕每行字节数 */
 #define	WK_BLEN			(SCR_LINE * SCR_HGT)        /* 虚拟屏幕字节长度=(WK_EX-WK_SX)/8*(WK_EY-WK_SY) */
 #define	LINE_BYTES		SCR_LINE                    /* 屏幕每行字节个数 */
-#define	ASC_WID			6		/* Ascii字模宽度 */
-#define	ASC_HGT			12		/* Ascii字模高度 */
-#define	HZ_WID			12		/* HZ字模宽度 */
-#define	HZ_HGT			12		/* HZ字模高度 */
+#define	ASC_WID			5		/* Ascii字模宽度 */
+#define	ASC_HGT			10		/* Ascii字模高度 */
+#define	HZ_WID			10		/* HZ字模宽度 */
+#define	HZ_HGT			10		/* HZ字模高度 */
 
 #define MAX_SCR_BUF_LEN (256*256*4)
 #define WK_BLEN_MAX MAX_SCR_BUF_LEN
