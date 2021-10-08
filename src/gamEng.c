@@ -193,10 +193,20 @@ bool GamMainChose(void)
         switch(choice)
         {
             case 0:		/* 新君登基 */
-                idx = GamPicMenu(YEAR_PIC,YEAR_ICON1, periodMenuButtonRects, 4, true);
-                if(idx == MNU_EXIT)
-                    break;
-                idx = GetPeriodKings(idx + 1, kings); 	/* 设置历史时期，并获取君主队列 */
+                IF_HAS_HOOK("loadPeriod") {
+                    switch (CALL_HOOK_A()) {
+                        case 1:
+                            break;
+                        default:
+                            goto loop_end;
+                    }
+                } else {
+                    idx = GamPicMenu(YEAR_PIC,YEAR_ICON1, periodMenuButtonRects, 4, true);
+                    if(idx == MNU_EXIT)
+                        break;
+                    LoadPeriod(idx + 1);
+                }
+                idx = GetAllKings(kings); 	/* 设置历史时期，并获取君主队列 */
                 king = GamGetKing(kings, idx);
                 if(king == 0xffff)
                     break;
@@ -254,6 +264,7 @@ bool GamMainChose(void)
             case MNU_EXIT:
                 return false;
         }
+        loop_end:;
     }
 }
 

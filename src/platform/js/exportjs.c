@@ -425,3 +425,8 @@ EMSCRIPTEN_KEEPALIVE
 void bayeGCCheckAll() {
     gam_gc_check_all();
 }
+
+EMSCRIPTEN_KEEPALIVE
+void bayeLoadPeriod(U8 period) {
+    LoadPeriod(period);
+}
