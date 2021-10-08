@@ -11,8 +11,13 @@
   ------------------------*/
 typedef	struct gam_FILE gam_FILE;				/* 文件指针类型 */
 
+#ifndef SEEK_SET
 #define	SEEK_SET	0		/* 从文件开头 */
+#endif
+
+#ifndef SEEK_CUR
 #define	SEEK_CUR	1		/* 从文件指针的现行位置 */
+#endif
 
 #define	OPEN_R		1		/* 读模式 */
 #define	OPEN_W		2		/* 写模式 */

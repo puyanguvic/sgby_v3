@@ -1,2 +1,2 @@
 #!/bin/sh
-emconfigure cmake -DCMAKE_BUILD_TYPE=Release ../src/
+emcmake cmake -DCMAKE_BUILD_TYPE=Release ../src/

@@ -32,9 +32,9 @@ void gam_sem_signal(GAM_SEM sem)
 void gam_sem_wait(GAM_SEM sem)
 {
     int *p = (int*)sem;
-    emscripten_sleep_with_yield(1);
+    emscripten_sleep(1);
     while (*p == 0) {
-        emscripten_sleep_with_yield(10);
+        emscripten_sleep(10);
     }
     *p -= 1;
 }
