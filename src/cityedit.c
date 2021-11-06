@@ -206,7 +206,7 @@ FAR U8 DelGoods(U8 city,ToolID goods)
 
     for (i = cptr->ToolQueue;i < qnum;i ++)
     {
-        if ((g_GoodsQueue[i] & 0x7f) == goods)
+        if ((g_GoodsQueue[i] & 0x7fff) == goods)
             break;
     }
 
