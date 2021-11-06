@@ -384,7 +384,6 @@ FAR U8 PersonUpDatadate(void)
 {
     SearchCondition *pinf;	/* -- 武将信息指针*/
     U32 c;
-    U16 t;
     U32 p;
 
     if (1 == g_MonthDate)
@@ -395,14 +394,14 @@ FAR U8 PersonUpDatadate(void)
         }
     }
 
-    U32 l = ResGetItemLen(GENERAL_CON, g_PIdx);
+    U32 l = ResGetItemLen(GENERAL_CON, g_PIdx) / sizeof(SearchCondition);
     pinf = (SearchCondition*)ResLoadToCon(GENERAL_CON,g_PIdx,g_CBnkPtr);
 
-    for (p = 0,t = 0;p < PERSON_COUNT && t < l;p ++,t += 3)
+    for (p = 0;p < PERSON_COUNT && p < l;p ++)
     {
-        if ((pinf[t].birth + PERSON_APPEAR_AGE) == g_YearDate)
+        if ((pinf[p].birth + PERSON_APPEAR_AGE) == g_YearDate)
         {
-            c = pinf[t + 2].city;
+            c = pinf[p].city;
 
             if (!c)
             {
