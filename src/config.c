@@ -10,3 +10,4 @@
 
 U16 g_screenWidth = 16*13;
 U16 g_screenHeight = 16*8;
+U16 g_ax_scale = 2;

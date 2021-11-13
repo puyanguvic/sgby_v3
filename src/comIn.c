@@ -20,6 +20,11 @@
 #include "baye/stdsys.h"
 #include "baye/comm.h"
 #include "baye/enghead.h"
+
+#ifdef __EMSCRIPTEN__
+#include <emscripten.h>
+#endif
+
 void GamLoadEngineConfig(void);
 
 /* 当前所在文件 */
@@ -85,6 +90,36 @@ FAR U8 GamConInit(void)
         return 1;
     }
     g_CBnkPtr = gam_freadall(g_LibFp);				/*常量页面指针*/
+
+    {
+        extern U32	GetResStartAddr(U16 id);
+        U32 version = GetResStartAddr(17);
+        printf("lib version is %d\n", version);
+        switch (version) {
+            case 0xffffffff: {
+                printf("Lib version not supported: %d\n", version);
+                abort();
+                break;
+            }
+            case 2: {
+                g_ax_scale = 2;
+                break;
+            }
+            case 3: {
+                g_ax_scale = 4;
+                break;
+            }
+        }
+        printf("g_ax_scale=%d\n", g_ax_scale);
+
+#ifdef __EMSCRIPTEN__
+        EM_ASM_INT ({
+            if (window.lcdSetDotSize) {
+                window.lcdSetDotSize($0)
+            }
+        }, g_ax_scale);
+#endif
+    }
 
     /*随机函数初始化*/
     U8 i;
