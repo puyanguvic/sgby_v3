@@ -15,7 +15,7 @@ static void(*_lcd_fluch_cb)(char*buffer);
 
 #define SCR_W SCR_WID
 #define SCR_H SCR_HGT
-#define BYTES_PERLINE (SCR_LINE * 8 * 2)
+#define BYTES_PERLINE (SCR_LINE * 8 * AX_SCALE)
 
 #define DOT 1
 #define CLR 0
@@ -125,10 +125,10 @@ FAR	void SysLCDVoltage(U8 voltage)		/*voltage: 0 - 63 */
 }
 
 static void _dot(PT x, PT y, U8 color) {
-    x *= 2;
-    y *= 2;
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 2; j++) {
+    x *= AX_SCALE;
+    y *= AX_SCALE;
+    for (int i = 0; i < AX_SCALE; i++) {
+        for (int j = 0; j < AX_SCALE; j++) {
             int ind = BYTES_PERLINE * (y+i) + (x+j);
             buffer[ind] = color;
         }
@@ -136,10 +136,10 @@ static void _dot(PT x, PT y, U8 color) {
 }
 
 static void _rdot(PT x, PT y) {
-    x *= 2;
-    y *= 2;
-    for (int i = 0; i < 2; i++) {
-        for (int j = 0; j < 2; j++) {
+    x *= AX_SCALE;
+    y *= AX_SCALE;
+    for (int i = 0; i < AX_SCALE; i++) {
+        for (int j = 0; j < AX_SCALE; j++) {
             int ind = BYTES_PERLINE * (y+i) + (x+j);
             buffer[ind] = !buffer[ind];
         }
@@ -218,8 +218,12 @@ FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale)
     int hgt = eY - sY + 1;
     int x, y, X, Y;
     int scrPerLine = BYTES_PERLINE;
-    static U8 _buf[256*256*8];
+    static U8 *_buf = NULL;
     int pixs = 0;
+
+    if (_buf == NULL) {
+        _buf = gam_malloc(MAX_SCR_BUF_LEN);
+    } 
 
     if (pic) {
         _decodePic(_buf, pic, wid, hgt, scale);
@@ -233,12 +237,12 @@ FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale)
         int picPerLine = wid;
 
         for (y = 0; y < hgt; y++) {
-            Y = sY*2 + y;
+            Y = sY*AX_SCALE + y;
             for (x = 0; x < wid; x++) {
-                X = sX*2 + x;
+                X = sX*AX_SCALE + x;
                 unsigned char pixel0, pixel1;
                 int ind = scrPerLine * Y + X;
-                if (!_insideScreen(X/2, Y/2)) {
+                if (!_insideScreen(X/AX_SCALE, Y/AX_SCALE)) {
                     continue;
                 }
 

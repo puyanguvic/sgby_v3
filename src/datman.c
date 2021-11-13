@@ -51,7 +51,7 @@ FAR U8 ResItemGet(U16 ResId,U16 idx,U8 *ptr) {
 
 FAR U8 ResItemGetN(U16 ResId,U16 idx,U8 *ptr, U32 bufsize)
 {
-    U16	plen;
+    U32	plen;
     U32	addr;
     RIDX	rIdx;
     RCHEAD	reshead;
@@ -85,7 +85,7 @@ FAR U8 ResItemGetN(U16 ResId,U16 idx,U8 *ptr, U32 bufsize)
  ***********************************************************************/
 FAR U8 ResLoadToMem(U16 ResId,U16 idx,U8 *ptr)
 {
-    U16	plen;
+    U32	plen;
     U32	addr;
     RIDX	rIdx;
     RCHEAD	reshead;
@@ -119,7 +119,7 @@ FAR U8 ResLoadToMem(U16 ResId,U16 idx,U8 *ptr)
 FAR U8 *ResLoadToCon(U16 ResId,U16 idx,U8 *cbnk)
 {
     U8	*ptr;
-    U16	tmp;
+    U32	tmp;
     U32	addr;
     RCHEAD	*reshead;
     if(!idx)
@@ -171,7 +171,7 @@ FAR U8 *ResLoadStringWithId(U16 ResId)
  ***********************************************************************/
 void ExpDataWithKey(U8 *ptr,U8 key,U16 len)
 {
-    U16	i;
+    U32	i;
     for(i=0;i<len;i++)
         ptr[i]-=key;
 }

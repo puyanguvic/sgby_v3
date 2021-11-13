@@ -41,8 +41,9 @@ extern U16 g_screenHeight;
 #define	ASC_HGT			12		/* Ascii字模高度 */
 #define	HZ_WID			12		/* HZ字模宽度 */
 #define	HZ_HGT			12		/* HZ字模高度 */
+#define	AX_SCALE		4		// 坐标缩放
 
-#define MAX_SCR_BUF_LEN (256*256*4)
+#define MAX_SCR_BUF_LEN (256*256*AX_SCALE*AX_SCALE)
 #define WK_BLEN_MAX MAX_SCR_BUF_LEN
 
 /* 颜色定义 */

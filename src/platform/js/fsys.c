@@ -249,7 +249,7 @@ static U8* getValue(const U8*key) {
 
         if (value) {
             var buffer = Module._bayeAlloc(value.length+1);
-            Module.stringToUTF8(value, buffer, 1024*1024*10);
+            Module.stringToUTF8(value, buffer, value.length+1);
             return buffer;
         }
         return 0;

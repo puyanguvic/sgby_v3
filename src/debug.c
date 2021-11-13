@@ -38,7 +38,7 @@ const	U8	gamNumConvTable[]="0123456789ABCDEF";
 FAR void	gamPrintNum(PT	x,PT	y, U32 num, U8 base,U8	sign)
 {
     U32		n;
-    U16		count ;
+    U32		count ;
     int		index;
     U8		toPrint[20];
 

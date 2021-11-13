@@ -40,15 +40,15 @@ U8 *strlchr(U8 *buf,U8 len,U8 ch);
  ***********************************************************************/
 FAR U8 PlcMovie(U16 speid, U16 index, U8 startfrm,U8 endfrm,U8 keyflag,PT x,PT y)
 {
-    U8 *dat[512],*srsptr;
+    U8 *dat[512] = {0},*srsptr;
     PictureHeadType* phead;
     U32	 count;			/*桢数*/
     U32	 picmax;		/*最大图片序号*/
-    U16 wid,high,picdatlen,maxdatlen,mode,lenspe;
+    U32 wid,high,picdatlen,maxdatlen,mode,lenspe;
     U32 i,clsflag,showflag;
     U32 mcount;
     I32 x1,y1;
-    U8 ymount,spem[512],spec[512];
+    U8 ymount,spem[512] = {0},spec[512] = {0};
     SPEUNIT  *spe;
 
     lenspe = 0;
@@ -109,7 +109,7 @@ FAR U8 PlcMovie(U16 speid, U16 index, U8 startfrm,U8 endfrm,U8 keyflag,PT x,PT y
                     high = phead->hig;
                     x1 = x + spe[i + startfrm].x;
                     y1 = y + spe[i + startfrm].y;
-                    gam_clrvscr(x1,y1,x1+(wid/2)-1,y1+(high/2)-1,g_VisScr);
+                    gam_clrvscr(x1,y1,x1+(wid/AX_SCALE)-1,y1+(high/AX_SCALE)-1,g_VisScr);
                 }
                 clsflag = 1;
             }
@@ -445,8 +445,8 @@ FAR void PlcGraMsgBox(U8 *buf,U8 delay,U8 line)
 
     ptr = ResLoadToCon(MSGBOX_PIC,1,g_CBnkPtr);
     PictureHeadType *head = (PictureHeadType *)ptr;
-    w = head->wid/2;
-    h = head->wid/2;
+    w = head->wid/AX_SCALE;
+    h = head->wid/AX_SCALE;
     x = (WK_EX - WK_SX - w) / 2;
     x += WK_SX;
     if(line != 0xFF)
@@ -627,7 +627,7 @@ FAR void PlcStrShowS(RECT *big,RECT *small,U8 *buf)
 {
     U8	*ptr,i,tmp;
     U8	sx[4],sy[4],ex[4],ey[4];
-    U16	sLen;
+    U32	sLen;
     
     tmp = big->sx;
     sx[0] = tmp;
