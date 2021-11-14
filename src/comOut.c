@@ -32,7 +32,7 @@ U32	CountHZMAddrOff(U16 Hz);
 void	GamResumeSet();
 void	GamAscii(PT x,PT y,U8 asc);
 void	GamChinese(PT x,PT y,U16 Hz);
-void	GetExcHZMCode(U16 Hz,U8 *hzmCode);
+int	GetExcHZMCode(U16 Hz,U8 *hzmCode);
 
 /***********************************************************************
  * 说明:     游戏系统信息框(不保存背景)
@@ -170,7 +170,7 @@ FAR void GamMPicShowV(PT x,PT y,PT wid,PT hgt,U8 *pic,U8 *vscr)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR void GamPicShowEx(PT x,PT y,PT wid,PT hgt, U16 idx, U8 *pic)
+void GamPicShowEx(PT x,PT y, U16 idx, U8 *pic)
 {
     U8	mask;
     U16	pwid,phgt;
@@ -184,9 +184,9 @@ FAR void GamPicShowEx(PT x,PT y,PT wid,PT hgt, U16 idx, U8 *pic)
     pLen *= phgt;
     pic += pLen * idx + PICHEAD_LEN;
     if(HV_MASK == mask)
-        GamMPicShow(x, y, wid, hgt, pic);
+        GamMPicShow(x, y, pwid, phgt, pic);
     else
-        GamPicShow(x,y,wid,hgt,pic);
+        GamPicShow(x,y,pwid,phgt,pic);
 }
 
 /***********************************************************************
@@ -307,7 +307,23 @@ void GamChinese(PT x,PT y,U16 Hz)
 {
     U8 zmCode[24];
 
-    GetExcHZMCode(Hz,zmCode);
+    if (GetExcHZMCode(Hz,zmCode) != 0) {
+        I32 index = -1;
+        IF_HAS_HOOK("fontImageForChar") {
+            U16 code = Hz;
+            BIND_U16(&code);
+            BIND_U32(&index);
+            CALL_HOOK_S();
+        }
+        if (index >= 0) {
+            PictureHeadType* head = (PictureHeadType*)ResLoadToCon(MAIN_SPE,2,g_CBnkPtr);
+            if (index < head->count) {
+                GamPicShowEx(x, y, index, (U8*)head);
+                return;
+            }
+        }
+        gam_memset(zmCode, 0, sizeof(zmCode));
+    }
     SysPicture(x,y,x+HZ_WID-1,y+HZ_HGT-1,zmCode, 0, AX_SCALE);
 }
 /***********************************************************************
@@ -347,7 +363,7 @@ void GamAscii(PT x,PT y,U8 asc)
  *             ------          ----------      -------------
  *             高国军          2004.6.2        基本完成
  ***********************************************************************/
-void GetExcHZMCode(U16 Hz,U8 *hzmCode)
+int GetExcHZMCode(U16 Hz,U8 *hzmCode)
 {
     /*字模页号偏移 是否跨bank */
     U8  buf[18];
@@ -357,30 +373,7 @@ void GetExcHZMCode(U16 Hz,U8 *hzmCode)
     /* 当前要显示的汉字不是2312GB中的汉字，调试模式下显示黑块，释放模式下显示白块 */
     if((U8)(Hz>>8) < 0xA1)
     {
-        I32 index = -1;
-        IF_HAS_HOOK("fontImageForChar") {
-            U16 code = Hz;
-            BIND_U16(&code);
-            BIND_U32(&index);
-            CALL_HOOK_S();
-        }
-        if (index >= 0) {
-            PictureHeadType* head = (PictureHeadType*)ResLoadToCon(MAIN_SPE,2,g_CBnkPtr);
-            if (index < head->count) {
-                U32 len = (head->wid + 7) / 8 * head->hig;
-                U8 *data = (U8*)(&head[1]);
-                gam_memcpy(hzmCode, &data[len * index], len);
-                return;
-            }
-        }
-        
-#if	GAM_VER==GAM_DEBUG_MODE
-        gam_memset(hzmCode,0xFF,24);
-        return;
-#else
-        gam_memset(hzmCode,0,24);
-        return;
-#endif
+        return -1;
     }
     else
     {
@@ -401,6 +394,7 @@ void GetExcHZMCode(U16 Hz,U8 *hzmCode)
         hzmCode[j+2]+=(buf[k+2]&0xf0)>>4;
         hzmCode[j+3]=(buf[k+2]&0x0f)<<4;
     }
+    return 0;
 }
 /***********************************************************************
  * 说明:     计算要显示的汉字字模地址偏移
