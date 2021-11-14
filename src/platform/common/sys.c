@@ -19,13 +19,21 @@ static void(*_lcd_fluch_cb)(char*buffer);
 
 #define DOT 1
 #define CLR 0
-static char static_buffer[WK_BLEN_MAX];
-static char backup_buffer[WK_BLEN_MAX];
+static char *static_buffer;
+static char *backup_buffer;
 static char isLcdDirty = 0;
-static char *buffer = static_buffer;
-static char *scr_buffer = static_buffer;
-static size_t buffer_size = sizeof(static_buffer);
+static char *buffer;
+static char *scr_buffer;
+static size_t buffer_size;
 U8 g_FlipDrawing = 0;
+
+void screen_buffer_init(void) {
+    static_buffer = gam_malloc(MAX_SCR_BUF_LEN);
+    backup_buffer = gam_malloc(MAX_SCR_BUF_LEN);
+    buffer = static_buffer;
+    scr_buffer = static_buffer;
+    buffer_size = MAX_SCR_BUF_LEN;
+}
 
 static U8 _insideScreen(PT x, PT y) {
     return x >= 0 && y >= 0 && x < g_screenWidth && y < g_screenHeight;

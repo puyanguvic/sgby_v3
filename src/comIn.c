@@ -93,24 +93,29 @@ FAR U8 GamConInit(void)
 
     {
         extern U32	GetResStartAddr(U16 id);
-        U32 version = GetResStartAddr(17);
-        printf("lib version is %d\n", version);
-        switch (version) {
-            case 0xffffffff: {
-                printf("Lib version not supported: %d\n", version);
-                abort();
-                break;
-            }
-            case 2: {
-                g_ax_scale = 2;
-                break;
-            }
-            case 3: {
-                g_ax_scale = 4;
-                break;
-            }
+        U32 magic = GetResStartAddr(17);
+        U32 version;
+
+        if (magic == 0xffffffff) {
+            version = 0;
+        } else {
+            version = ((magic & 0xff00) >> 8) + 1;
         }
+        printf("lib version=%d magic=0x%x\n", version, magic);
+
+        if (version != 1) {
+            printf("Unsupported lib version: %d\n", version);
+            abort();
+        }
+        g_ax_scale = magic & 0xf;
         printf("g_ax_scale=%d\n", g_ax_scale);
+
+        void vs_ptr_init(void);
+        void screen_buffer_init(void);
+
+        vs_ptr_init();
+        screen_buffer_init();
+
 
 #ifdef __EMSCRIPTEN__
         EM_ASM_INT ({
