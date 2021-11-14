@@ -273,6 +273,11 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
             gam_revlcd(c_Ex + 3,ty,c_Ex + 5,ty + 2);
         }
 
+        IF_HAS_HOOK("onMenuIdle") {
+            BIND_U16EX("index", &pIdx);
+            CALL_HOOK();
+        }
+
         tflag = false;
         GamGetMsg(&pMsg);
 
