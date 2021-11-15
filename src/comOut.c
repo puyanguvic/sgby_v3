@@ -28,11 +28,51 @@
 
 /*本体函数声明*/
 /*------------------------------------------*/
-U32	CountHZMAddrOff(U16 Hz);
+U32	CountHZMAddrOff(U16 Hz, U16 sz);
 void	GamResumeSet();
 void	GamAscii(PT x,PT y,U8 asc);
 void	GamChinese(PT x,PT y,U16 Hz);
-int	GetExcHZMCode(U16 Hz,U8 *hzmCode);
+int	GetExcHZMCode(U16 Hz,U8 *hzmCode, U8 isAscii);
+
+static U8 font_scale = 1;
+static U8 font_data_size = 18;
+static U8 font_data_ext_size = 24;
+
+FAR void GamSetFont(U16 font) {
+    switch (font) {
+        case 0: {
+            if (g_FontFp12 == NULL) {
+                printf("font %d not found\n", font);
+                break;
+            }
+            font_scale = 1;
+            font_data_size = 18;
+            font_data_ext_size = 24;
+            g_FontFp = g_FontFp12;
+            printf("set font to %d\n", font);
+            break;
+        }
+        case 1:
+        case 2:
+        case 3:
+        case 4: {
+            if (AX_SCALE % 2 != 0) {
+                printf("font %d not supported under scale %d\n", font, AX_SCALE);
+                break;
+            }
+            if (g_FontsFp24[font-1] == NULL) {
+                printf("font %d not found\n", font);
+                break;
+            }
+            font_scale = 2;
+            font_data_size = 72;
+            font_data_ext_size = 72;
+            g_FontFp = g_FontsFp24[font-1];
+            printf("set font to %d\n", font);
+            break;
+        }
+    }
+}
 
 /***********************************************************************
  * 说明:     游戏系统信息框(不保存背景)
@@ -305,9 +345,9 @@ U32 GamStrShow(PT x,PT y,const U8 *buf)
  ***********************************************************************/
 void GamChinese(PT x,PT y,U16 Hz)
 {
-    U8 zmCode[24];
+    U8 zmCode[256];
 
-    if (GetExcHZMCode(Hz,zmCode) != 0) {
+    if (GetExcHZMCode(Hz,zmCode, 0) != 0) {
         I32 index = -1;
         IF_HAS_HOOK("fontImageForChar") {
             U16 code = Hz;
@@ -324,7 +364,8 @@ void GamChinese(PT x,PT y,U16 Hz)
         }
         gam_memset(zmCode, 0, sizeof(zmCode));
     }
-    SysPicture(x,y,x+HZ_WID-1,y+HZ_HGT-1,zmCode, 0, AX_SCALE);
+
+    SysPicture(x,y,x+HZ_WID*font_scale-1,y+HZ_HGT*font_scale-1,zmCode, 0, AX_SCALE / font_scale);
 }
 /***********************************************************************
  * 说明:     显示12*12点阵GB2312AscII
@@ -338,17 +379,17 @@ void GamChinese(PT x,PT y,U16 Hz)
 void GamAscii(PT x,PT y,U8 asc)
 {
     U16 ascCode;
-    U8  i,zmCode[24];
+    U8  i,zmCode[256];
 
     if(asc <= ' ')
-        gam_memset(zmCode,0,24);
+        gam_memset(zmCode,0,font_data_ext_size);
     else
     {
         ascCode=GAM_FONT_ASC_QU;
         ascCode<<=8;
         ascCode+=asc-0x21+0xA1;		/* 汉字字模从'!'开始*/
 
-        GetExcHZMCode(ascCode,zmCode);
+        GetExcHZMCode(ascCode,zmCode, 1);
         for(i=0;i<12;i++)
             zmCode[i]=zmCode[i<<1];
     }
@@ -363,12 +404,19 @@ void GamAscii(PT x,PT y,U8 asc)
  *             ------          ----------      -------------
  *             高国军          2004.6.2        基本完成
  ***********************************************************************/
-int GetExcHZMCode(U16 Hz,U8 *hzmCode)
+int GetExcHZMCode(U16 Hz,U8 *hzmCode, U8 isAscii)
 {
     /*字模页号偏移 是否跨bank */
-    U8  buf[18];
+    U8  _buf[256];
     U8  i,j,k;
     U32 hzmAddr;
+    U8  *buf;
+
+    if (isAscii || font_data_size == 18) {
+        buf = _buf;
+    } else {
+        buf = hzmCode;
+    }
 
     /* 当前要显示的汉字不是2312GB中的汉字，调试模式下显示黑块，释放模式下显示白块 */
     if((U8)(Hz>>8) < 0xA1)
@@ -377,23 +425,30 @@ int GetExcHZMCode(U16 Hz,U8 *hzmCode)
     }
     else
     {
-        hzmAddr=CountHZMAddrOff(Hz);
-        memset(buf, 18, 2);
-        gam_fseek(g_FontFp,hzmAddr,SEEK_SET);
-        gam_fread(buf,1,18,g_FontFp);
+        hzmAddr=CountHZMAddrOff(Hz, isAscii ? 18 : font_data_size);
+        if (isAscii) {
+            gam_fseek(g_FontFp12,hzmAddr,SEEK_SET);
+            gam_fread(buf,1,font_data_size,g_FontFp12);
+        } else {
+            gam_fseek(g_FontFp,hzmAddr,SEEK_SET);
+            gam_fread(buf,1,font_data_size,g_FontFp);
+        }
     }
 
-    /*转换数据*/
-    for(i=0;i<6;i++)
-    {
-        j = i * 4;
-        k = i * 3;
-        hzmCode[j]=buf[k];
-        hzmCode[j+1]=buf[k+1]&0xf0;
-        hzmCode[j+2]=(buf[k+1]&0x0f)<<4;
-        hzmCode[j+2]+=(buf[k+2]&0xf0)>>4;
-        hzmCode[j+3]=(buf[k+2]&0x0f)<<4;
+    if (isAscii || font_data_size == 18) {
+        /*转换数据*/
+        for(i=0;i<6;i++)
+        {
+            j = i * 4;
+            k = i * 3;
+            hzmCode[j]=buf[k];
+            hzmCode[j+1]=buf[k+1]&0xf0;
+            hzmCode[j+2]=(buf[k+1]&0x0f)<<4;
+            hzmCode[j+2]+=(buf[k+2]&0xf0)>>4;
+            hzmCode[j+3]=(buf[k+2]&0x0f)<<4;
+        }
     }
+
     return 0;
 }
 /***********************************************************************
@@ -405,13 +460,13 @@ int GetExcHZMCode(U16 Hz,U8 *hzmCode)
  *             ------          ----------      -------------
  *             高国军          2004.6.2        基本完成
  ***********************************************************************/
-U32 CountHZMAddrOff(U16 Hz)
+U32 CountHZMAddrOff(U16 Hz, U16 sz)
 {
-    /*计算公式:(94*(HCode-0xA1)+(LCode-0xA1))*18 */
+    /*计算公式:(94*(HCode-0xA1)+(LCode-0xA1))*font_data_size */
     U32 hCode, lCode;
     hCode = Hz >> 8;
     lCode = Hz & 0xff;
-    return (94*(hCode - 0xA1) + (lCode-0xA1)) * 18;
+    return (94*(hCode - 0xA1) + (lCode-0xA1)) * sz;
 }
 
 /******************************************************************************

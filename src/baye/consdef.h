@@ -12,8 +12,6 @@
 #define	GAM_DEBUG_MODE		0		/* 游戏调试模式 */
 #define	GAM_RELESE_MODE		1		/* 游戏释放模式 */
 #define	GAM_VER			GAM_RELESE_MODE
-#define	GAM_LIB_FNAME		"dat.lib"
-#define	GAM_FONT_FNAME		"font.bin"
 
 /*------------------------
   引擎性能相关定义

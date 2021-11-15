@@ -30,8 +30,9 @@ void GamLoadEngineConfig(void);
 /* 当前所在文件 */
 #define		IN_FILE		20
 
-static const U8* fontFilePath = (U8*)GAM_FONT_FNAME;
-static const U8* datFilePath = (U8*)GAM_LIB_FNAME;
+static const U8* fontFilePath = NULL;
+static const U8* font24FilePath = NULL;
+static const U8* datFilePath = NULL;
 static const U8* altDatFilePath = NULL;
 static U8 initialized = 0;
 
@@ -48,6 +49,7 @@ static GMType	lastMsg = {0};
  ***********************************************************************/
 FAR U8 GamConInit(void)
 {
+    U8 i;
     if (initialized) {
         return 0;
     }
@@ -66,11 +68,20 @@ FAR U8 GamConInit(void)
     DataBankSwitch(4,1,EXTMEM_BNKNUM);			/*将当前的第4个页面切换成内存-增加可用的内存空间*/
 
     /*文件指针初始化*/
-    g_FontFp = gam_fopen(fontFilePath,'r');			/*打开字库文件*/
-    if(NULL == g_FontFp) {
+    g_FontFp12 = gam_fopen(fontFilePath,'r');			/*打开字库文件*/
+    if(NULL == g_FontFp12) {
         printf("Open %s failed\n", fontFilePath);
         return 1;
     }
+    for (i = 1; i <= 4; i++) {
+        char buf[64];
+        sprintf(buf, "%s.%d", (char*)font24FilePath, i);
+        g_FontsFp24[i-1] = gam_fopen((U8*)buf, 'r');			/*打开字库文件*/
+        if(NULL == g_FontsFp24[i-1]) {
+            printf("Open %s failed\n", font24FilePath);
+        }
+    }
+    g_FontFp = g_FontFp12;
 
     if (altDatFilePath) {
         g_LibFp = gam_fopen(altDatFilePath,'r');			/*打开自定义资源库文件*/
@@ -127,7 +138,6 @@ FAR U8 GamConInit(void)
     }
 
     /*随机函数初始化*/
-    U8 i;
     i = SysGetSecond();
     gam_srand(i);						/*初始化随机数产生队列*/
 
@@ -235,10 +245,11 @@ FAR U8 GamDelay(U16 dly, BOOL keyflag)
     return (U8)pMsg.param;
 }
 
-FAR void GamSetResourcePath(const U8* datPath, const U8*fontPath)
+FAR void GamSetResourcePath(const U8* datPath, const U8*fontPath, const U8*font24Path)
 {
     datFilePath = (U8*)gam_strdup((char*)datPath);
     fontFilePath = (U8*)gam_strdup((char*)fontPath);
+    font24FilePath = font24Path ? (U8*)gam_strdup((char*)font24Path): NULL;
 }
 
 FAR void GamSetAltLibPath(const U8* datPath)

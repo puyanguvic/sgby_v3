@@ -20,7 +20,7 @@ FAR U8 GamConInit(void);
 FAR void GamBaYeEng(void);
 
 static void baye_init_for_win(void) {
-    GamSetResourcePath((U8*)"dat.lib", (U8*)"font.bin");
+    GamSetResourcePath((U8*)"dat.lib", (U8*)"font.bin", NULL);
     // GamSetAltLibPath((U8*)"dat.lib");
     GamSetDataDir((U8*)".");
     if (GamConInit()) {

@@ -26,6 +26,8 @@ extern U8	*g_CBnkPtr;		/*常量页起始地址指针*/
 extern RandEnvType	g_RandEnv;	/*随机变量*/
 extern gam_FILE	*g_LibFp;		/*资源库文件指针*/
 extern gam_FILE	*g_FontFp;		/*字库文件指针*/
+extern gam_FILE	*g_FontFp12;		/*字库文件指针*/
+extern gam_FILE	*g_FontsFp24[4];		/*字库文件指针*/
 
 /* in comOut.c */
 extern U8	c_ReFlag;		/* 恢复标志 */

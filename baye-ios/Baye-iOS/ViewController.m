@@ -71,7 +71,7 @@ static void _lcd_flush_cb(char*buffer)
     	NSArray *documentPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
     	NSString *documentsDir = [documentPaths objectAtIndex:0];
         
-        GamSetResourcePath((U8*)[datPath UTF8String], (U8*)[fontPath UTF8String]);
+        GamSetResourcePath((U8*)[datPath UTF8String], (U8*)[fontPath UTF8String], NULL);
         GamSetDataDir((U8*)[documentsDir UTF8String]);
         GamSetLcdFlushCallback(_lcd_flush_cb);
         GamBaYeEng();
