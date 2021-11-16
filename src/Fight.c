@@ -231,7 +231,12 @@ void FgtGetPCmd(FGTCMD *pcmd)
         FgtShowFrame();
         FgtGetMPos(idx,&pRect);
         FgtLoadToMem(dFgtMnuCmd,buf);
-        type = (U8)PlcSplMenu(&pRect,type,buf);
+        IF_HAS_HOOK("fightOpenTargetMenu") {
+            BIND_U32EX("index", &idx);
+            type = (U8)CALL_HOOK_A();
+        } else {
+            type = (U8)PlcSplMenu(&pRect,type,buf);
+        }
         pcmd->type = type;
         param = 0;
         /* 获取命令的目标 */
@@ -248,7 +253,12 @@ void FgtGetPCmd(FGTCMD *pcmd)
                     param = 0xFFFF;
                     break;
                 }
-                param = FgtGetJNIdx(idx,&pRect);
+                IF_HAS_HOOK("fightChooseSkill") {
+                    BIND_U32EX("index", &idx);
+                    param = CALL_HOOK_A();
+                } else {
+                    param = FgtGetJNIdx(idx,&pRect);
+                }
                 break;
             case CMD_REST:
             case MNU_EXIT:

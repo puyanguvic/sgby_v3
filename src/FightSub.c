@@ -816,7 +816,11 @@ FAR U8 FgtMainMenu(void)
     {
         FgtLoadToMem2(dFgtSysMnu,mbuf);
     tagMenu:
-        idx = (U8)PlcSplMenu(&pRect,idx,mbuf);
+        IF_HAS_HOOK("fightOpenMainMenu") {
+            idx = (U8)CALL_HOOK_A();
+        } else {
+            idx = (U8)PlcSplMenu(&pRect,idx,mbuf);
+        }
         switch(idx)
         {
             case 1:
