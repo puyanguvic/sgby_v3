@@ -30,8 +30,7 @@ void GamLoadEngineConfig(void);
 /* 当前所在文件 */
 #define		IN_FILE		20
 
-static const U8* fontFilePath = NULL;
-static const U8* font24FilePath = NULL;
+static const U8* g_fontDir = NULL;
 static const U8* datFilePath = NULL;
 static const U8* altDatFilePath = NULL;
 static U8 initialized = 0;
@@ -67,21 +66,32 @@ FAR U8 GamConInit(void)
     SysTimer1Open(TIMER_INT);				/*设置定时器事件触发*/
     DataBankSwitch(4,1,EXTMEM_BNKNUM);			/*将当前的第4个页面切换成内存-增加可用的内存空间*/
 
-    /*文件指针初始化*/
-    g_FontFp12 = gam_fopen(fontFilePath,'r');			/*打开字库文件*/
-    if(NULL == g_FontFp12) {
-        printf("Open %s failed\n", fontFilePath);
-        return 1;
-    }
-    for (i = 1; i <= 4; i++) {
-        char buf[64];
-        sprintf(buf, "%s.%d", (char*)font24FilePath, i);
-        g_FontsFp24[i-1] = gam_fopen((U8*)buf, 'r');			/*打开字库文件*/
-        if(NULL == g_FontsFp24[i-1]) {
-            printf("Open %s failed\n", font24FilePath);
+    {
+        U8 path[64];
+        sprintf((char*)path, "%s/font.bin", (char*)g_fontDir);
+        /*文件指针初始化*/
+        g_FontFp12 = gam_fopen(path,'r');
+        if(NULL == g_FontFp12) {
+            printf("Open %s failed\n", path);
+            return 1;
+        }
+        for (i = 1; i <= 4; i++) {
+            sprintf((char*)path, "%s/font24.cn.%d", (char*)g_fontDir, i);
+            g_FontsFp24[i-1] = gam_fopen((U8*)path, 'r');
+            if(NULL == g_FontsFp24[i-1]) {
+                printf("Open %s failed\n", path);
+            }
+        }
+        for (i = 1; i <= 2; i++) {
+            sprintf((char*)path, "%s/font24.en.%d", (char*)g_fontDir, i);
+            g_FontsFp24En[i-1] = gam_fopen((U8*)path, 'r');
+            if(NULL == g_FontsFp24En[i-1]) {
+                printf("Open %s failed\n", path);
+            }
         }
     }
-    g_FontFp = g_FontFp12;
+    GamSetFont(0);
+    GamSetFontEn(0);
 
     if (altDatFilePath) {
         g_LibFp = gam_fopen(altDatFilePath,'r');			/*打开自定义资源库文件*/
@@ -170,7 +180,6 @@ FAR void GamConRst(void)
 {
     SysTimer1Close();
     gam_fclose(g_LibFp);
-    //	gam_fclose(g_FontFp);
     SysSetKeySound(g_GamKeySound);		/* 恢复按键声音设定 */
     GuiSetKbdState(g_GamKBState);		/* 恢复键盘状态 */
 }
@@ -245,11 +254,10 @@ FAR U8 GamDelay(U16 dly, BOOL keyflag)
     return (U8)pMsg.param;
 }
 
-FAR void GamSetResourcePath(const U8* datPath, const U8*fontPath, const U8*font24Path)
+FAR void GamSetResourcePath(const U8* datPath, const U8*fontDir)
 {
-    datFilePath = (U8*)gam_strdup((char*)datPath);
-    fontFilePath = (U8*)gam_strdup((char*)fontPath);
-    font24FilePath = font24Path ? (U8*)gam_strdup((char*)font24Path): NULL;
+    datFilePath = (U8*)gam_strdup(datPath);
+    g_fontDir = (U8*)gam_strdup(fontDir ? (const char*)fontDir : (const char*)"/font");
 }
 
 FAR void GamSetAltLibPath(const U8* datPath)

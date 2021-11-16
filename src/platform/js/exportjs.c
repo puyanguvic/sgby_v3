@@ -435,3 +435,8 @@ EMSCRIPTEN_KEEPALIVE
 void bayeSetFont(U16 font) {
     GamSetFont(font);
 }
+
+EMSCRIPTEN_KEEPALIVE
+void bayeSetFontEn(U16 font) {
+    GamSetFontEn(font);
+}

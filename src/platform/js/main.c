@@ -26,7 +26,7 @@ static void _lcd_flush_cb(char*buffer) {
 }
 
 void baye_init_for_js(void) {
-    GamSetResourcePath((U8*)"/rom/dat.lib", (U8*)"/rom/font.bin", (U8*)"/rom/font24.bin");
+    GamSetResourcePath((U8*)"/rom/dat.lib", (U8*)"/rom/fonts");
     GamSetAltLibPath((U8*)"/data/dat.lib");
     GamSetDataDir((U8*)"/data/");
     GamSetLcdFlushCallback(_lcd_flush_cb);

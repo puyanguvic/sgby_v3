@@ -52,7 +52,7 @@ FAR void GamBaYeEng(void);
             = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"font.bin"];
 
         if (debug) {
-            GamSetResourcePath((U8*)"/Users/loong/l/lab/baye/BayeCompiler/baye/libs/dat-mod.lib", (U8*)[fontPath UTF8String], NULL);
+            GamSetResourcePath((U8*)"/Users/loong/l/lab/baye/BayeCompiler/baye/libs/dat-mod.lib", (U8*)[fontPath UTF8String]);
             GamSetDataDir((U8*)"/Users/loong/l/lab/baye/sav");
         } else {
             NSString *datPath
@@ -60,7 +60,7 @@ FAR void GamBaYeEng(void);
 
             NSArray *documentPaths = NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES);
             NSString *documentsDir = [documentPaths objectAtIndex:0];
-            GamSetResourcePath((U8*)[datPath UTF8String], (U8*)[fontPath UTF8String], NULL);
+            GamSetResourcePath((U8*)[datPath UTF8String], (U8*)[fontPath UTF8String]);
             GamSetDataDir((U8*)[documentsDir UTF8String]);
         }
 

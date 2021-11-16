@@ -112,10 +112,11 @@ FAR	void	GamAsciiS(PT x,PT y,U8 asc);					/* 显示6x12ASCII字符到屏幕 */
 FAR	U32     GamStrShowV(PT x,PT y,U8 *str,U8 *vscr);			/* 显示12汉字到虚拟屏幕 */
 FAR void    GamClearScreenV(PT l, PT t, PT r, PT b, U8*scr);
 
-FAR void GamSetResourcePath(const U8* datPath, const U8*fontPath, const U8*font24Path);
+FAR void GamSetResourcePath(const U8* datPath, const U8*fontDir);
 FAR void GamSetAltLibPath(const U8* datPath);
 FAR void GamSetDataDir(const U8*dataDir);
 FAR void GamSetFont(U16 font);
+FAR void GamSetFontEn(U16 font);
 
 #ifndef min
 #define min(a, b) (a > b) ? b : a

@@ -27,9 +27,9 @@ U16	g_GamKBState;		/* 键盘状态 */
 U8	*g_CBnkPtr;		/* 常量页起始地址指针 */
 RandEnvType	g_RandEnv;	/* 随机变量 */
 gam_FILE	*g_LibFp;	/* 资源库文件指针 */
-gam_FILE	*g_FontFp;	/* 字库文件指针 */
 gam_FILE	*g_FontFp12;	/* 字库文件指针 */
 gam_FILE	*g_FontsFp24[4];	/* 字库文件指针 */
+gam_FILE	*g_FontsFp24En[2];	/* 字库文件指针 */
 
 /*变量定义*/
 /*------------------------------------------*/

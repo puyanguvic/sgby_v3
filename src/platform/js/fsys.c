@@ -119,20 +119,26 @@ FAR U8 *gam_freadall(gam_FILE *fhandle)
 
 ///*******************************************
 
-static U8 font[] =
+static const U8 font[] =
 #include "font.bin.c"
 ;
-static U8 font24_1[] =
+static const U8 font24_1[] =
 #include "font24.1.bin.c"
 ;
-static U8 font24_2[] =
+static const U8 font24_2[] =
 #include "font24.2.bin.c"
 ;
-static U8 font24_3[] =
+static const U8 font24_3[] =
 #include "font24.3.bin.c"
 ;
-static U8 font24_4[] =
+static const U8 font24_4[] =
 #include "font24.4.bin.c"
+;
+static const U8 font24_ascii_1[] =
+#include "font24_ascii.1.c"
+;
+static const U8 font24_ascii_2[] =
+#include "font24_ascii.2.c"
 ;
 //static U8 dat[] =
 //#include "dat.lib.c"
@@ -221,30 +227,40 @@ static gam_FILE *rom_fopen(const U8 *fname,U8 pmode) {
         return NULL;
     }
 
-    if (0 == gam_strcmp(fname, "/rom/font.bin")) {
+    if (0 == gam_strcmp(fname, "/rom/fonts/font.bin")) {
         rom_FILE* fp = rom_fnew();
-        fp->data = font;
+        fp->data = (U8*)font;
         fp->length = sizeof(font);
         return (gam_FILE*)fp;
-    } else if (0 == gam_strcmp(fname, "/rom/font24.bin.1")) {
+    } else if (0 == gam_strcmp(fname, "/rom/fonts/font24.cn.1")) {
         rom_FILE* fp = rom_fnew();
-        fp->data = font24_1;
+        fp->data = (U8*)font24_1;
         fp->length = sizeof(font24_1);
         return (gam_FILE*)fp;
-    } else if (0 == gam_strcmp(fname, "/rom/font24.bin.2")) {
+    } else if (0 == gam_strcmp(fname, "/rom/fonts/font24.cn.2")) {
         rom_FILE* fp = rom_fnew();
-        fp->data = font24_2;
+        fp->data = (U8*)font24_2;
         fp->length = sizeof(font24_2);
         return (gam_FILE*)fp;
-    } else if (0 == gam_strcmp(fname, "/rom/font24.bin.3")) {
+    } else if (0 == gam_strcmp(fname, "/rom/fonts/font24.cn.3")) {
         rom_FILE* fp = rom_fnew();
-        fp->data = font24_3;
+        fp->data = (U8*)font24_3;
         fp->length = sizeof(font24_3);
         return (gam_FILE*)fp;
-    } else if (0 == gam_strcmp(fname, "/rom/font24.bin.4")) {
+    } else if (0 == gam_strcmp(fname, "/rom/fonts/font24.cn.4")) {
         rom_FILE* fp = rom_fnew();
-        fp->data = font24_4;
+        fp->data = (U8*)font24_4;
         fp->length = sizeof(font24_4);
+        return (gam_FILE*)fp;
+    } else if (0 == gam_strcmp(fname, "/rom/fonts/font24.en.1")) {
+        rom_FILE* fp = rom_fnew();
+        fp->data = (U8*)font24_ascii_1;
+        fp->length = sizeof(font24_ascii_1);
+        return (gam_FILE*)fp;
+    } else if (0 == gam_strcmp(fname, "/rom/fonts/font24.en.2")) {
+        rom_FILE* fp = rom_fnew();
+        fp->data = (U8*)font24_ascii_2;
+        fp->length = sizeof(font24_ascii_2);
         return (gam_FILE*)fp;
     } else if (0 == gam_strcmp(fname, "/rom/dat.lib")) {
 //        rom_FILE* fp = rom_fnew();
