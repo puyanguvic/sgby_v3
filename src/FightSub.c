@@ -824,7 +824,7 @@ FAR U8 FgtMainMenu(void)
         switch(idx)
         {
             case 1:
-                if (((U8)PlcSplMenu(&pRectSubMenu, 0, (U8*)backStr)) == MNU_EXIT) {
+                if (g_engineConfig.confirmOnEscape && ((U8)PlcSplMenu(&pRectSubMenu, 0, (U8*)backStr)) == MNU_EXIT) {
                     GamShowFrame(g_VisScr);
                     goto tagMenu;
                 }

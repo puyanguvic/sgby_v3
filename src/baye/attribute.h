@@ -214,6 +214,7 @@ typedef struct {
     
     U8 disableExpGrowing;
     U8 hideRightBorder;
+    U8 confirmOnEscape;
 } EngineConfig;
 
 extern EngineConfig g_engineConfig;

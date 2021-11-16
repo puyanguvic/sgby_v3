@@ -905,6 +905,7 @@ EngineConfig g_engineConfig = {
     .citiesCount = 38,
     .cityMapWidth = 12,
     .cityMapHeight = 9,
+    .confirmOnEscape = 1,
 };
 
 U8 g_engineDebug = 0;
