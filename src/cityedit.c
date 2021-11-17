@@ -1023,8 +1023,11 @@ FAR U8 GetCitySet(CitySetType *pos)
                         sprintf((char*)ver, "Ver %s", g_engineVersion);
                         gam_clrlcd(WK_SX,WK_SY,WK_EX,WK_EY);
                         GamStrShowS(WK_SX, WK_SY, ver);
+                        tpicflag = 1;
+                    } else {
+                        showflag = 1;
+                        tpicflag = 0;
                     }
-                    tpicflag = 1;
                     break;
             }
         } else if (VM_TOUCH == Msg.type) {
