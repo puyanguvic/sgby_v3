@@ -231,7 +231,7 @@ void FgtGetPCmd(FGTCMD *pcmd)
         FgtShowFrame();
         FgtGetMPos(idx,&pRect);
         FgtLoadToMem(dFgtMnuCmd,buf);
-        IF_HAS_HOOK("fightOpenTargetMenu") {
+        IF_HAS_HOOK("fightChooseAction") {
             BIND_U32EX("index", &idx);
             type = (U8)CALL_HOOK_A();
         } else {
