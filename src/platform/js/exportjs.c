@@ -432,11 +432,11 @@ void bayeLoadPeriod(U8 period) {
 }
 
 EMSCRIPTEN_KEEPALIVE
-void bayeSetFont(U16 font) {
-    GamSetFont(font);
+U8 bayeSetFont(U16 font) {
+    return GamSetFont(font);
 }
 
 EMSCRIPTEN_KEEPALIVE
-void bayeSetFontEn(U16 font) {
-    GamSetFontEn(font);
+U8 bayeSetFontEn(U16 font) {
+    return GamSetFontEn(font);
 }

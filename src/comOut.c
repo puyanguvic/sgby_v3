@@ -50,13 +50,13 @@ int GetExcHZMCode(U16 Hz,U8 *hzmCode, font_t* font);
 static font_t font_en = {0};
 static font_t font_cn = {0};
 
-FAR void GamSetFont(U16 font) {
+FAR U8 GamSetFont(U16 font) {
     font_t* pfont = &font_cn;
     switch (font) {
         case 0: {
             if (g_FontFp12 == NULL) {
                 printf("font %d not found\n", font);
-                break;
+                return 2;
             }
             pfont->scale = 1;
             pfont->data_size = 18;
@@ -66,7 +66,7 @@ FAR void GamSetFont(U16 font) {
             pfont->width = 12;
             pfont->height = 12;
             printf("set cn font to %d\n", font);
-            break;
+            return 0;
         }
         case 1:
         case 2:
@@ -74,11 +74,11 @@ FAR void GamSetFont(U16 font) {
         case 4: {
             if (AX_SCALE % 2 != 0) {
                 printf("font %d not supported under scale %d\n", font, AX_SCALE);
-                break;
+                return 1;
             }
             if (g_FontsFp24[font-1] == NULL) {
                 printf("font %d not found\n", font);
-                break;
+                return 2;
             }
             pfont->scale = 2;
             pfont->data_size = 72;
@@ -88,18 +88,19 @@ FAR void GamSetFont(U16 font) {
             pfont->width = 24;
             pfont->height = 24;
             printf("set cn font to %d\n", font);
-            break;
+            return 0;
         }
     }
+    return 3;
 }
 
-FAR void GamSetFontEn(U16 font) {
+FAR U8 GamSetFontEn(U16 font) {
     font_t* pfont = &font_en;
     switch (font) {
         case 0: {
             if (g_FontFp12 == NULL) {
                 printf("font %d not found\n", font);
-                break;
+                return 2;
             }
             pfont->scale = 1;
             pfont->data_size = 18;
@@ -115,11 +116,11 @@ FAR void GamSetFontEn(U16 font) {
         case 2: {
             if (AX_SCALE % 2 != 0) {
                 printf("font %d not supported under scale %d\n", font, AX_SCALE);
-                break;
+                return 1;
             }
             if (g_FontsFp24En[font-1] == NULL) {
                 printf("font %d not found\n", font);
-                break;
+                return 2;
             }
             pfont->scale = 2;
             pfont->data_size = 48;
@@ -129,10 +130,10 @@ FAR void GamSetFontEn(U16 font) {
             pfont->width = 12;
             pfont->height = 24;
             printf("set en font to %d\n", font);
-            break;
+            return 0;
         }
     }
-
+    return 3;
 }
 
 /***********************************************************************

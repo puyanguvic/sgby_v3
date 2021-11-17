@@ -115,8 +115,8 @@ FAR void    GamClearScreenV(PT l, PT t, PT r, PT b, U8*scr);
 FAR void GamSetResourcePath(const U8* datPath, const U8*fontDir);
 FAR void GamSetAltLibPath(const U8* datPath);
 FAR void GamSetDataDir(const U8*dataDir);
-FAR void GamSetFont(U16 font);
-FAR void GamSetFontEn(U16 font);
+FAR U8 GamSetFont(U16 font);
+FAR U8 GamSetFontEn(U16 font);
 
 #ifndef min
 #define min(a, b) (a > b) ? b : a
