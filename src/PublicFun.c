@@ -264,7 +264,7 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
             {	/* 驱动滚动条 */
                 gam_rectc(c_Ex + 3,ty,c_Ex + 5,ty + 2);
                 gam_putpixel(c_Ex + 4,ty + 1,COLOR_WHITE);
-                tcot = pIdx;
+                tcot = limitValueInRange(pIdx, pSIdx, pSIdx+pICnt);
                 tcot /= pItm - 1;
                 ty = tcot * (c_Ey - c_Sy - 3) + c_Sy;
                 gam_rect(c_Ex + 3,ty,c_Ex + 5,ty + 2);
@@ -288,19 +288,17 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
                 case VT_TOUCH_DOWN:
                 {
                     touchStartIndex = pSIdx;
-                    I16 index = touchListViewItemIndexAtPoint(touch.currentX, touch.currentY, menuRect, 3, 3, pSIdx, pItm, itemHeight);
-                    if (index >= 0 && index != pIdx) {
-                        pIdx = index;
-                        tflag = 1;
-                        cflag = 1;
-                        break;
-                    }
                     break;
                 }
                 case VT_TOUCH_UP:
                 {
                     if (touch.completed && !touch.moved) {
                         I16 index = touchListViewItemIndexAtPoint(touch.currentX, touch.currentY, menuRect, 3, 3, pSIdx, pItm, itemHeight);
+                        if (index >= 0 && index != pIdx) {
+                            pIdx = index;
+                            tflag = 1;
+                            cflag = 1;
+                        }
                         if (index < 0)
                         {
                             pIdx = 0xFFFF;
@@ -326,7 +324,8 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
                     if (startIndex != pSIdx) {
                         pSIdx = startIndex;
                         poff = pSIdx*pLen;
-                        tflag = true;
+                        tflag = 1;
+                        cflag = 1;
                     }
                     break;
                 }
@@ -342,6 +341,7 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
         switch(pMsg.param)
         {
             case VK_UP:
+                pIdx = limitValueInRange(pIdx, pSIdx, pSIdx + pICnt + 1);
                 if(!pIdx)
                 {
                     pIdx = pItm - 1;
@@ -364,6 +364,7 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
                 }
                 break;
             case VK_DOWN:
+                pIdx = limitValueInRange(pIdx, pSIdx ? pSIdx-1 : 0, pSIdx + pICnt-1);
                 if(pIdx == pItm - 1)
                 {
                     pIdx = 0;
