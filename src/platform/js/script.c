@@ -166,6 +166,18 @@ int call_hook_a(const char* name, Value* context)
                 js_callback(&rv);
                 break;
             }
+            case 13: // sysMessage
+            {
+                GMType msg;
+                GamGetMsg(&msg);
+                g_asyncActionParams[0] = msg.type;
+                g_asyncActionParams[1] = msg.param;
+                g_asyncActionParams[2] = msg.param2.i32;
+                g_asyncActionParams[3] = msg.param2.i16.p0;
+                g_asyncActionParams[4] = msg.param2.i16.p1;
+                js_callback(&rv);
+                break;
+            }
             default:
                 break;
         }
