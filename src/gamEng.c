@@ -214,7 +214,11 @@ bool GamMainChose(void)
                     LoadPeriod(idx + 1);
                 }
                 idx = GetAllKings(kings); 	/* 设置历史时期，并获取君主队列 */
-                king = GamGetKing(kings, idx);
+                IF_HAS_HOOK("chooseActor") {
+                    king = CALL_HOOK_A();
+                } else {
+                    king = GamGetKing(kings, idx);
+                }
                 if(king == 0xffff)
                     break;
                 g_PlayerKing = king;				/* 设置玩家扮演的君主ID */
