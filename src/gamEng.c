@@ -906,6 +906,7 @@ EngineConfig g_engineConfig = {
     .cityMapWidth = 12,
     .cityMapHeight = 9,
     .confirmOnEscape = 1,
+    .promptCityDisaster = 1, // 提示城池灾害
 };
 
 U8 g_engineDebug = 0;

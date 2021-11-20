@@ -876,7 +876,7 @@ FAR void ReportCalamity(U8 city)
     U32 p;
     
     p = g_Cities[city].SatrapId;
-    if (p)
+    if (p && g_engineConfig.promptCityDisaster)
     {
         GetCityName(city,rstr);
         ResLoadToMem(STRING_CONST,STR_RP1,astr);
