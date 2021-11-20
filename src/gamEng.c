@@ -83,8 +83,9 @@ FAR void GamBaYeEng(void)
         GamConRst();
         return;
     }
-    /* 显示游戏开始动画 */
-    GamMovie(MAIN_SPE);
+    if (g_engineConfig.showStartMovie)
+        /* 显示游戏开始动画 */
+        GamMovie(MAIN_SPE);
     
     do
     {
@@ -907,6 +908,7 @@ EngineConfig g_engineConfig = {
     .cityMapHeight = 9,
     .confirmOnEscape = 1,
     .promptCityDisaster = 1, // 提示城池灾害
+    .showStartMovie = 1, // 显示开场动画
 };
 
 U8 g_engineDebug = 0;
