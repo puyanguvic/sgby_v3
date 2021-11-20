@@ -190,7 +190,13 @@ bool GamMainChose(void)
     while(1)
     {
         GamClearLastMsg();
-        U8 choice = GamPicMenu(MAIN_PIC,MAIN_ICON1, mainMenuButtonRects, 4, false);
+        U8 choice;
+        IF_HAS_HOOK("chooseGameEntry") {
+            choice = CALL_HOOK_A();
+        }
+        else {
+            choice = GamPicMenu(MAIN_PIC,MAIN_ICON1, mainMenuButtonRects, 4, false);
+        }
         switch(choice)
         {
             case 0:		/* 新君登基 */
