@@ -399,6 +399,8 @@ void bind_init(void) {
             _FIELD_RW(hideRightBorder, U8),
             _FIELD_RW(confirmOnEscape, U8),
             _FIELD_RW(promptCityDisaster, U8),
+            _FIELD_RW(disableAllPersonReport, U8),
+            _FIELD_RW(showStartMovie, U8),
         };
 
         static ObjectDef _obj_def = {

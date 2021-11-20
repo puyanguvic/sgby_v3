@@ -642,6 +642,10 @@ FAR void ShowGReport(PersonID person, U8 *str)
 {
     RECT	big,small;
 
+    if (g_engineConfig.disableAllPersonReport) {
+        return;
+    }
+
     gam_clrlcd(WK_SX + 4,WK_EY - 4 - 44 - 4,WK_EX - 5,WK_EY - 4);
     gam_rect(WK_SX + 4,WK_EY - 4 - 44 - 4,WK_EX - 5,WK_EY - 5);
     big.sx = WK_SX + 8;
