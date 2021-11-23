@@ -764,6 +764,12 @@ bool GamLoadRcd(U8 idx)
         return false;
     }
 
+#define read_all(buf, size, count, fp) if (gam_fread((U8 *)buf, size, count, fp) != count) { \
+    ResLoadToMem(IFACE_STRID,dErrInf1,tbuf); \
+    GamMsgBox(tbuf,2); \
+    return false; \
+}
+
 
     U8 version = 0;
 
@@ -771,20 +777,20 @@ bool GamLoadRcd(U8 idx)
     U16 orderQueueLen = ORDER_MAX;
     U16 personQueueLen = PERSON_COUNT;
 
-    gam_fread((U8 *)&version,1,1,fp);
-    gam_fread((U8 *)&g_PIdx,1,1,fp);
-    gam_fread((U8 *)&personQueueLen,1,2,fp);
+    read_all((U8 *)&version,1,1,fp);
+    read_all((U8 *)&g_PIdx,1,1,fp);
+    read_all((U8 *)&personQueueLen,1,2,fp);
     GamSetPersonCount(personQueueLen);
-    gam_fread((U8 *)&g_PlayerKing,1,2,fp);
-    gam_fread((U8 *)&g_YearDate,2,1,fp);
-    gam_fread((U8 *)&g_LookEnemy,1,1,fp);
-    gam_fread((U8 *)&g_LookMovie,1,1,fp);
-    gam_fread((U8 *)&g_MoveSpeed,1,1,fp);
-    gam_fread((U8 *)&g_MonthDate,1,1,fp);
-    gam_fread((U8 *)&g_CityPos,sizeof(CitySetType),1,fp);
-    gam_fread((U8 *)g_Persons,sizeof(PersonType),personQueueLen,fp);
-    gam_fread((U8 *)g_PersonsQueue,sizeof(PersonID),personQueueLen,fp);
-    gam_fread((U8 *)g_GoodsQueue,1,goodsQueueLen,fp);
+    read_all((U8 *)&g_PlayerKing,1,2,fp);
+    read_all((U8 *)&g_YearDate,2,1,fp);
+    read_all((U8 *)&g_LookEnemy,1,1,fp);
+    read_all((U8 *)&g_LookMovie,1,1,fp);
+    read_all((U8 *)&g_MoveSpeed,1,1,fp);
+    read_all((U8 *)&g_MonthDate,1,1,fp);
+    read_all((U8 *)&g_CityPos,sizeof(CitySetType),1,fp);
+    read_all((U8 *)g_Persons,sizeof(PersonType),personQueueLen,fp);
+    read_all((U8 *)g_PersonsQueue,sizeof(PersonID),personQueueLen,fp);
+    read_all((U8 *)g_GoodsQueue,1,goodsQueueLen,fp);
 
     if (customData) gam_free(customData);
     customData = gam_freadall(fp);
@@ -800,13 +806,13 @@ bool GamLoadRcd(U8 idx)
         return false;
     }
     
-    gam_fread((U8 *)FIGHTERS_IDX,1,FIGHT_ORDER_MAX,fp);
-    gam_fread((U8 *)FIGHTERS,10,FIGHT_ORDER_MAX,fp);
-    gam_fread((U8 *)ORDERQUEUE,sizeof(OrderType), orderQueueLen, fp);
-    gam_fread((U8 *)g_Cities,sizeof(CityType),CITY_MAX,fp);
+    read_all((U8 *)FIGHTERS_IDX,1,FIGHT_ORDER_MAX,fp);
+    read_all((U8 *)FIGHTERS,10,FIGHT_ORDER_MAX,fp);
+    read_all((U8 *)ORDERQUEUE,sizeof(OrderType), orderQueueLen, fp);
+    read_all((U8 *)g_Cities,sizeof(CityType),CITY_MAX,fp);
 
     int seed = 0;
-    gam_fread((U8 *)&seed,sizeof(seed), 1, fp);
+    read_all((U8 *)&seed,sizeof(seed), 1, fp);
     if (g_engineConfig.disableSL) {
         gam_srand(seed);
     }
