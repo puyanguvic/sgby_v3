@@ -22,6 +22,7 @@
 #include "touch.h"
 #include "baye/bind-objects.h"
 #include "baye/script.h"
+#include "miniz.h"
 
 #define		IN_FILE	1	/* 当前文件位置 */
 
@@ -56,6 +57,50 @@ static U8* customData = NULL;
 
 #define	DBG_MEM_AFTER	0
 #define	DBG_MEM_BEFURE	1
+
+int compress_data(U8**pOut, U32*pOutLen, const U8* data, U8 level) {
+    int i;
+    U32 len = (U32)strlen((const char*)data);
+    U8* output;
+    mz_ulong outlen;
+
+    for (i = 1; i <= 8; i *= 2) {
+        outlen = len * i;
+        output = (U8*)gam_malloc(outlen);
+        if (!output) return -1;
+        if (mz_compress2(output, &outlen, data, len, 5) == MZ_OK) {
+            *pOut = output;
+            *pOutLen = outlen;
+            return 0;
+        }
+        gam_free(output);
+    }
+    return -1;
+}
+
+U8* decompress_data(U8* data, U32 datalen) {
+    int i;
+    U32 initlen = 1024*1024;
+    U8* output;
+    mz_ulong outlen;
+
+    for (i = 1; i <= 8; i *= 2) {
+        outlen = initlen * i;
+        output = (U8*)gam_malloc(outlen);
+        if (!output) return NULL;
+        outlen -= 1;
+        if (mz_uncompress(output, &outlen, data, datalen) == MZ_OK) {
+            output[outlen] = 0;
+            {
+                U8* tmp = gam_strdup(output);
+                gam_free(output);
+                return tmp;
+            }
+        }
+        gam_free(output);
+    }
+    return NULL;
+}
 
 /***********************************************************************
  * 说明:     游戏引擎主程序
@@ -772,6 +817,7 @@ bool GamLoadRcd(U8 idx)
 
 
     U8 version = 0;
+    U8 compressed = 0;
 
     U16 goodsQueueLen = GOODS_MAX;
     U16 orderQueueLen = ORDER_MAX;
@@ -792,8 +838,22 @@ bool GamLoadRcd(U8 idx)
     read_all((U8 *)g_PersonsQueue,sizeof(PersonID),personQueueLen,fp);
     read_all((U8 *)g_GoodsQueue,1,goodsQueueLen,fp);
 
+    if (version >= 0x94) {
+        read_all(&compressed, 1, 1, fp);
+    }
+
     if (customData) gam_free(customData);
-    customData = gam_freadall(fp);
+    {
+        U32 datalen = 0;
+
+        customData = gam_freadall(fp, &datalen);
+
+        if (compressed && customData) {
+            U8* data = decompress_data(customData, datalen);
+            gam_free(customData);
+            customData = data;
+        }
+    }
     gam_fclose(fp);
     
     /* 读取第二个文件 */
@@ -853,7 +913,7 @@ bool GamSaveRcd(U8 idx)
         return false;
     }
     
-    U8 ver = 0x93;
+    U8 ver = 0x94;
     U16 pcount = GamGetPersonCount();
     gam_fwrite((U8 *)&ver,1,1,fp);
     gam_fwrite((U8 *)&g_PIdx,1,1,fp);
@@ -868,8 +928,21 @@ bool GamSaveRcd(U8 idx)
     gam_fwrite((U8 *)g_Persons,sizeof(PersonType),pcount,fp);
     gam_fwrite((U8 *)g_PersonsQueue,sizeof(PersonID),pcount,fp);
     gam_fwrite((U8 *)g_GoodsQueue,1,GOODS_MAX,fp);
+    gam_fwrite((U8 *)&g_engineConfig.compressCustomData,1,1,fp);
     if (customData) {
-        gam_fwrite(customData, (U32)strlen((const char*)customData), 1, fp);
+        if (g_engineConfig.compressCustomData) {
+            U8* data;
+            U32 len;
+            if (compress_data(&data, &len, customData, g_engineConfig.compressCustomData) != 0) {
+                ResLoadToMem(IFACE_STRID,dErrInf,tbuf);
+                GamMsgBox(tbuf,2);
+                return false;
+            }
+            gam_fwrite(data, len, 1, fp);
+            gam_free(data);
+        } else {
+            gam_fwrite(customData, (U32)strlen((const char*)customData), 1, fp);
+        }
     }
     gam_fclose(fp);
     
@@ -925,6 +998,7 @@ EngineConfig g_engineConfig = {
     .confirmOnEscape = 1,
     .promptCityDisaster = 1, // 提示城池灾害
     .showStartMovie = 1, // 显示开场动画
+    .compressCustomData = 0,
 };
 
 U8 g_engineDebug = 0;

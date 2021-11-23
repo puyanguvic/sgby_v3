@@ -218,6 +218,7 @@ typedef struct {
     U8 promptCityDisaster; // 提示城池灾害
     U8 disableAllPersonReport; // 禁用所有人物报告对话框
     U8 showStartMovie; // 显示开场动画
+    U8 compressCustomData; // 压缩扩展存档数据
 } EngineConfig;
 
 extern EngineConfig g_engineConfig;

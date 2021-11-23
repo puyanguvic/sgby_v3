@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include "baye/compa.h"
 #include "baye/comm.h"
+#include "baye/fsys.h"
 #include "timer.h"
 
 static void(*_lcd_fluch_cb)(char*buffer);
@@ -389,4 +390,35 @@ FAR void SysCopyScreen(U8*scr)
 {
     memcpy(scr_buffer, scr, buffer_size);
     isLcdDirty = 1;
+}
+
+FAR U8 *gam_freadall(gam_FILE *fhandle, U32 *datalen)
+{
+    U32 alloced = 1024*400;
+    U8 buf[1024];
+    U8 *rv = gam_malloc(alloced);
+    U32 offset = 0;
+    U32 cnt = 0;
+    
+    do {
+        cnt = gam_fread(buf, 1, 1024, fhandle);
+        if (offset + cnt > alloced) {
+            alloced *= 2;
+            rv = gam_realloc(rv, alloced);
+        }
+        memcpy(rv + offset, buf, cnt);
+        offset += cnt;
+    } while (cnt > 0);
+
+    if (offset == alloced) {
+        rv = gam_realloc(rv, offset+1);
+    }
+    rv[offset] = 0;
+
+    if (datalen) {
+        *datalen = offset;
+    }
+
+    printf("fread all:%d\n", offset);
+    return rv;
 }

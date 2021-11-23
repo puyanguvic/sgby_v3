@@ -33,6 +33,7 @@ data-bind.c
 bind-objects.c
 touch.c
 config.c
+miniz.c
 platform/common/bios.c
 platform/common/gui.c
 platform/common/sys.c

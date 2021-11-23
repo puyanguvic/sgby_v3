@@ -93,31 +93,3 @@ FAR U8 *gam_fload(U8 *bptr, U32 addr, gam_FILE *fhandle)
 //{
 //    return 0;
 //}
-
-
-FAR U8 *gam_freadall(gam_FILE *fhandle)
-{
-    U32 alloced = 1024*400;
-    U8 buf[1024];
-    U8 *rv = gam_malloc(alloced);
-    U32 offset = 0;
-    U32 cnt = 0;
-    
-    do {
-        cnt = gam_fread(buf, 1, 1024, fhandle);
-        if (offset + cnt > alloced) {
-            alloced *= 2;
-            rv = gam_realloc(rv, alloced);
-        }
-        memcpy(rv + offset, buf, cnt);
-        offset += cnt;
-    } while (cnt > 0);
-
-    if (offset >= alloced) {
-        rv = gam_realloc(rv, alloced+1);
-    }
-    rv[offset] = 0;
-        
-    return rv;
-}
-

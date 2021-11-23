@@ -110,7 +110,7 @@ FAR U8 GamConInit(void)
         printf("%s\n", datFilePath);
         return 1;
     }
-    g_CBnkPtr = gam_freadall(g_LibFp);				/*常量页面指针*/
+    g_CBnkPtr = gam_freadall(g_LibFp, NULL);				/*常量页面指针*/
 
     {
         extern U32	GetResStartAddr(U16 id);
