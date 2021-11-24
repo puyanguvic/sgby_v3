@@ -842,16 +842,25 @@ bool GamLoadRcd(U8 idx)
         read_all(&compressed, 1, 1, fp);
     }
 
-    if (customData) gam_free(customData);
+    if (customData)
+    {
+        gam_free(customData);
+    }
+
     {
         U32 datalen = 0;
 
         customData = gam_freadall(fp, &datalen);
 
-        if (compressed && customData) {
-            U8* data = decompress_data(customData, datalen);
-            gam_free(customData);
-            customData = data;
+        if (compressed) {
+            if (datalen > 0) {
+                U8* data = decompress_data(customData, datalen);
+                gam_free(customData);
+                customData = data;
+            } else {
+                gam_free(customData);
+                customData = NULL;
+            }
         }
     }
     gam_fclose(fp);
@@ -929,7 +938,7 @@ bool GamSaveRcd(U8 idx)
     gam_fwrite((U8 *)g_PersonsQueue,sizeof(PersonID),pcount,fp);
     gam_fwrite((U8 *)g_GoodsQueue,1,GOODS_MAX,fp);
     gam_fwrite((U8 *)&g_engineConfig.compressCustomData,1,1,fp);
-    if (customData) {
+    if (customData && customData[0]) {
         if (g_engineConfig.compressCustomData) {
             U8* data;
             U32 len;
