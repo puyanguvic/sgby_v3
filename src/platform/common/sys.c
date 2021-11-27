@@ -45,10 +45,31 @@ void GamSetLcdFlushCallback(void(*lcd_fluch_cb)(char*buffer))
     _lcd_fluch_cb = lcd_fluch_cb;
 }
 
+static void convert_image(U32* dst, char* src) {
+    int i, j;
+    for (j = 0; j < SCR_H * AX_SCALE; j++) {
+        for (i = 0; i < SCR_W * AX_SCALE; i++) {
+            int ind = j * BYTES_PERLINE + i;
+            dst[ind] = src[ind] ? 0xFF000000 : 0x00000000;
+        }
+    }
+}
+
 static void timed_flush_lcd()
 {
+    static char* outbuf;
+
+    if (outbuf == NULL) {
+        outbuf = (char*)gam_malloc(MAX_SCR_BUF_LEN*4);
+        if (outbuf == NULL) {
+            printf("malloc failed\n");
+            return;
+        }
+    }
+
     if (isLcdDirty && _lcd_fluch_cb) {
-        _lcd_fluch_cb(scr_buffer);
+        convert_image((U32*)outbuf, scr_buffer);
+        _lcd_fluch_cb(outbuf);
         isLcdDirty = 0;
     }
 }
