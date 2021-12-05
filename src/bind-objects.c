@@ -46,6 +46,15 @@ void bind_init(void) {
     static ObjectDef* def = NULL;
     static ValueDef vref;
 
+    typedef struct {
+        U8 x;
+        U8 y;
+    } CityPos;
+
+    CityPos* cityPos;
+
+    cityPos = (CityPos*)ResLoadToCon(IFACE_CONID, dCityPos, g_CBnkPtr);
+
     if (def == NULL) {
         def = ObjectDef_new();
     }
@@ -213,6 +222,29 @@ void bind_init(void) {
         arrdef.size = _value_def.size * CITY_MAX;
         arrfield.value.offset = (U32)g_Cities;
 
+        ObjectDef_addField(def, &arrfield);
+    }
+    {
+#define _ST CityPos
+        static Field _fields[] = {
+            _FIELD_RW(x, U8),
+            _FIELD_RW(y, U8),
+        };
+
+        static ObjectDef _obj_def = {
+            AL(_fields), 0, sizeof(_ST), _fields
+        };
+
+        static ValueDef _value_def = {
+            .type = ValueTypeObject,
+            .size = sizeof(_ST),
+            .subdef.objDef = &_obj_def,
+        };
+#undef _ST
+        static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
+        static Field arrfield = {"g_CityPositions", {.def=&arrdef, .offset=0}};
+        arrdef.size = _value_def.size * CITY_MAX;
+        arrfield.value.offset = (U32)cityPos;
         ObjectDef_addField(def, &arrfield);
     }
     {
