@@ -452,6 +452,30 @@ void bind_init(void) {
         ObjectDef_addField(def, &field);
     }
     {
+        extern Rect g_cityCursorRange;
+#define _ST Rect
+        static Field _fields[] = {
+            _FIELD_RW(top, U16),
+            _FIELD_RW(left, U16),
+            _FIELD_RW(right, U16),
+            _FIELD_RW(bottom, U16),
+        };
+
+        static ObjectDef _obj_def = {
+            AL(_fields), 0, sizeof(_ST), _fields
+        };
+
+        static ValueDef _value_def = {
+            .type = ValueTypeObject,
+            .size = sizeof(_ST),
+            .subdef.objDef = &_obj_def,
+        };
+#undef _ST
+        static Field field = {"g_cityCursorRange", {.def=&_value_def, .offset=0}};
+        field.value.offset = (U32)&g_cityCursorRange;
+        ObjectDef_addField(def, &field);
+    }
+    {
 #define _ST OrderType
         static Field _fields[] = {
             _FIELD_RW(OrderId, U8),

@@ -26,6 +26,14 @@
 
 extern U8 g_engineVersion[32];
 
+
+Rect g_cityCursorRange = {
+    .left = 0,
+    .top = 0,
+    .right = 100,
+    .bottom = 100,
+};
+
 /*U8 GetCityOutPersons(U8 city,U8 *pqueue);
  U8 GetCityPersons(U8 city,U8 *pqueue);
  U8 ShowCityMap(CitySetType *pos);
@@ -958,8 +966,7 @@ FAR U8 GetCitySet(CitySetType *pos)
             switch (Msg.param)
             {
                 case VK_UP:
-                    if (pos->sety)
-                    {
+                    if (pos->sety && pos->sety > g_cityCursorRange.top) {
                         pos->sety -= 1;
                         if (pos->sety < pos->y)
                         {
@@ -969,8 +976,7 @@ FAR U8 GetCitySet(CitySetType *pos)
                     }
                     break;
                 case VK_LEFT:
-                    if (pos->setx)
-                    {
+                    if (pos->setx && pos->setx > g_cityCursorRange.left) {
                         pos->setx -= 1;
                         if (pos->setx < pos->x)
                         {
@@ -980,8 +986,7 @@ FAR U8 GetCitySet(CitySetType *pos)
                     }
                     break;
                 case VK_DOWN:
-                    if (pos->sety < CITYMAP_H - 1)
-                    {
+                    if (pos->sety < CITYMAP_H - 1 && pos->sety < g_cityCursorRange.bottom) {
                         pos->sety += 1;
                         if (pos->sety >= pos->y + SHOWMAP_HS)
                         {
@@ -991,8 +996,7 @@ FAR U8 GetCitySet(CitySetType *pos)
                     }
                     break;
                 case VK_RIGHT:
-                    if (pos->setx < CITYMAP_W - 1)
-                    {
+                    if (pos->setx < CITYMAP_W - 1 && pos->setx < g_cityCursorRange.right) {
                         pos->setx += 1;
                         if (pos->setx >= pos->x + SHOWMAP_WS)
                         {
@@ -1058,6 +1062,10 @@ FAR U8 GetCitySet(CitySetType *pos)
 
                         U8 setx = pos->x + col;
                         U8 sety = pos->y + row;
+
+                        if (!touchIsPointInRect(setx, sety, g_cityCursorRange)) {
+                            break;
+                        }
 
                         if (setx == pos->setx && sety == pos->sety) {
                             if (city) {
