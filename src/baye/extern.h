@@ -50,7 +50,8 @@ extern U8	g_MapWid;		/* 战斗地图宽度 */
 extern U8	g_MapHgt;		/* 战斗地图高度 */
 extern U8	g_FgtOver;		/* 战斗是否结束 */
 extern U8	g_FgtWeather;		/* 战场天气情况 */
-extern U8	g_FgtBoutCnt;		/* 战斗回合计数 */
+extern U16	g_FgtBoutCnt;		/* 战斗回合计数 */
+extern U16	g_FgtBoutMax;		/* 战斗最大回合数 */
 extern U8	g_MainGenIdx;		/* 主将序号 */
 extern U8	g_LookEnemy;		/* 是否观看敌人移动 */
 extern U8	g_LookMovie;		/* 是否观看战斗动画 */

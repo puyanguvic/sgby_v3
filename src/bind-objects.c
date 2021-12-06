@@ -130,7 +130,8 @@ void bind_init(void) {
     DEFADDF(g_FgtOver, U8);
 
     DEFADDF(g_FgtWeather, U8);
-    DEFADDF(g_FgtBoutCnt, U8);
+    DEFADDF(g_FgtBoutCnt, U16);
+    DEFADDF(g_FgtBoutMax, U16);
     DEFADDF(g_MainGenIdx, U8);
     DEFADDF(g_LookEnemy, U8);
     DEFADDF(g_LookMovie, U8);

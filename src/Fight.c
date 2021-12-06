@@ -944,7 +944,7 @@ void FgtDealBout(void)
 
     g_FgtBoutCnt += 1;	/* 战斗天数增加 */
     g_EneTmpProv = 0;	/* 敌人粮草临时变量 */
-    if(g_FgtBoutCnt > 30)
+    if(g_FgtBoutCnt > g_FgtBoutMax)
     {
         if(g_FgtParam.Mode == FGT_AT)
             g_FgtOver = FGT_LOSE;

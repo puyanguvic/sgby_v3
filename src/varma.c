@@ -61,7 +61,8 @@ U8	g_BakUpX,g_BakUpY;	/* 将领坐标备份 */
 U8	g_CityX,g_CityY;	/* 城市坐标 */
 U8	g_FgtOver;		/* 战斗是否结束 */
 U8	g_FgtWeather;		/* 战场天气情况 */
-U8	g_FgtBoutCnt;		/* 战斗回合计数 */
+U16	g_FgtBoutCnt;		/* 战斗回合计数 */
+U16	g_FgtBoutMax = 30;	/* 战斗最大回合数 */
 U8	g_MainGenIdx;		/* 主将序号 */
 U8	g_LookEnemy;		/* 是否观看敌人移动 */
 U8	g_LookMovie;		/* 是否观看战斗动画 */
