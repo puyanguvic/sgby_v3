@@ -1114,22 +1114,30 @@ U8 FunctionMenu(void)
     const char* exitStr = "\xc8\xb7\xb6\xa8\xcd\xcb\xb3\xf6"; //确定退出
     U8 choosing = 0;
 
-    while (1)
-    switch ((choosing = (U8)PlcSplMenu(&pRect,choosing,mstr)))
-    {
-        case 0:
-            return(1);
-        case 1:
-            GamRecordMan(0);
-            return(0);
-        case 2:
-            if (((U8)PlcSplMenu(&pRectSubMenu, 0, (U8*)exitStr)) == MNU_EXIT) {
-                ShowMapClear();
-                continue;
-            }
-            return(2);
-        case 0xff:
-            return(0);
+    while (1) {
+        U8 hooked = 0;
+        IF_HAS_HOOK("mainSystemMenu") {
+            choosing = (U8)CALL_HOOK_A();
+            hooked = 1;
+        } else {
+            choosing = (U8)PlcSplMenu(&pRect, choosing, mstr);
+        }
+
+        switch (choosing) {
+            case 0:
+                return(1);
+            case 1:
+                GamRecordMan(0);
+                return(0);
+            case 2:
+                if (!hooked && ((U8)PlcSplMenu(&pRectSubMenu, 0, (U8*)exitStr)) == MNU_EXIT) {
+                    ShowMapClear();
+                    continue;
+                }
+                return(2);
+            case 0xff:
+                return(0);
+        }
     }
     return 0;
 }
