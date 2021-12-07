@@ -218,6 +218,7 @@ typedef struct {
     U8 disableAllPersonReport; // 禁用所有人物报告对话框
     U8 showStartMovie; // 显示开场动画
     U8 compressCustomData; // 压缩扩展存档数据
+    U8 checkRedundantOnAddPerson; // 往城池添加人物时检查重复
 } EngineConfig;
 
 extern EngineConfig g_engineConfig;

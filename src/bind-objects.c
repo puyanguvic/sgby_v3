@@ -439,6 +439,7 @@ void bind_init(void) {
             _FIELD_RW(disableAllPersonReport, U8),
             _FIELD_RW(showStartMovie, U8),
             _FIELD_RW(compressCustomData, U8),
+            _FIELD_RW(checkRedundantOnAddPerson, U8),
         };
 
         static ObjectDef _obj_def = {

@@ -64,6 +64,16 @@ FAR U8 AddPerson(U8 city,PersonID person)
     if (person >= PERSON_COUNT)
         return(0);
 
+    if (g_engineConfig.checkRedundantOnAddPerson) {
+        for (i = 0; i < CITY_MAX; i++) {
+            while(1) {
+                if (DelPerson(i, person) == 0)
+                    break;
+                printf("Removed person %d from city %d, coz it will be put in %d\n", person, i, city);
+            }
+        }
+    }
+
     for (i = PERSON_COUNT - 1;i > g_Cities[city].PersonQueue;i --)
     {
         g_PersonsQueue[i] = g_PersonsQueue[i - 1];
