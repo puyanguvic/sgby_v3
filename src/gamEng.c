@@ -1004,7 +1004,6 @@ EngineConfig g_engineConfig = {
     .citiesCount = 38,
     .cityMapWidth = 12,
     .cityMapHeight = 9,
-    .confirmOnEscape = 1,
     .promptCityDisaster = 1, // 提示城池灾害
     .showStartMovie = 1, // 显示开场动画
     .compressCustomData = 0,

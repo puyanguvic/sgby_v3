@@ -432,7 +432,6 @@ void bind_init(void) {
             _U16ARR_FIELD(saveFaceListAnchor, 2),
             _FIELD_RW(disableExpGrowing, U8),
             _FIELD_RW(hideRightBorder, U8),
-            _FIELD_RW(confirmOnEscape, U8),
             _FIELD_RW(promptCityDisaster, U8),
             _FIELD_RW(disableAllPersonReport, U8),
             _FIELD_RW(showStartMovie, U8),

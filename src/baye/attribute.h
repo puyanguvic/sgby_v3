@@ -214,7 +214,6 @@ typedef struct {
     
     U8 disableExpGrowing;
     U8 hideRightBorder;
-    U8 confirmOnEscape; // 全军撤退二次确认
     U8 promptCityDisaster; // 提示城池灾害
     U8 disableAllPersonReport; // 禁用所有人物报告对话框
     U8 showStartMovie; // 显示开场动画

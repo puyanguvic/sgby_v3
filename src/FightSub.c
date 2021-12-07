@@ -814,17 +814,20 @@ FAR U8 FgtMainMenu(void)
     idx = 0;
     while(1)
     {
+        U8 hooked = 0;
+
         FgtLoadToMem2(dFgtSysMnu,mbuf);
     tagMenu:
         IF_HAS_HOOK("fightOpenMainMenu") {
             idx = (U8)CALL_HOOK_A();
+            hooked = 1;
         } else {
             idx = (U8)PlcSplMenu(&pRect,idx,mbuf);
         }
         switch(idx)
         {
             case 1:
-                if (g_engineConfig.confirmOnEscape && ((U8)PlcSplMenu(&pRectSubMenu, 0, (U8*)backStr)) == MNU_EXIT) {
+                if (!hooked && ((U8)PlcSplMenu(&pRectSubMenu, 0, (U8*)backStr)) == MNU_EXIT) {
                     GamShowFrame(g_VisScr);
                     goto tagMenu;
                 }
