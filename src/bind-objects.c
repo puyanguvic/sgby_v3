@@ -78,13 +78,15 @@ void bind_init(void) {
     DEFADDF(g_screenWidth, U16);
     DEFADDF(g_screenHeight, U16);
     DEFADDF(g_FlipDrawing, U8);
+    DEFADDF(g_paintColor, U8);
+    DEFADD_U32ARR(g_paintPalette, 256);
     DEFADDF(g_MenuTouchComfirm, U8);
 
     DEFADD_GBKARR(g_errorString, sizeof(g_errorString));
     {
         // FOR AYNC CALL
         BIND_U8(&g_asyncActionID);
-        ObjectDef_addFieldArray_DEF(g_asyncActionParams, ValueTypeU32, 32);
+        DEFADD_U32ARR(g_asyncActionParams, 32);
         DEFADD_GBKARR(g_asyncActionStringParam, sizeof(g_asyncActionStringParam));
 
         U8* g_asyncActionStringParamArray = g_asyncActionStringParam;

@@ -73,6 +73,7 @@ extern U8 g_asyncActionStringParam[1024*10];
 #define DEFADDF(name, t) ObjectDef_addFieldF(def, #name, ValueType##t, &name, 0, 0)
 
 #define DEFADD_U16ARR(name, n) ObjectDef_addFieldArray(def, #name, ValueTypeU16, name, n);
+#define DEFADD_U32ARR(name, n) ObjectDef_addFieldArray(def, #name, ValueTypeU32, name, n);
 
 #define HOOK_showSkill "showSkill"
 

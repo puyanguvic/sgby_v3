@@ -89,6 +89,8 @@ extern U8 citymap[SHOWMAP_HS_MAX][SHOWMAP_WS_MAX];	/*当前显示城市地图*/
 extern PersonID cavpdb;
 extern U8 cavps;				/*战争俘虏临时变量*/
 extern U8 g_FlipDrawing;   //镜像绘图
+extern U8 g_paintColor; // 绘图颜色
+extern U32 g_paintPalette[256]; // 绘图调色板
 extern U8 g_MenuTouchComfirm;
 
 void GamSetPersonCount(U32 count);
