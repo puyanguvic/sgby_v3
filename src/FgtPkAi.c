@@ -161,7 +161,7 @@ bool FgtJiNengGetAim(FGTCMD *pcmd, PersonType*per, SkillID skidx, U8 idx)
             same = true;
         else
             same = false;
-        if(!FgtJNChkAim(skidx,same,i))
+        if(!FgtJNChkAim(skidx,same,i,idx))
             continue;
         if(skidx == 17 || skidx == 29)
         {
@@ -552,10 +552,18 @@ void FgtMakeSklNam(SBUF sbuf, SkillID *sklbuf)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR U8 FgtJNChkAim(SkillID param,U8 same,U8 aidx)
+FAR U8 FgtJNChkAim(SkillID param,U8 same, U8 aidx, U8 sidx)
 {
     U8	terrain,type;
     SKILLEF *skl;
+
+    IF_HAS_HOOK("canUseSkill") {
+        BIND_U8EX("skillIndex", &param);
+        BIND_U8EX("same", &same);
+        BIND_U8EX("attackerIndex", &aidx);
+        BIND_U8EX("targetIndex", &sidx);
+        HOOK_RETURN(CALL_HOOK());
+    }
 
     type = GetArmType(&g_Persons[g_FgtParam.GenArray[aidx] - 1]);
     terrain = FgtGetGenTer(aidx);

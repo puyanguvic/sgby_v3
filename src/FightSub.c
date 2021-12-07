@@ -445,7 +445,7 @@ U8 FgtJNAction(FGTCMD *pcmd)
                 else
                     same = false;
 
-                if(!FgtJNChkAim(skidx, same, i))
+                if(!FgtJNChkAim(skidx, same, i, sIdx))
                     continue;
             }
             arms = add_16(arms, _CommonJNAction(param, aim, sIdx, i, aIdx));

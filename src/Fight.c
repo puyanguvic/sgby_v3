@@ -314,7 +314,7 @@ U8 FgtCmdAimGet(U8 type,SkillID param,U8 idx)
             same = (idx < FGT_PLAMAX && pidx < FGT_PLAMAX) || (idx > FGT_PLAMAX && pidx > FGT_PLAMAX);
             if(CMD_STGM == type)
             {	/* 若是施展计谋 */
-                if(FgtJNChkAim(param,same,pidx))		/* 且符合施展条件-目标的类型、地形 */
+                if(FgtJNChkAim(param,same,pidx,idx))		/* 且符合施展条件-目标的类型、地形 */
                     break;
             }
             else
@@ -1253,6 +1253,15 @@ void FgtMapUnitShow(U8 tx,U8 ty,U8 flag)
 {
     U8	tile;
 
+    IF_HAS_HOOK("drawMapUnit") {
+        BIND_U8EX("x", &tx);
+        BIND_U8EX("y", &ty);
+        BIND_U8EX("scr", &flag);
+        if (CALL_HOOK() == 0) {
+            HOOK_LEAVE();
+        }
+    }
+    
     tile = (ty - g_MapSY) * SCR_MAPWID + tx - g_MapSX;
     tx = FgtGetScrX(tx);
     ty = FgtGetScrY(ty);
