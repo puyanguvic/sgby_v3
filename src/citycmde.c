@@ -476,9 +476,8 @@ FAR void OrderConsumeThew(PersonID person,U8 order)
  ******************************************************************************/
 FAR U8 GetWeekCity(U8 count,U8 *cqueue)
 {
-    U8 c,i,cw = '\0';
+    U32 c, i, o, cw = 0;
     PersonID p;
-    U8 o;
     U16 armst,armsw;
     CityType *cptr;
     OrderType *inode;

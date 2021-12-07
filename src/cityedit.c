@@ -715,7 +715,7 @@ FAR U32 GetCityPersons(U8 city, PersonID *pqueue)
  ******************************************************************************/
 FAR U8 GetCityOutPersons(U8 city,PersonID *pqueue)
 {
-    U8 i,count;
+    U32 i,count;
     PersonID p;
 
     count = 0;
