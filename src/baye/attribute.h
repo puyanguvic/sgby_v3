@@ -164,6 +164,19 @@ typedef struct {
     U8 city;
 } SearchCondition;
 
+typedef struct {
+  U8 landMapColor;
+  U8 ownedCityColor;
+  U8 emptyCityColor;
+  U8 otherCityColor;
+  U8 landCursorColor;
+  U8 battleNoteColor;
+  U8 kingHeadColor;
+  U8 personHeadColor;
+
+  U8 fightMoveRangeColor;
+  U8 fightMapColor;
+} Theme;
 
 typedef struct {
     U8 enableToolAttackRange; //启用"道具改变攻击范围"
@@ -219,6 +232,8 @@ typedef struct {
     U8 showStartMovie; // 显示开场动画
     U8 compressCustomData; // 压缩扩展存档数据
     U8 checkRedundantOnAddPerson; // 往城池添加人物时检查重复
+
+    Theme theme; // 主题
 } EngineConfig;
 
 extern EngineConfig g_engineConfig;

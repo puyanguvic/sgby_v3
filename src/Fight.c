@@ -1274,7 +1274,9 @@ void FgtMapUnitShow(U8 tx,U8 ty,U8 flag)
         BIND_U8EX("flag", &flag);
         CALL_HOOK();
     } else {
+        pushPaintColor(g_engineConfig.theme.fightMapColor);
         gam_drawpic(g_TileId, g_FightMap[tile], tx, ty, flag);
+        popPaintColor();
     }
 }
 /***********************************************************************
@@ -1393,7 +1395,9 @@ void FgtShowMap(U8 x,U8 y)
             CALL_HOOK();
         } else {
             count = g_FightMap[i];
+            pushPaintColor(g_engineConfig.theme.fightMapColor);
             gam_drawpic(g_TileId, count, x, y, 0);
+            popPaintColor();
         }
     }
 }

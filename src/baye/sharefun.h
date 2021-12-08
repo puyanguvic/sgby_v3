@@ -192,4 +192,7 @@ U32 OrderNeedMoney(U8 order);
 U8 FgtGetGenTer(U8 idx);
 U8 GamChooseCity(void);
 
+void pushPaintColor(U8 color);
+void popPaintColor();
+
 #endif

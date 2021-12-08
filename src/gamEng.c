@@ -1007,6 +1007,18 @@ EngineConfig g_engineConfig = {
     .promptCityDisaster = 1, // 提示城池灾害
     .showStartMovie = 1, // 显示开场动画
     .compressCustomData = 0,
+    .theme = {
+        .landMapColor = 0xdf,
+        .ownedCityColor = 0xff,
+        .emptyCityColor = 0xff,
+        .otherCityColor = 0xff,
+        .landCursorColor = 0xff,
+        .battleNoteColor = 0xff,
+        .kingHeadColor = 0xff,
+        .personHeadColor = 0xff,
+        .fightMoveRangeColor = 0xff,
+        .fightMapColor = 0xff,
+    }
 };
 
 U8 g_engineDebug = 0;

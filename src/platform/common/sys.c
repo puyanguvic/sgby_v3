@@ -28,6 +28,8 @@ static char *scr_buffer;
 static size_t buffer_size;
 U8 g_FlipDrawing = 0;
 U8 g_paintColor = 0xff;
+static U8 g_paintColorBak = 0xff;
+
 U32 g_paintPalette[256] = {
     0x00FFFFFF,
     0x01FEFEFE,
@@ -286,6 +288,15 @@ U32 g_paintPalette[256] = {
     0xFE010101,
     0xFF000000,
 };
+
+void pushPaintColor(U8 color) {
+    g_paintColorBak = g_paintColor;
+    g_paintColor = color;
+}
+
+void popPaintColor() {
+    g_paintColor = g_paintColorBak;
+}
 
 void screen_buffer_init(void) {
     static_buffer = gam_malloc(MAX_SCR_BUF_LEN);

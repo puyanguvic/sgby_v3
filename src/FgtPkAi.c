@@ -884,6 +884,7 @@ FAR void FgtShowMvRng(void)
 
     dx = g_MapSX + g_PUseSX - g_PathSX;
     dy = g_MapSY + g_PUseSY - g_PathSY;
+    pushPaintColor(g_engineConfig.theme.fightMoveRangeColor);
     for(x = g_PUseSX;x < FGT_MRG;x += 1)
         for(y = g_PUseSY;y < FGT_MRG;y += 1)
         {
@@ -904,6 +905,7 @@ FAR void FgtShowMvRng(void)
                 gam_drawpic(STEP_PIC, 0, sx, sy, 0);
             }
         }
+    popPaintColor();
 }
 /***********************************************************************
  * 说明:     显示战场上的形势

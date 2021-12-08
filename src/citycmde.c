@@ -341,7 +341,9 @@ void ShowFightNoteFace(U8 idx)
 {
     gam_clrlcd(WK_SX + (WK_EX - 120 - WK_SX) / 2,WK_SY + (WK_EY - 84 - WK_SY) / 2,WK_SX + (WK_EX - 120 - WK_SX) / 2 + 120,WK_SY + (WK_EY - 84 - WK_SY) / 2 + 84);
     gam_rect(WK_SX + (WK_EX - 120 - WK_SX) / 2,WK_SY + (WK_EY - 84 - WK_SY) / 2,WK_SX + (WK_EX - 120 - WK_SX) / 2 + 120,WK_SY + (WK_EY - 84 - WK_SY) / 2 + 84);
+    pushPaintColor(g_engineConfig.theme.battleNoteColor);
     gam_drawpic(FIGHT_NOTE_ICON, idx, WK_SX + (WK_EX - 84 - WK_SX) / 2,WK_SY + (WK_EY - 84 - WK_SY) / 2 + 2, 1);
+    popPaintColor();
 }
 
 /******************************************************************************

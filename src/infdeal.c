@@ -620,7 +620,9 @@ FAR void ShowConstStrMsg(U8 idx)
 FAR void ShowPersonHead(U8 x,U8 y, PersonID id)
 {
     U8 tbuf[14];
+    pushPaintColor(g_engineConfig.theme.personHeadColor);
     gam_drawpic(GEN_HEADPIC1 + g_PIdx, id, x + 13,y + 2, 1);
+    popPaintColor();
     GetPersonName(id, tbuf);
     PlcMidShowStr(x + 26,y + 28,tbuf);
 }

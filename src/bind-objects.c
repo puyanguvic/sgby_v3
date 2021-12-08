@@ -457,6 +457,35 @@ void bind_init(void) {
         ObjectDef_addField(def, &field);
     }
     {
+#define _ST Theme
+        static Field _fields[] = {
+            _FIELD_RW(landMapColor, U8),
+            _FIELD_RW(ownedCityColor, U8),
+            _FIELD_RW(emptyCityColor, U8),
+            _FIELD_RW(otherCityColor, U8),
+            _FIELD_RW(landCursorColor, U8),
+            _FIELD_RW(battleNoteColor, U8),
+            _FIELD_RW(kingHeadColor, U8),
+            _FIELD_RW(personHeadColor, U8),
+            _FIELD_RW(fightMoveRangeColor, U8),
+            _FIELD_RW(fightMapColor, U8),
+        };
+
+        static ObjectDef _obj_def = {
+            AL(_fields), 0, sizeof(_ST), _fields
+        };
+
+        static ValueDef _value_def = {
+            .type = ValueTypeObject,
+            .size = sizeof(_ST),
+            .subdef.objDef = &_obj_def,
+        };
+#undef _ST
+        static Field field = {"theme", {.def=&_value_def, .offset=0}};
+        field.value.offset = (U32)&g_engineConfig.theme;
+        ObjectDef_addField(def, &field);
+    }
+    {
         extern Rect g_cityCursorRange;
 #define _ST Rect
         static Field _fields[] = {

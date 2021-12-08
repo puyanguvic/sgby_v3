@@ -1175,6 +1175,7 @@ U8 ShowCityMap(CitySetType *pos)
     pdptr = ResLoadToCon(CITYMAP_TILE,1,g_CBnkPtr);
     pdptr += sizeof(PictureHeadType);
     {
+        pushPaintColor(g_engineConfig.theme.landMapColor);
         for (h = 0;h < SHOWMAP_HS;h ++)
         {
             if (pos->y + h >= CITYMAP_H)
@@ -1191,6 +1192,7 @@ U8 ShowCityMap(CitySetType *pos)
                 count += 1;
             }
         }
+        popPaintColor();
 
         for (h = 0;h < SHOWMAP_HS;h ++)
         {
@@ -1204,20 +1206,26 @@ U8 ShowCityMap(CitySetType *pos)
 
                 if (citymap[h][w])
                 {
+                    U8 color;
                     /*显示城市图标*/
                     if (g_Cities[citymap[h][w] - 1].Belong == (g_PlayerKing + 1))
                     {
                         c = 8;
+                        color = g_engineConfig.theme.ownedCityColor;
                     }
                     else if (g_Cities[citymap[h][w] - 1].Belong)
                     {
                         c = 7;
+                        color = g_engineConfig.theme.otherCityColor;
                     }
                     else
                     {
                         c = 0;
+                        color = g_engineConfig.theme.emptyCityColor;
                     }
+                    pushPaintColor(color);
                     gam_drawpic(CITY_ICON, c, WK_SX + CITYMAP_TIL_W * w + (CITYMAP_TIL_W - CITY_ICON_W) / 2,WK_SY + CITYMAP_TIL_H * h + (CITYMAP_TIL_H - CITY_ICON_H) / 2, 0);
+                    popPaintColor();
                 }
             }
         }
@@ -1228,11 +1236,15 @@ U8 ShowCityMap(CitySetType *pos)
 
     if (cursorIsInView) {
         /*显示指针图标*/
+        pushPaintColor(g_engineConfig.theme.landCursorColor);
         gam_drawpic(CITY_POS_ICON, 0, WK_SX + CITYMAP_TIL_W * sw + (CITYMAP_TIL_W - CITY_ICON_W) / 2, WK_SY + CITYMAP_TIL_H * sh + CITY_ICON_H, 0);
+        popPaintColor();
     }
 
     gam_clrvscr(WK_SX + CITYMAP_TIL_W * SHOWMAP_WS,WK_SY,WK_EX,WK_EY,g_VisScr);
+    pushPaintColor(g_engineConfig.theme.kingHeadColor);
     gam_drawpic(GEN_HEADPIC1 + g_PIdx, g_PlayerKing, WK_SX + CITYMAP_TIL_W * SHOWMAP_WS + ((WK_EX - (WK_SX + CITYMAP_TIL_W * SHOWMAP_WS) - 24) / 2),WK_SY + 4, 0);
+    popPaintColor();
     gam_drawpic(MAPFACE_ICON, 1, WK_SX + CITYMAP_TIL_W * SHOWMAP_WS + 2,WK_SY + 4 + 24 + (12 - 9) / 2 + 4, 0);
     c = GetKingCitys(g_PlayerKing,str);
     gam_itoa(c,str,10);
