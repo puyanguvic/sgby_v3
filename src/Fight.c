@@ -1224,18 +1224,28 @@ void FgtShowGen(U8 act)
             sy = FgtGetScrY(ty);
             /* 显示将领 */
             FgtMapUnitShow(tx,ty,0);
-            FgtRPicShowV(BING_PIC,idx + 1,sx,sy);
-            /* 显示异常状态 */
-            if(state == STATE_JZ)
-                pIdx = 2;
-            else if(state == STATE_DS)
-                pIdx = 4;
-            else
-                pIdx = 0;
-            if(pIdx)
-            {
-                pIdx += act;
-                FgtRPicShowV(SPESTA_PIC,pIdx + 1,sx,sy);
+
+            IF_HAS_HOOK("drawOneGeneral") {
+                BIND_U8EX("frame", &act);
+                BIND_U8EX("index", &i);
+                BIND_U8EX("pic", &idx);
+                BIND_U8EX("x", &sx);
+                BIND_U8EX("y", &sy);
+                CALL_HOOK();
+            } else {
+                FgtRPicShowV(BING_PIC,idx + 1,sx,sy);
+                /* 显示异常状态 */
+                if(state == STATE_JZ)
+                    pIdx = 2;
+                else if(state == STATE_DS)
+                    pIdx = 4;
+                else
+                    pIdx = 0;
+                if(pIdx)
+                {
+                    pIdx += act;
+                    FgtRPicShowV(SPESTA_PIC,pIdx + 1,sx,sy);
+                }
             }
         }
     }
@@ -1253,19 +1263,19 @@ void FgtMapUnitShow(U8 tx,U8 ty,U8 flag)
 {
     U8	tile;
 
-    IF_HAS_HOOK("drawMapUnit") {
-        BIND_U8EX("x", &tx);
-        BIND_U8EX("y", &ty);
-        BIND_U8EX("scr", &flag);
-        if (CALL_HOOK() == 0) {
-            HOOK_LEAVE();
-        }
-    }
-    
     tile = (ty - g_MapSY) * SCR_MAPWID + tx - g_MapSX;
     tx = FgtGetScrX(tx);
     ty = FgtGetScrY(ty);
-    gam_drawpic(g_TileId, g_FightMap[tile], tx, ty, flag);
+
+    IF_HAS_HOOK("drawMapUnit") {
+        BIND_U8EX("x", &tx);
+        BIND_U8EX("y", &ty);
+        BIND_U8EX("tile", &tile);
+        BIND_U8EX("flag", &flag);
+        CALL_HOOK();
+    } else {
+        gam_drawpic(g_TileId, g_FightMap[tile], tx, ty, flag);
+    }
 }
 /***********************************************************************
  * 说明:     显示获取的经验值
@@ -1373,8 +1383,18 @@ void FgtShowMap(U8 x,U8 y)
     {
         y = ((i / SCR_MAPWID) << 4) + WK_SX;
         x = ((i % SCR_MAPWID) << 4) + WK_SY;
-        count = g_FightMap[i];
-        gam_drawpic(g_TileId, count, x, y, 0);
+
+        IF_HAS_HOOK("drawMapUnit") {
+            U8 flag = 0;
+            BIND_U8EX("x", &x);
+            BIND_U8EX("y", &y);
+            BIND_U8EX("tile", &i);
+            BIND_U8EX("flag", &flag);
+            CALL_HOOK();
+        } else {
+            count = g_FightMap[i];
+            gam_drawpic(g_TileId, count, x, y, 0);
+        }
     }
 }
 /***********************************************************************

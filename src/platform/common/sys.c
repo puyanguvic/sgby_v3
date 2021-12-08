@@ -548,6 +548,7 @@ FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale) {
                     else {
                         pixel0 = 0;
                     }
+                    pixel0 = pixel0 ? g_paintColor : 0;
                     
                     {
                         pixel1 = buffer[ind];
@@ -557,10 +558,10 @@ FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale) {
                                 pixel1 = pixel0;
                                 break;
                             case 1: // &
-                                pixel1 = pixel0 && pixel1;
+                                pixel1 = pixel0 ? pixel1 : 0;
                                 break;
                             case 2: // |
-                                pixel1 = pixel0 || pixel1;
+                                pixel1 = pixel0 ? pixel0 : pixel1;
                                 break;
                             case 4: // clear
                                 break;
@@ -569,7 +570,7 @@ FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale) {
                         }
                     }
                 }
-                buffer[ind] = pixel1 ? g_paintColor : 0;
+                buffer[ind] = pixel1;
                 pixs ++;
             }
         }
