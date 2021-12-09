@@ -32,6 +32,9 @@ void script_init(void)
     U8* script = ResLoadStringWithId(ENGINE_SCRIPT);
     if (script) {
         EM_ASM_INT({
+            if (window.baye.preScriptInit) {
+                window.baye.preScriptInit();
+            }
             var script = UTF8ToString($0);
             eval(script);
         }, script);

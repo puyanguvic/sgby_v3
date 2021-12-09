@@ -1008,7 +1008,7 @@ EngineConfig g_engineConfig = {
     .showStartMovie = 1, // 显示开场动画
     .compressCustomData = 0,
     .theme = {
-        .landMapColor = 0xdf,
+        .landMapColor = 0xcf,
         .ownedCityColor = 0xff,
         .emptyCityColor = 0xff,
         .otherCityColor = 0xff,
@@ -1017,7 +1017,7 @@ EngineConfig g_engineConfig = {
         .kingHeadColor = 0xff,
         .personHeadColor = 0xff,
         .fightMoveRangeColor = 0xff,
-        .fightMapColor = 0xff,
+        .fightMapColor = 0xcf,
     }
 };
 
