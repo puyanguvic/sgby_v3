@@ -386,7 +386,7 @@ FAR U8 PersonUpDatadate(void)
     U32 c;
     U32 p;
 
-    if (1 == g_MonthDate)
+    if (!g_engineConfig.disableAgeGrow && 1 == g_MonthDate)
     {
         for (p = 0;p < PERSON_COUNT;p ++)
         {
