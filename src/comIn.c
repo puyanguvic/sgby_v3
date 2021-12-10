@@ -128,8 +128,8 @@ FAR U8 GamConInit(void)
             printf("Unsupported lib version: %d\n", version);
             abort();
         }
-        g_ax_scale = magic & 0xf;
-        printf("g_ax_scale=%d\n", g_ax_scale);
+        g_scale = magic & 0xf;
+        printf("g_scale=%d\n", g_scale);
 
         void vs_ptr_init(void);
         void screen_buffer_init(void);
@@ -143,7 +143,7 @@ FAR U8 GamConInit(void)
             if (window.lcdSetDotSize) {
                 window.lcdSetDotSize($0)
             }
-        }, g_ax_scale);
+        }, g_scale);
 #endif
     }
 

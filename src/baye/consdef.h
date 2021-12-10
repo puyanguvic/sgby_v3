@@ -25,7 +25,7 @@
 ------------------------*/
 extern U16 g_screenWidth;
 extern U16 g_screenHeight;
-extern U16 g_ax_scale;
+extern U16 g_scale;
 
 #define	SCR_WID			g_screenWidth               /* 屏幕宽度 */
 #define	SCR_HGT			g_screenHeight              /* 屏幕高度 */
@@ -40,7 +40,7 @@ extern U16 g_ax_scale;
 #define	ASC_HGT			12		/* Ascii字模高度 */
 #define	HZ_WID			12		/* HZ字模宽度 */
 #define	HZ_HGT			12		/* HZ字模高度 */
-#define	AX_SCALE		g_ax_scale		// 坐标缩放
+#define	AX_SCALE		g_scale		// 坐标缩放
 
 #define MAX_SCR_BUF_LEN (256*256*AX_SCALE*AX_SCALE)
 

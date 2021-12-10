@@ -77,6 +77,7 @@ void bind_init(void) {
     DEFADDF(c_Ey, U8);
     DEFADDF(g_screenWidth, U16);
     DEFADDF(g_screenHeight, U16);
+    DEFADDF(g_scale, U16);
     DEFADDF(g_FlipDrawing, U8);
     DEFADDF(g_paintColor, U8);
     DEFADD_U32ARR(g_paintPalette, 256);
@@ -440,6 +441,7 @@ void bind_init(void) {
             _FIELD_RW(showStartMovie, U8),
             _FIELD_RW(compressCustomData, U8),
             _FIELD_RW(checkRedundantOnAddPerson, U8),
+            _FIELD_RW(disableFightToDeath, U8),
         };
 
         static ObjectDef _obj_def = {

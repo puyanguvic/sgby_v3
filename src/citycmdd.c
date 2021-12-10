@@ -565,7 +565,7 @@ PersonID TheLoserDeal(U8 city,PersonID *lqueue)
                     if (pptr->Belong == lqueue[i])
                         cking = p;
 
-                    if (rnd)
+                    if (rnd || g_engineConfig.disableFightToDeath)
                     {
                         HoldCaptive(p,city);
                         continue;
