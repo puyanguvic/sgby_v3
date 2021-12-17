@@ -220,6 +220,8 @@ FAR U8 BattleDrv(OrderType *Order)
         ShowAttackNote(PID(pb - 1),o);
         if (ob == (g_PlayerKing + 1))
         {
+            U8 fight = 1;
+
             if (pb == (g_PlayerKing + 1))
             {
                 /*城池已被我军战领*/
@@ -236,7 +238,11 @@ FAR U8 BattleDrv(OrderType *Order)
             g_FgtParam.Mode = FGT_DF;
             g_FgtParam.MProvender = g_Cities[o].Food;
             g_FgtParam.EProvender = Order->Food;
-            for (i = 0;i < 10;i ++)
+            gam_memcpy(&genArray[10], fighters, 10*sizeof(PersonID));
+            IF_HAS_HOOK("meetFight") {
+                BIND_U8EX("city", &o);
+                fight = CALL_HOOK_A();
+            } else for (i = 0;i < 10;i ++)
             {
                 pcount = GetCityPersons(o,pqptr);
                 /*gam_clrlcd(WK_SX,WK_SY,WK_EX,WK_EY);*/
@@ -252,7 +258,9 @@ FAR U8 BattleDrv(OrderType *Order)
                     break;
                 }
             }
-            gam_memcpy(&genArray[10], fighters, 10*sizeof(PersonID));
+            if (!fight) {
+                return 1;
+            }
             GamFight();
         }
         else if (pb == (g_PlayerKing + 1))
