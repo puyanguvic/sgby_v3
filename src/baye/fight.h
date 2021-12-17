@@ -214,8 +214,8 @@ typedef	struct {
 typedef	struct {
 	U8	x;				/* 地图坐标x */
 	U8	y;				/* 地图坐标y */
-	U8	hp;				/* 生命 */
-	U8	mp;				/* 技能点 */
+	U16	hp;				/* 生命 */
+	U16	mp;				/* 技能点 */
 	U8	move;				/* 移动力 */
 	U8	active;				/* 将领执行命令能力 */
 	U8	state;				/* 状态 */

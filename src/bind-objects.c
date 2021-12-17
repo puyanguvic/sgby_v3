@@ -344,8 +344,8 @@ void bind_init(void) {
         static Field _fields[] = {
             _FIELD_RW(x, U8),
             _FIELD_RW(y, U8),
-            _FIELD_RW(hp, U8),
-            _FIELD_RW(mp, U8),
+            _FIELD_RW(hp, U16),
+            _FIELD_RW(mp, U16),
             _FIELD_RW(move, U8),
             _FIELD_RW(active, U8),
             _FIELD_RW(state, U8),
