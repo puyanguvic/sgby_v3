@@ -723,7 +723,7 @@ FAR U32 GetCityPersons(U8 city, PersonID *pqueue)
  *		----		----			-----------
  *		陈泽伟		2005-7-4 9:18	基本功能完成
  ******************************************************************************/
-FAR U8 GetCityOutPersons(U8 city,PersonID *pqueue)
+FAR U32 GetCityOutPersons(U8 city,PersonID *pqueue)
 {
     U32 i,count;
     PersonID p;
@@ -754,7 +754,7 @@ FAR U8 GetCityOutPersons(U8 city,PersonID *pqueue)
  *		----		----			-----------
  *		陈泽伟		2005-7-4 9:24	基本功能完成
  ******************************************************************************/
-FAR U8 GetCityCaptives(U8 city,PersonID *pqueue)
+FAR U32 GetCityCaptives(U8 city,PersonID *pqueue)
 {
     U32 i,count;
     PersonID p;
@@ -785,7 +785,7 @@ FAR U8 GetCityCaptives(U8 city,PersonID *pqueue)
  *		----		----			-----------
  *		陈泽伟		2005-7-4 9:24	基本功能完成
  ******************************************************************************/
-FAR U8 GetEnemyPersons(PersonID king,PersonID *pqueue)
+FAR U32 GetEnemyPersons(PersonID king,PersonID *pqueue)
 {
     U32 c,i,count;
     PersonID b,p;
@@ -823,7 +823,7 @@ FAR U8 GetEnemyPersons(PersonID king,PersonID *pqueue)
  *		----		----			-----------
  *		陈泽伟		2005-7-14 17:25	基本功能完成
  ******************************************************************************/
-FAR U8 GetEnemySatraps(PersonID king,PersonID *squeue)
+FAR U32 GetEnemySatraps(PersonID king,PersonID *squeue)
 {
     U32 c,count;
     U32 b,s;
@@ -861,7 +861,7 @@ FAR U8 GetEnemySatraps(PersonID king,PersonID *squeue)
  *		----		----			-----------
  *		陈泽伟		2005-7-13 9:57	基本功能完成
  ******************************************************************************/
-FAR U8 GetEnemyKing(PersonID king,PersonID *kqueue)
+FAR U32 GetEnemyKing(PersonID king,PersonID *kqueue)
 {
     U32 c,i,count;
     U32 b;
