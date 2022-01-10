@@ -1122,9 +1122,9 @@ U8 OrderExec(OrderType *Order)
 #define _ST OrderType
         static Field _fields[] = {
             _FIELD_RW(OrderId, U8),
-            _FIELD_RW(Person, U8),
+            _FIELD_RW(Person, U16),
             _FIELD_RW(City, U8),
-            _FIELD_RW(Object, U8),
+            _FIELD_RW(Object, U16),
             _FIELD_RW(Arms, U16),
             _FIELD_RW(Food, U16),
             _FIELD_RW(Money, U16),

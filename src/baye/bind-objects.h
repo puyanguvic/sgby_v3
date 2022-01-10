@@ -32,7 +32,7 @@ extern U8 g_asyncActionStringParam[1024*10];
 
 
 // static
-#define _FIELD(name, ST, field, t) {name, {.def=&_##t##_def, .offset=offsetof(ST, field)}}
+#define _FIELD(name, ST, field, t) {({TEQ(((ST*)0)->field, t); name;}), {.def=&_##t##_def, .offset=offsetof(ST, field)}}
 
 #define FIELD_RW(ST, field, t) _FIELD(#field, ST, field, t)
 #define _FIELD_RW(field, t) FIELD_RW(_ST, field, t)
@@ -67,10 +67,12 @@ extern U8 g_asyncActionStringParam[1024*10];
             static Value name = {.def = &name##_value_def}; \
             name.offset = (U32)p;
 
+#define TEQ(a, b) typedef int _[sizeof(a) == sizeof(b) ? 1 : -1];
+
 // #### dynamic add
 #define DEFADD_U8ARR(name, n) ObjectDef_addFieldArray(def, #name, ValueTypeU8, name, n);
 #define DEFADD_GBKARR(name, n) ObjectDef_addFieldGBKArray(def, #name, name, n);
-#define DEFADDF(name, t) ObjectDef_addFieldF(def, #name, ValueType##t, &name, 0, 0)
+#define DEFADDF(name, t) ({ TEQ(name, t); ObjectDef_addFieldF(def, #name, ValueType##t, &name, 0, 0); })
 
 #define DEFADD_U16ARR(name, n) ObjectDef_addFieldArray(def, #name, ValueTypeU16, name, n);
 #define DEFADD_U32ARR(name, n) ObjectDef_addFieldArray(def, #name, ValueTypeU32, name, n);

@@ -140,7 +140,7 @@ void bind_init(void) {
     DEFADDF(g_LookMovie, U8);
     DEFADDF(g_MoveSpeed, U8);
 
-    DEFADDF(g_PlayerKing, U8);
+    DEFADDF(g_PlayerKing, U16);
     DEFADDF(g_YearDate, U16);
 
     DEFADDF(g_MonthDate, U8);
@@ -205,8 +205,8 @@ void bind_init(void) {
             _FIELD_RW(Money, U16),
             _FIELD_RW(Food, U16),
             _FIELD_RW(MothballArms, U16),
-            _FIELD_RW(PersonQueue, U8),
-            _FIELD_RW(Persons, U8),
+            _FIELD_RW(PersonQueue, U16),
+            _FIELD_RW(Persons, U16),
             _FIELD_RW(ToolQueue, U16),
             _FIELD_RW(Tools, U16),
         };
