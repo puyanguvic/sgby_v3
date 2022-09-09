@@ -67,12 +67,12 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
 
 	add_custom_command(
 		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h
-		COMMAND ./genver.py > ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h
+		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genver.py > ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h
 	)
 
 	add_custom_target(ver_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h)
 
-	add_dependencies(ver_header bayeliba)
+	add_dependencies(bayeliba ver_header)
 endif()
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)

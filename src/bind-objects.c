@@ -148,7 +148,7 @@ void bind_init(void) {
     DEFADDF(g_AutoUpdateMapXY, U8);
 
     DEFADD_U16ARR(g_PersonsQueue, PERSON_MAX);
-    DEFADD_U8ARR(&g_GoodsQueue, GOODS_MAX);
+    DEFADD_U16ARR(&g_GoodsQueue, GOODS_MAX);
 
 
     {

@@ -415,6 +415,7 @@ void GamChinese(PT x,PT y,U16 Hz)
             U16 code = Hz;
             BIND_U16(&code);
             BIND_U32(&index);
+            BIND_U8ARR(zmCode, sizeof(zmCode));
             CALL_HOOK_S();
         }
         if (index >= 0) {
