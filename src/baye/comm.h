@@ -117,6 +117,7 @@ FAR void GamSetAltLibPath(const U8* datPath);
 FAR void GamSetDataDir(const U8*dataDir);
 FAR U8 GamSetFont(U16 font);
 FAR U8 GamSetFontEn(U16 font);
+FAR void GamClearFontCache();
 
 #ifndef min
 #define min(a, b) (a > b) ? b : a

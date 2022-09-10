@@ -49,6 +49,19 @@ int GetExcHZMCode(U16 Hz,U8 *hzmCode, font_t* font);
 
 static font_t font_en = {0};
 static font_t font_cn = {0};
+static U8** fontCache = NULL;
+
+FAR void GamClearFontCache() {
+    int i;
+    if (!fontCache) {
+        return;
+    }
+
+    for (i = 0; i < 0xffff; i++) {
+        free(fontCache[i]);
+    }
+    memset(fontCache, 0, sizeof(*fontCache)*0xffff);
+}
 
 FAR U8 GamSetFont(U16 font) {
     font_t* pfont = &font_cn;
@@ -427,14 +440,13 @@ void GamChinese(PT x,PT y,U16 Hz)
     U8 pscale = AX_SCALE / font_cn.scale;
 
     if (g_engineConfig.useCustomFont) {
-        static U8** cache = NULL;
         U8* zm = NULL;
 
         if (g_engineConfig.cacheCustomFont) {
-            if (cache == NULL) {
-                cache = (U8**)calloc(0xffff, sizeof(*cache));
+            if (fontCache == NULL) {
+                fontCache = (U8**)calloc(0xffff, sizeof(*fontCache));
             }
-            zm = cache[Hz];
+            zm = fontCache[Hz];
         }
 
         if (zm == NULL) {
@@ -448,7 +460,7 @@ void GamChinese(PT x,PT y,U16 Hz)
             }
             if (g_engineConfig.cacheCustomFont) {
                 zm = (U8*)malloc(font_cn.height*font_cn.width*pscale*pscale);
-                cache[Hz] = zm;
+                fontCache[Hz] = zm;
                 DecodePic(zm, zmCode, ex - x + 1, ey - y + 1, pscale);
             } else {
                 zm = zmCode;

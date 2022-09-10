@@ -440,3 +440,8 @@ EMSCRIPTEN_KEEPALIVE
 U8 bayeSetFontEn(U16 font) {
     return GamSetFontEn(font);
 }
+
+EMSCRIPTEN_KEEPALIVE
+void bayeClearFontCache() {
+    GamClearFontCache();
+}
