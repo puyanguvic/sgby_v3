@@ -64,15 +64,8 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
 		platform/js/main.c
 		version.c
 	)
-
-	add_custom_command(
-		OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h
-		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genver.py > ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h
-	)
-
-	add_custom_target(ver_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h)
-
-	add_dependencies(bayeliba ver_header)
+	target_link_libraries(baye bayeliba)
+	target_include_directories(baye PRIVATE . ./platform/common)
 endif()
 
 if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
@@ -82,17 +75,21 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
 		version.c
 	)
 	find_package (Threads)
-	target_link_libraries (baye ${CMAKE_THREAD_LIBS_INIT})
+	target_link_libraries(baye bayeliba)
+	target_link_libraries(baye ${CMAKE_THREAD_LIBS_INIT})
 	SET_TARGET_PROPERTIES(baye PROPERTIES LINK_FLAGS "-pthread")
-	#SET_TARGET_PROPERTIES(baye PROPERTIES COMPILE_OPTIONS "-g")
-	#SET_TARGET_PROPERTIES(bayeliba PROPERTIES COMPILE_OPTIONS "-g")
+	target_include_directories(baye PRIVATE . ./platform/common)
 endif()
 
+add_custom_command(
+    OUTPUT ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h
+    COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/genver.py > ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h
+)
 
+add_custom_target(ver_header ALL DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/baye/version.h)
+add_dependencies(bayeliba ver_header)
 #target_link_libraries(baye bayeliba msgpackc-static)
-target_link_libraries(baye bayeliba)
 
-target_include_directories(baye PRIVATE . ./platform/common)
 target_include_directories(bayeliba PRIVATE . ./platform/common)
 
 
