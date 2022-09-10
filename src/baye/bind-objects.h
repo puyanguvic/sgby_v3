@@ -32,7 +32,11 @@ extern U8 g_asyncActionStringParam[1024*10];
 
 
 // static
+#ifdef __EMSCRIPTEN__
 #define _FIELD(name, ST, field, t) {({TEQ(((ST*)0)->field, t); name;}), {.def=&_##t##_def, .offset=offsetof(ST, field)}}
+#else
+#define _FIELD(name, ST, field, t) {name, {.def=&_##t##_def, .offset=offsetof(ST, field)}}
+#endif
 
 #define FIELD_RW(ST, field, t) _FIELD(#field, ST, field, t)
 #define _FIELD_RW(field, t) FIELD_RW(_ST, field, t)
