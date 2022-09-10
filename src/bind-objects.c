@@ -443,6 +443,7 @@ void bind_init(void) {
             _FIELD_RW(checkRedundantOnAddPerson, U8),
             _FIELD_RW(disableFightToDeath, U8),
             _FIELD_RW(useCustomFont, U8),
+            _FIELD_RW(useCustomFontEn, U8),
             _FIELD_RW(cacheCustomFont, U8),
         };
 

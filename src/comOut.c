@@ -423,6 +423,42 @@ U32 GamStrShow(PT x,PT y,const U8 *buf)
     GamResumeSet();
     return i;
 }
+
+void GamCustomChar(PT x, PT y, U16 Hz, U8* zmCode, int len) {
+    PT ex = x+(Hz<256?ASC_WID:HZ_WID)*font_cn.scale-1;
+    PT ey = y+(Hz<256?ASC_HGT:HZ_HGT)*font_cn.scale-1;
+    U8 pscale = AX_SCALE / font_cn.scale;
+
+    U8* zm = NULL;
+
+    if (g_engineConfig.cacheCustomFont) {
+        if (fontCache == NULL) {
+            fontCache = (U8**)calloc(0xffff, sizeof(*fontCache));
+        }
+        zm = fontCache[Hz];
+    }
+
+    if (zm == NULL) {
+        gam_memset(zmCode, 0, len);
+
+        IF_HAS_HOOK("fontImageForChar") {
+            U16 code = Hz;
+            BIND_U16(&code);
+            BIND_U8ARR(zmCode, len);
+            CALL_HOOK_S();
+        }
+        if (g_engineConfig.cacheCustomFont) {
+            zm = (U8*)malloc(font_cn.height*font_cn.width*pscale*pscale);
+            fontCache[Hz] = zm;
+            DecodePic(zm, zmCode, ex - x + 1, ey - y + 1, pscale);
+        } else {
+            zm = zmCode;
+        }
+    }
+    SysPictureEx(x,y,ex,ey,zm, 0, pscale, !g_engineConfig.cacheCustomFont);
+    return;
+}
+
 /***********************************************************************
  * 说明:     显示12*12点阵GB2312汉字
  * 输入参数: x,y	->显示坐标	Hz	->要显示的汉字内码
@@ -435,61 +471,21 @@ U32 GamStrShow(PT x,PT y,const U8 *buf)
 void GamChinese(PT x,PT y,U16 Hz)
 {
     U8 zmCode[300];
-    PT ex = x+HZ_WID*font_cn.scale-1;
-    PT ey = y+HZ_HGT*font_cn.scale-1;
-    U8 pscale = AX_SCALE / font_cn.scale;
 
     if (g_engineConfig.useCustomFont) {
-        U8* zm = NULL;
-
-        if (g_engineConfig.cacheCustomFont) {
-            if (fontCache == NULL) {
-                fontCache = (U8**)calloc(0xffff, sizeof(*fontCache));
-            }
-            zm = fontCache[Hz];
-        }
-
-        if (zm == NULL) {
-            gam_memset(zmCode, 0, sizeof(zmCode));
-
-            IF_HAS_HOOK("fontImageForChar") {
-                U16 code = Hz;
-                BIND_U16(&code);
-                BIND_U8ARR(zmCode, sizeof(zmCode));
-                CALL_HOOK_S();
-            }
-            if (g_engineConfig.cacheCustomFont) {
-                zm = (U8*)malloc(font_cn.height*font_cn.width*pscale*pscale);
-                fontCache[Hz] = zm;
-                DecodePic(zm, zmCode, ex - x + 1, ey - y + 1, pscale);
-            } else {
-                zm = zmCode;
-            }
-        }
-        SysPictureEx(x,y,ex,ey,zm, 0, pscale, !g_engineConfig.cacheCustomFont);
-        return;
+        return GamCustomChar(x, y, Hz, zmCode, sizeof(zmCode));
     }
 
     if (GetExcHZMCode(Hz,zmCode, &font_cn) != 0) {
-        I32 index = -1;
-        IF_HAS_HOOK("fontImageForChar") {
-            U16 code = Hz;
-            BIND_U16(&code);
-            BIND_U32(&index);
-            BIND_U8ARR(zmCode, sizeof(zmCode));
-            CALL_HOOK_S();
-        }
-        if (index >= 0) {
-            PictureHeadType* head = (PictureHeadType*)ResLoadToCon(MAIN_SPE,2,g_CBnkPtr);
-            if (index < head->count) {
-                GamPicShowEx(x, y, index, (U8*)head);
-                return;
-            }
-        }
         gam_memset(zmCode, 0, sizeof(zmCode));
     }
 
-    SysPicture(x,y,ex,ey,zmCode, 0, pscale);
+    {
+        PT ex = x+HZ_WID*font_cn.scale-1;
+        PT ey = y+HZ_HGT*font_cn.scale-1;
+        U8 pscale = AX_SCALE / font_cn.scale;
+        SysPicture(x,y,ex,ey,zmCode, 0, pscale);
+    }
 }
 /***********************************************************************
  * 说明:     显示12*12点阵GB2312AscII
@@ -502,7 +498,11 @@ void GamChinese(PT x,PT y,U16 Hz)
  ***********************************************************************/
 void GamAscii(PT x,PT y,U8 asc)
 {
-    U8  i,zmCode[300];
+    U8 i, zmCode[300];
+
+    if (g_engineConfig.useCustomFontEn) {
+        return GamCustomChar(x, y, asc, zmCode, sizeof(zmCode));
+    }
 
     if(asc <= ' ')
         gam_memset(zmCode,0,font_en.data_ext_size);
