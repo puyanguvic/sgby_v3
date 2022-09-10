@@ -442,6 +442,8 @@ void bind_init(void) {
             _FIELD_RW(compressCustomData, U8),
             _FIELD_RW(checkRedundantOnAddPerson, U8),
             _FIELD_RW(disableFightToDeath, U8),
+            _FIELD_RW(useCustomFont, U8),
+            _FIELD_RW(cacheCustomFont, U8),
         };
 
         static ObjectDef _obj_def = {

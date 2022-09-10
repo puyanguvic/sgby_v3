@@ -489,7 +489,7 @@ FAR	void	SysMemInit(U16 start,U16 len)
     gam_timer2_open(3, timed_flush_lcd);
 }
 
-static void _decodePic(U8* dst, const U8*pic, PT w, PT h, U8 scale) {
+FAR void DecodePic(U8* dst, const U8*pic, PT w, PT h, U8 scale) {
     int ppl = (w + 7) / 8;
     PT x, y, W, H, X, Y;
 
@@ -512,7 +512,7 @@ static void _decodePic(U8* dst, const U8*pic, PT w, PT h, U8 scale) {
     }
 }
 
-FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale) {
+FAR void SysPictureEx(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale, U8 compat) {
     int wid = eX - sX + 1;
     int hgt = eY - sY + 1;
     int x, y, X, Y;
@@ -524,8 +524,8 @@ FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale) {
         _buf = gam_malloc(MAX_SCR_BUF_LEN);
     } 
 
-    if (pic) {
-        _decodePic(_buf, pic, wid, hgt, scale);
+    if (compat && pic) {
+        DecodePic(_buf, pic, wid, hgt, scale);
         pic = _buf;
     }
 
@@ -587,6 +587,10 @@ FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale) {
         }
     }
     flushLcd();
+}
+
+FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale) {
+    return SysPictureEx(sX, sY, eX, eY, pic , flag, scale, 1);
 }
 
 static inline void _pixel(PT x,PT y,U8 data)

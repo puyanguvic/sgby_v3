@@ -233,6 +233,8 @@ typedef struct {
     U8 compressCustomData; // 压缩扩展存档数据
     U8 checkRedundantOnAddPerson; // 往城池添加人物时检查重复
     U8 disableFightToDeath; // 战斗中不死亡
+    U8 useCustomFont;       // 使用自定义字体
+    U8 cacheCustomFont;     // 缓存自定义字体
 
     Theme theme; // 主题
 } EngineConfig;

@@ -28,8 +28,8 @@
 
 typedef struct {
     U8 scale;
-    U8 data_size;
-    U8 data_ext_size;
+    U16 data_size;
+    U16 data_ext_size;
     U8 width;
     U8 height;
     gam_FILE*fp;
@@ -87,6 +87,20 @@ FAR U8 GamSetFont(U16 font) {
             pfont->offset = CountHZMAddrOff;
             pfont->width = 24;
             pfont->height = 24;
+            printf("set cn font to %d\n", font);
+            return 0;
+        }
+
+        case 5: {
+            if (AX_SCALE % 4 != 0) {
+                printf("font %d not supported under scale %d\n", font, AX_SCALE);
+                return 1;
+            }
+            pfont->scale = 4;
+            pfont->data_size = 288;
+            pfont->data_ext_size = 288;
+            pfont->width = 48;
+            pfont->height = 48;
             printf("set cn font to %d\n", font);
             return 0;
         }
@@ -407,7 +421,42 @@ U32 GamStrShow(PT x,PT y,const U8 *buf)
  ***********************************************************************/
 void GamChinese(PT x,PT y,U16 Hz)
 {
-    U8 zmCode[256];
+    U8 zmCode[300];
+    PT ex = x+HZ_WID*font_cn.scale-1;
+    PT ey = y+HZ_HGT*font_cn.scale-1;
+    U8 pscale = AX_SCALE / font_cn.scale;
+
+    if (g_engineConfig.useCustomFont) {
+        static U8** cache = NULL;
+        U8* zm = NULL;
+
+        if (g_engineConfig.cacheCustomFont) {
+            if (cache == NULL) {
+                cache = (U8**)calloc(0xffff, sizeof(*cache));
+            }
+            zm = cache[Hz];
+        }
+
+        if (zm == NULL) {
+            gam_memset(zmCode, 0, sizeof(zmCode));
+
+            IF_HAS_HOOK("fontImageForChar") {
+                U16 code = Hz;
+                BIND_U16(&code);
+                BIND_U8ARR(zmCode, sizeof(zmCode));
+                CALL_HOOK_S();
+            }
+            if (g_engineConfig.cacheCustomFont) {
+                zm = (U8*)malloc(font_cn.height*font_cn.width*pscale*pscale);
+                cache[Hz] = zm;
+                DecodePic(zm, zmCode, ex - x + 1, ey - y + 1, pscale);
+            } else {
+                zm = zmCode;
+            }
+        }
+        SysPictureEx(x,y,ex,ey,zm, 0, pscale, !g_engineConfig.cacheCustomFont);
+        return;
+    }
 
     if (GetExcHZMCode(Hz,zmCode, &font_cn) != 0) {
         I32 index = -1;
@@ -428,7 +477,7 @@ void GamChinese(PT x,PT y,U16 Hz)
         gam_memset(zmCode, 0, sizeof(zmCode));
     }
 
-    SysPicture(x,y,x+HZ_WID*font_cn.scale-1,y+HZ_HGT*font_cn.scale-1,zmCode, 0, AX_SCALE / font_cn.scale);
+    SysPicture(x,y,ex,ey,zmCode, 0, pscale);
 }
 /***********************************************************************
  * 说明:     显示12*12点阵GB2312AscII
@@ -441,7 +490,7 @@ void GamChinese(PT x,PT y,U16 Hz)
  ***********************************************************************/
 void GamAscii(PT x,PT y,U8 asc)
 {
-    U8  i,zmCode[256];
+    U8  i,zmCode[300];
 
     if(asc <= ' ')
         gam_memset(zmCode,0,font_en.data_ext_size);
@@ -469,7 +518,7 @@ void GamAscii(PT x,PT y,U8 asc)
 int GetExcHZMCode(U16 Hz,U8 *hzmCode, font_t* font)
 {
     /*字模页号偏移 是否跨bank */
-    U8  _buf[256];
+    U8  _buf[300];
     U8  i,j,k;
     U32 hzmAddr;
     U8  *buf;

@@ -1007,6 +1007,7 @@ EngineConfig g_engineConfig = {
     .promptCityDisaster = 1, // 提示城池灾害
     .showStartMovie = 1, // 显示开场动画
     .compressCustomData = 0,
+    .cacheCustomFont = 1,
     .theme = {
         .landMapColor = 0xcf,
         .ownedCityColor = 0xff,

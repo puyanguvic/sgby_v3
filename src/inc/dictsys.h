@@ -330,6 +330,8 @@ FAR void SysSelectScreen(U8*scr);
 FAR	void SysRestoreScreenEx();
 FAR	void SysSaveScreenEx();
 FAR void SysPicture(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale);
+FAR void SysPictureEx(PT sX, PT sY, PT eX, PT eY, U8*pic , U8 flag, U8 scale, U8 compat);
+FAR void DecodePic(U8* dst, const U8*pic, PT w, PT h, U8 scale);
 FAR void SysCircle(PT x0,PT y0,PT r);
 FAR void SysFillCircle(PT x0,PT y0,PT r);
 
