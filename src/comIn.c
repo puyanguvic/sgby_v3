@@ -231,7 +231,7 @@ FAR U8 GamDelay(U16 dly, BOOL keyflag)
         {
             if(!dly) break;
             GamGetMsg(&pMsg);
-            if(VM_TIMER == pMsg.type)
+            if(VM_TIMER == pMsg.type && pMsg.param == 1)
                 dly -= 1;
             else
             {

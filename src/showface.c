@@ -753,7 +753,14 @@ U8 ShowPersonProStr(U8 pro,U8 x,U8 y,U8 wid)
  *		----		----			-----------
  *		陈泽伟		2005/5/18 11:26AM	基本功能完成
  ******************************************************************************/
-FAR PersonID ShowPersonControl(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1)
+FAR PersonID ShowPersonControlInner(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1);
+FAR PersonID ShowPersonControl(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1) {
+    SysTimer0Open(5);
+    PersonID id = ShowPersonControlInner(person, pcount, initSelected, x0, y0, x1, y1);
+    SysTimer0Close();
+    return id;
+}
+FAR PersonID ShowPersonControlInner(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1)
 {
     U32 i,showflag,count,top,set;
     U8 spc,spcv[7];
@@ -818,6 +825,7 @@ FAR PersonID ShowPersonControl(PersonID *person,U32 pcount,PersonID initSelected
 
         if (VM_CHAR_FUN == Msg.type)
         {
+            touchUpdate(&touch, Msg);
             switch (Msg.param)
             {
                 case VK_SEARCH:
@@ -913,26 +921,32 @@ FAR PersonID ShowPersonControl(PersonID *person,U32 pcount,PersonID initSelected
                 case VT_TOUCH_MOVE:
                 {
                     if (!touch.touched) break;
+moveView:
+                    {
+                        U8 xMax = 100;
 
-                    U8 xMax = 100;
+                        Point p = touchListViewCalcTopLeftForMove(&touch, leftWhenTouchDown, xMax, 30, topWhenTouchDown, pcount - count, ASC_HGT);
 
-                    Point p = touchListViewCalcTopLeftForMove(&touch, leftWhenTouchDown, xMax, 30, topWhenTouchDown, pcount - count, ASC_HGT);
-
-                    if (spc != p.x || top != p.y) {
-                        top = p.y;
-                        if (p.x > spc) {
-                            if (spcv[spc + 1] < cfg.personPropertiesCount) {
-                                spc = spc + 1;
+                        if (spc != p.x || top != p.y) {
+                            top = p.y;
+                            if (p.x > spc) {
+                                if (spcv[spc + 1] < cfg.personPropertiesCount) {
+                                    spc = spc + 1;
+                                }
+                            } else {
+                                spc = p.x;
                             }
-                        } else {
-                            spc = p.x;
+                            showflag = 1;
                         }
-                        showflag = 1;
+                        break;
                     }
-                    break;
                 }
                 default:
                     break;
+            }
+        } else if (VM_TIMER == Msg.type && Msg.param == 0) {
+            if (touchUpdate(&touch, Msg)) {
+                goto moveView;
             }
         }
     }

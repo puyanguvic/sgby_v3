@@ -24,10 +24,15 @@ typedef struct {
     U8 completed;
     U8 touched;
     U8 moved;
+    U8 gliding;
+    I16 speedX;
+    I16 speedY;
     I16 startX;
     I16 startY;
     I16 currentX;
     I16 currentY;
+    I16 prevX;
+    I16 prevY;
 } Touch;
 
 typedef struct {

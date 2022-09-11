@@ -567,7 +567,14 @@ U8 FgtGetControl(void)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-U8 FgtGetFoucs(void (*chkcondition)(bool*flag))
+U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag));
+U8 FgtGetFoucs(void (*chkcondition)(bool*flag)) {
+    // SysTimer0Open(5);
+    U8 rv = FgtGetFoucsInner(chkcondition);
+    SysTimer0Close();
+    return rv;
+}
+U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag))
 {
     bool	flag,tflag;
     GMType	pMsg;
@@ -599,39 +606,52 @@ U8 FgtGetFoucs(void (*chkcondition)(bool*flag))
         switch(pMsg.type)
         {
             case VM_CHAR_FUN:
+                touchUpdate(&touch, pMsg);
                 switch(pMsg.param)
-            {
-                case VK_UP:
-                    if (g_FoucsY)
-                        g_FoucsY -= 1;
-                    break;
-                case VK_DOWN:
-                    if (g_FoucsY < g_MapHgt-1)
-                        g_FoucsY += 1;
-                    break;
-                case VK_LEFT:
-                    if (g_FoucsX)
-                        g_FoucsX -= 1;
-                    break;
-                case VK_RIGHT:
-                    if (g_FoucsX < g_MapWid-1)
-                        g_FoucsX += 1;
-                    break;
-                case VK_HELP:
-                    FgtShowHlp();
-                    break;
-                case VK_SEARCH:
-                    FgtShowView();
-                    break;
-            }
+                {
+                    case VK_UP:
+                        if (g_FoucsY)
+                            g_FoucsY -= 1;
+                        break;
+                    case VK_DOWN:
+                        if (g_FoucsY < g_MapHgt-1)
+                            g_FoucsY += 1;
+                        break;
+                    case VK_LEFT:
+                        if (g_FoucsX)
+                            g_FoucsX -= 1;
+                        break;
+                    case VK_RIGHT:
+                        if (g_FoucsX < g_MapWid-1)
+                            g_FoucsX += 1;
+                        break;
+                    case VK_HELP:
+                        FgtShowHlp();
+                        break;
+                    case VK_SEARCH:
+                        FgtShowView();
+                        break;
+                }
                 g_AutoUpdateMapXY = true;
                 tflag = false;
                 (*chkcondition)(&tflag);
                 break;
             case VM_TIMER:
-                flag = !flag;
-                FgtShowMap(g_MapSX,g_MapSY);
+            {
+                switch(pMsg.param) {
+                    case 0:
+                        if (touchUpdate(&touch, pMsg)) {
+                            goto moveView;
+                        } else {
+                            continue;
+                        }
+                    case 1:
+                        flag = !flag;
+                        FgtShowMap(g_MapSX,g_MapSY);
+                        break;
+                }
                 break;
+            }
             case VM_TOUCH:
             {
                 touchUpdate(&touch, pMsg);
@@ -681,8 +701,11 @@ U8 FgtGetFoucs(void (*chkcondition)(bool*flag))
                         break;
                     }
                     case VT_TOUCH_MOVE:
+                    {
+                        Point p;
                         if (!touch.touched) break;
-                        Point p = touchListViewCalcTopLeftForMove(&touch,
+moveView:
+                        p = touchListViewCalcTopLeftForMove(&touch,
                                                                   leftWhenTouchDown, g_MapWid-SCR_MAPWID, 16,
                                                                   topWhenTouchDown, g_MapHgt-SCR_MAPHGT, 16);
                         if (p.x != g_MapSX || p.y != g_MapSY) {
@@ -693,6 +716,7 @@ U8 FgtGetFoucs(void (*chkcondition)(bool*flag))
                             (*chkcondition)(&tflag);
                         }
                         break;
+                    }
                     default:
                         break;
                 }

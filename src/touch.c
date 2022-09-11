@@ -36,39 +36,106 @@ I16 touchListViewItemIndexAtPoint(I16 x, I16 y, Rect listRect, I16 topPadding, I
     return index < itemCount ? index : -1;
 }
 
+static I16 fade(I16 v) {
+    if (v == 0) {
+        return 0;
+    } else {
+        I16 dv = v / 10;
+        if (dv == 0) {
+            dv = v > 0 ? 1 : -1;
+        }
+        return v - dv;
+    }
+}
+
 I8 touchUpdate(Touch *touch, MsgType msg)
 {
-    if (msg.type != VM_TOUCH) {
-        return -1;
-    }
-
-    touch->currentX = msg.param2.i16.p0;
-    touch->currentY = msg.param2.i16.p1;
-
-    switch (msg.param) {
-        case VT_TOUCH_DOWN:
-            touch->startX = touch->currentX;
-            touch->startY = touch->currentY;
-            touch->touched = 1;
-            touch->moved = 0;
-            break;
-        case VT_TOUCH_UP:
-            touch->completed = touch->touched;
-            touch->touched = 0;
-            break;
-        case VT_TOUCH_MOVE:
-            if (abs(touch->currentX - touch->startX) > 2 || abs(touch->currentY - touch->startY) > 2) {
-                touch->moved = 1;
+    switch(msg.type) {
+        case VM_TIMER:
+        {
+            if (msg.param != 0) {
+                return 0;
             }
-            break;
-        case VT_TOUCH_CANCEL:
-            touch->touched = 0;
-            touch->completed = 0;
-            break;
+            if (touch->gliding) {
+                touch->currentX += touch->speedX;
+                touch->currentY += touch->speedY;
+                touch->speedX = fade(touch->speedX);
+                touch->speedY = fade(touch->speedY);
+                if (touch->speedX == 0 && touch->speedY == 0) {
+                    touch->gliding = 0;
+                }
+                return 1;
+            }
+            if (touch->touched) {
+                touch->speedX = touch->currentX - touch->prevX;
+                touch->speedY = touch->currentY - touch->prevY;
+                touch->prevX = touch->currentX;
+                touch->prevY = touch->currentY;
+            }
+            return 0;
+        }
+        case VM_TOUCH:
+        {
+            U16 currentX = msg.param2.i16.p0;
+            U16 currentY = msg.param2.i16.p1;
+
+            switch (msg.param) {
+                case VT_TOUCH_DOWN:
+                    touch->prevX = touch->startX = touch->currentX = currentX;
+                    touch->prevY = touch->startY = touch->currentY = currentY;
+                    touch->touched = 1;
+                    touch->moved = 0;
+                    touch->gliding = 0;
+                    touch->speedX = 0;
+                    touch->speedY = 0;
+                    break;
+                case VT_TOUCH_UP:
+                    if (touch->touched && touch->moved) {
+                        touch->gliding = 1;
+                        touch->currentX = currentX;
+                        touch->currentY = currentY;
+                        U16 speedX = touch->currentX - touch->prevX;
+                        U16 speedY = touch->currentY - touch->prevY;
+                        #define S_ABS(x) (x >= 0?x:-x)
+                        #define UP_IF_GT(speed) if (S_ABS(speed) > S_ABS(touch->speed)) { \
+                            touch->speed = speed; \
+                        }
+                        UP_IF_GT(speedX);
+                        UP_IF_GT(speedY);
+                    }
+                    touch->completed = touch->touched;
+                    touch->touched = 0;
+                    break;
+                case VT_TOUCH_MOVE:
+                    if (!touch->touched) break;
+                    touch->currentX = currentX;
+                    touch->currentY = currentY;
+                    if (abs(touch->currentX - touch->startX) > 2 || abs(touch->currentY - touch->startY) > 2) {
+                        touch->moved = 1;
+                    }
+                    break;
+                case VT_TOUCH_CANCEL:
+                    touch->touched = 0;
+                    touch->completed = 0;
+                    touch->gliding = 0;
+                    break;
+                default:
+                    break;
+            }
+            return 0;
+        }
+        case VM_KEY:
+        case VM_CHAR_ASC:
+        case VM_CHAR_FUN:
+        case VM_CHAR_HZ:
+        case VM_CHAR_MATH:
+        {
+            touch->gliding = 0;
+            return 0;
+        }
         default:
-            break;
+            return 0;
     }
-    return 0;
 }
 
 I32 limitValueInRange(I32 value, I32 min, I32 max)

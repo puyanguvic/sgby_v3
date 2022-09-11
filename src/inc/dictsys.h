@@ -369,6 +369,8 @@ FAR	void SysSetDay(U16 day);
 
 FAR void SysTimer1Open(U8 times);
 FAR void SysTimer1Close(void);
+FAR void SysTimer0Open(U8 times);
+FAR void SysTimer0Close(void);
 FAR	U8 SysGetTimer1Number(void);
 
 /*-----------------------------------------------------------------------------------------

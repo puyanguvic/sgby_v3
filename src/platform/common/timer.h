@@ -9,12 +9,15 @@
 #ifndef baye_ios_timer_h
 #define baye_ios_timer_h
 
+#include "baye/stdsys.h"
+
 
 void gam_timer_init();
-void gam_timer_set_callback(void(*cb)());
-void gam_timer_open(int interval);
-void gam_timer_close();
-int gam_timer_interval();
+void gam_timer_set_callback(U8 n, void(*cb)());
+void gam_timer_open(U8 n, int interval);
+void gam_timer_close(U8 n);
+int gam_timer_interval(U8 n);
+void gam_timer_set_interval(U8 n, int interval);
 
 void gam_timer2_open(int interval, void(*callback)());
 

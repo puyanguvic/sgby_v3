@@ -413,7 +413,14 @@ void GamMakerInf(void)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-PersonID GamGetKing(PersonID*kings, U32 num)
+PersonID GamGetKingInner(PersonID*kings, U32 num);
+PersonID GamGetKing(PersonID*kings, U32 num) {
+    SysTimer0Open(5);
+    PersonID id = GamGetKingInner(kings, num);
+    SysTimer0Close();
+    return id;
+}
+PersonID GamGetKingInner(PersonID*kings, U32 num)
 {
     U8	*pos,tbuf[CITY_MAX];
     I32	pTop,pIdx,pSLen;
@@ -548,11 +555,13 @@ PersonID GamGetKing(PersonID*kings, U32 num)
                     break;
                 case VT_TOUCH_MOVE:
                 {
+                    I16 distanceY, top;
+                    I8 deltaItems;
                     if (!touch.touched) break;
-                    
-                    I16 distanceY = touch.currentY - touch.startY;
-                    I8 deltaItems = distanceY / itemHeight;
-                    I16 top = touchStartTop - deltaItems;
+moveView:
+                    distanceY = touch.currentY - touch.startY;
+                    deltaItems = distanceY / itemHeight;
+                    top = touchStartTop - deltaItems;
                     top = limitValueInRange(top, 0, num-itemsPerPage);
                     if (top != pTop) {
                         pTop = top;
@@ -563,6 +572,16 @@ PersonID GamGetKing(PersonID*kings, U32 num)
                 default:
                     break;
             }
+        }
+        else if (pMsg.type == VM_TIMER && pMsg.param == 0)
+        {
+            if(touchUpdate(&touch, pMsg)) {
+                goto moveView;
+            }
+        }
+        else if (pMsg.type == VM_CHAR_FUN)
+        {
+            touchUpdate(&touch, pMsg);
         }
         else
         {

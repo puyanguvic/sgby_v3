@@ -5,7 +5,9 @@
 //  Created by loong on 15/8/15.
 //
 //
+#include <stdio.h>
 #include <emscripten.h>
+#include "../common/timer.h"
 
 #define NULL ((void*)0)
 #define ratio 10.0
@@ -19,8 +21,9 @@ typedef struct {
     timer_cb cb;
 } timer_t;
 
-static timer_t timer1 = {
-    0, 0, 1, NULL
+static timer_t timers[2] = {
+    {0, 0, 1, NULL},
+    {0, 0, 1, NULL},
 };
 
 static void schedule_timer(timer_t* timer);
@@ -37,18 +40,22 @@ static void schedule_timer(timer_t* timer) {
     emscripten_async_call(_timer_cb, timer, timer->interval * ratio);
 }
 
-int gam_timer_interval()
+int gam_timer_interval(U8 n)
 {
-    return timer1.interval;
+    return timers[n].interval;
+}
+
+void gam_timer_set_interval(U8 n, int interval) {
+    timers[n].interval = interval;
 }
 
 void gam_timer_init()
 {
 }
 
-void gam_timer_set_callback(void(*cb)(void))
+void gam_timer_set_callback(U8 n, void(*cb)(void))
 {
-    timer1.cb = cb;
+    timers[n].cb = cb;
 }
 
 static void _timer_open(timer_t* timer) {
@@ -59,15 +66,15 @@ static void _timer_open(timer_t* timer) {
     }
 }
 
-void gam_timer_open(int interval)
+void gam_timer_open(U8 n, int interval)
 {
-    timer1.interval = interval;
-    _timer_open(&timer1);
+    timers[n].interval = interval;
+    _timer_open(&timers[n]);
 }
 
-void gam_timer_close()
+void gam_timer_close(U8 n)
 {
-    timer1.active = 0;
+    timers[n].active = 0;
 }
 
 
@@ -75,7 +82,7 @@ static timer_t timer2 = {
     0, 0, 1, NULL
 };
 
-void gam_timer2_open(int interval, void(*callback))
+void gam_timer2_open(int interval, void(*callback)())
 {
     timer2.interval = interval;
     timer2.cb = callback;

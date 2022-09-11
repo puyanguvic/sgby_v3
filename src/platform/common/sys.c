@@ -409,7 +409,7 @@ FAR U8   SysGetKeySound(void)
 
 FAR	U8 SysGetTimer1Number(void)
 {
-    return (U8)gam_timer_interval();
+    return (U8)gam_timer_interval(1);
 }
 
 FAR	void SysIconAllClear(void)						/*清除所有icon显示,系统的除外 */
@@ -475,17 +475,27 @@ FAR void SysLine(PT x1,PT y1,PT x2,PT y2)
 {
 }
 
-static void _timercb()
+static void _timer0cb()
 {
     MsgType msg;
     msg.type = VM_TIMER;
+    msg.param = 0;
+    GuiPushMsg(&msg);
+}
+
+static void _timer1cb()
+{
+    MsgType msg;
+    msg.type = VM_TIMER;
+    msg.param = 1;
     GuiPushMsg(&msg);
 }
 
 FAR	void	SysMemInit(U16 start,U16 len)
 {
     gam_timer_init();
-    gam_timer_set_callback(_timercb);
+    gam_timer_set_callback(0, _timer0cb);
+    gam_timer_set_callback(1, _timer1cb);
     gam_timer2_open(3, timed_flush_lcd);
 }
 
@@ -640,12 +650,22 @@ FAR void SysSetKeySound(U8 keySoundFlag)
 
 FAR void SysTimer1Close(void)
 {
-    gam_timer_close();
+    gam_timer_close(1);
 }
 
 FAR void SysTimer1Open(U8 times)
 {
-    gam_timer_open(times);
+    gam_timer_open(1, times);
+}
+
+FAR void SysTimer0Close(void)
+{
+    gam_timer_close(0);
+}
+
+FAR void SysTimer0Open(U8 times)
+{
+    gam_timer_open(0, times);
 }
 
 FAR void SysSaveScreen()
