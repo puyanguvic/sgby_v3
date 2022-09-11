@@ -195,7 +195,14 @@ FAR U8 PlcMovie(U16 speid, U16 index, U8 startfrm,U8 endfrm,U8 keyflag,PT x,PT y
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
+FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf);
+FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf) {
+    SysTimer0Open(5);
+    U16 rv = PlcSplMenuInner(pRect, pIdx, buf);
+    SysTimer0Close();
+    return rv;
+}
+FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf)
 {
     U16	sy,ty,tflag,cflag;
     U16	pLen;	/* 每个菜单项字符长度 */
@@ -279,6 +286,7 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
         }
 
         tflag = false;
+nextMsg:
         GamGetMsg(&pMsg);
 
         if (VM_TOUCH == pMsg.type)
@@ -316,6 +324,7 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
                     break;
                 }
                 case VT_TOUCH_MOVE:
+moveView:
                 {
                     I16 dy = touch.currentY - touch.startY;
                     I16 dItems = dy / itemHeight;
@@ -326,6 +335,8 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
                         poff = pSIdx*pLen;
                         tflag = 1;
                         cflag = 1;
+                    } else {
+                        goto nextMsg;
                     }
                     break;
                 }
@@ -333,11 +344,16 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf)
                     break;
             }
             goto UPDATE_UI;
+        } else if (VM_TIMER == pMsg.type && pMsg.param == 0) {
+            if (touchUpdate(&touch, pMsg)) {
+                goto moveView;
+            }
+            goto nextMsg;
         }
 
         if(VM_CHAR_FUN != pMsg.type)
             continue;
-
+        touchUpdate(&touch, pMsg);
         switch(pMsg.param)
         {
             case VK_UP:
