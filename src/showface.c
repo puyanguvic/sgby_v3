@@ -927,6 +927,11 @@ moveView:
 
                         Point p = touchListViewCalcTopLeftForMove(&touch, leftWhenTouchDown, xMax, 30, topWhenTouchDown, pcount - count, ASC_HGT);
 
+                        touchUpdateViewState(
+                            &touch,
+                            3,
+                            pointState(p.y, 0, pcount - count)
+                        );
                         if (spc != p.x || top != p.y) {
                             top = p.y;
                             if (p.x > spc) {

@@ -48,6 +48,33 @@ static I16 fade(I16 v) {
     }
 }
 
+U8 pointState(I16 v, I16 min, I16 max) {
+    U8 ret = 0;
+    if (v <= min) {
+        ret |= 1;
+    }
+    if (v >= max) {
+        ret |= 2;
+    }
+    return ret;
+}
+
+void touchUpdateViewState(Touch *touch, U8 sx, U8 sy)
+{
+    if (!touch->gliding) {
+        return;
+    }
+    if (touch->speedX < 0 && (sx & 2) || touch->speedX > 0 && (sx & 1) ) {
+        touch->speedX = 0;
+    }
+    if (touch->speedY < 0 && (sy & 2) || touch->speedY > 0 && (sy & 1) ) {
+        touch->speedY = 0;
+    }
+    if (touch->speedX == 0 && touch->speedY == 0) {
+        touch->gliding = 0;
+    }
+}
+
 I8 touchUpdate(Touch *touch, MsgType msg)
 {
     switch(msg.type) {

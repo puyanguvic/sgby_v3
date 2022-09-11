@@ -569,7 +569,7 @@ U8 FgtGetControl(void)
  ***********************************************************************/
 U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag));
 U8 FgtGetFoucs(void (*chkcondition)(bool*flag)) {
-    // SysScrollingTimerOpen(5);
+    SysScrollingTimerOpen(5);
     U8 rv = FgtGetFoucsInner(chkcondition);
     SysScrollingTimerClose();
     return rv;
@@ -708,12 +708,19 @@ moveView:
                         p = touchListViewCalcTopLeftForMove(&touch,
                                                                   leftWhenTouchDown, g_MapWid-SCR_MAPWID, 16,
                                                                   topWhenTouchDown, g_MapHgt-SCR_MAPHGT, 16);
+                        touchUpdateViewState(
+                            &touch,
+                            pointState(p.x, 0, g_MapWid-SCR_MAPWID),
+                            pointState(p.y, 0, g_MapHgt-SCR_MAPHGT)
+                        );
                         if (p.x != g_MapSX || p.y != g_MapSY) {
                             g_MapSX = p.x;
                             g_MapSY = p.y;
                             g_AutoUpdateMapXY = false;
                             tflag = false;
                             (*chkcondition)(&tflag);
+                        } else {
+                            continue;
                         }
                         break;
                     }

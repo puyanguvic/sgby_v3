@@ -55,6 +55,8 @@ Point touchListViewCalcTopLeftForMove(Touch *touch_,
 void touchSendTouchEvent(U16 event, I16 x, I16 y);
 I8 touchUpdate(Touch *touch, MsgType msg);
 I32 limitValueInRange(I32 value, I32 min, I32 max);
+void touchUpdateViewState(Touch *touch, U8 sx, U8 sy);
+U8 pointState(I16 v, I16 min, I16 max);
 
 Rect MakeRect(I16 x, I16 y, I16 w, I16 h);
 

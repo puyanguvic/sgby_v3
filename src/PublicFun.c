@@ -330,6 +330,11 @@ moveView:
                     I16 dItems = dy / itemHeight;
                     I16 startIndex = touchStartIndex - dItems;
                     startIndex = limitValueInRange(startIndex, 0, pItm-pICnt);
+                    touchUpdateViewState(
+                        &touch,
+                        3,
+                        pointState(startIndex, 0, pItm-pICnt)
+                    );
                     if (startIndex != pSIdx) {
                         pSIdx = startIndex;
                         poff = pSIdx*pLen;

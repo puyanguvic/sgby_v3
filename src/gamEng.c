@@ -563,6 +563,11 @@ moveView:
                     deltaItems = distanceY / itemHeight;
                     top = touchStartTop - deltaItems;
                     top = limitValueInRange(top, 0, num-itemsPerPage);
+                    touchUpdateViewState(
+                        &touch,
+                        3,
+                        pointState(top, 0, num-itemsPerPage)
+                    );
                     if (top != pTop) {
                         pTop = top;
                         UPDATE_UI();
@@ -575,7 +580,7 @@ moveView:
         }
         else if (pMsg.type == VM_TIMER && pMsg.param == 0)
         {
-            if(touchUpdate(&touch, pMsg)) {
+            if (touchUpdate(&touch, pMsg)) {
                 goto moveView;
             }
         }
