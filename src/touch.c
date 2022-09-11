@@ -84,7 +84,7 @@ I8 touchUpdate(Touch *touch, MsgType msg)
                     touch->prevX = touch->startX = touch->currentX = currentX;
                     touch->prevY = touch->startY = touch->currentY = currentY;
                     touch->touched = 1;
-                    touch->moved = 0;
+                    touch->moved = touch->gliding;
                     touch->gliding = 0;
                     touch->speedX = 0;
                     touch->speedY = 0;
