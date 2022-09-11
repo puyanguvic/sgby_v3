@@ -77,6 +77,9 @@ void gam_timer_close(U8 n)
     timers[n].active = 0;
 }
 
+U8 gam_check_timer_on(U8 n) {
+    return timers[n].active;
+}
 
 static timer_t timer2 = {
     0, 0, 1, NULL

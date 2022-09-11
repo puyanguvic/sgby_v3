@@ -197,9 +197,9 @@ FAR U8 PlcMovie(U16 speid, U16 index, U8 startfrm,U8 endfrm,U8 keyflag,PT x,PT y
  ***********************************************************************/
 FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf);
 FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf) {
-    SysTimer0Open(5);
+    SysScrollingTimerOpen(5);
     U16 rv = PlcSplMenuInner(pRect, pIdx, buf);
-    SysTimer0Close();
+    SysScrollingTimerClose();
     return rv;
 }
 FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf)

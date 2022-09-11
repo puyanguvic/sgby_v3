@@ -415,9 +415,9 @@ void GamMakerInf(void)
  ***********************************************************************/
 PersonID GamGetKingInner(PersonID*kings, U32 num);
 PersonID GamGetKing(PersonID*kings, U32 num) {
-    SysTimer0Open(5);
+    SysScrollingTimerOpen(5);
     PersonID id = GamGetKingInner(kings, num);
-    SysTimer0Close();
+    SysScrollingTimerClose();
     return id;
 }
 PersonID GamGetKingInner(PersonID*kings, U32 num)

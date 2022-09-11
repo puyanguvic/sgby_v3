@@ -658,14 +658,18 @@ FAR void SysTimer1Open(U8 times)
     gam_timer_open(1, times);
 }
 
-FAR void SysTimer0Close(void)
+FAR void SysScrollingTimerClose(void)
 {
     gam_timer_close(0);
 }
 
-FAR void SysTimer0Open(U8 times)
+FAR void SysScrollingTimerOpen(U8 times)
 {
     gam_timer_open(0, times);
+}
+
+FAR U8 SysScrollingTimerOn(void) {
+    return gam_check_timer_on(0);
 }
 
 FAR void SysSaveScreen()

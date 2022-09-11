@@ -755,9 +755,9 @@ U8 ShowPersonProStr(U8 pro,U8 x,U8 y,U8 wid)
  ******************************************************************************/
 FAR PersonID ShowPersonControlInner(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1);
 FAR PersonID ShowPersonControl(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1) {
-    SysTimer0Open(5);
+    SysScrollingTimerOpen(5);
     PersonID id = ShowPersonControlInner(person, pcount, initSelected, x0, y0, x1, y1);
-    SysTimer0Close();
+    SysScrollingTimerClose();
     return id;
 }
 FAR PersonID ShowPersonControlInner(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1)

@@ -91,7 +91,7 @@ I8 touchUpdate(Touch *touch, MsgType msg)
                     break;
                 case VT_TOUCH_UP:
                     if (touch->touched && touch->moved) {
-                        touch->gliding = 1;
+                        touch->gliding = SysScrollingTimerOn();
                         touch->currentX = currentX;
                         touch->currentY = currentY;
                         U16 speedX = touch->currentX - touch->prevX;

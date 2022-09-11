@@ -569,9 +569,9 @@ U8 FgtGetControl(void)
  ***********************************************************************/
 U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag));
 U8 FgtGetFoucs(void (*chkcondition)(bool*flag)) {
-    // SysTimer0Open(5);
+    // SysScrollingTimerOpen(5);
     U8 rv = FgtGetFoucsInner(chkcondition);
-    SysTimer0Close();
+    SysScrollingTimerClose();
     return rv;
 }
 U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag))
