@@ -99,7 +99,7 @@ void bind_init(void) {
 
     DEFADD_GBKARR(g_errorString, sizeof(g_errorString));
 
-    DEFADD_U8ARR(g_VisScr, WK_BLEN);
+    DEFADD_U8ARR(g_VisScr, MAX_SCR_BUF_LEN);
 
     DEFADD_U8ARR(g_FightMapData, FIGHT_MAP_DATA_LEN);
     DEFADD_U8ARR(g_FightMap, FIGHT_MAP_BUFFER_LEN);

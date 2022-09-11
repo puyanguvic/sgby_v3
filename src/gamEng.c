@@ -398,7 +398,7 @@ U8 GamPicMenu(U16 picID,U16 speID, const Rect *buttonsRect, U8 buttonsCount, U8 
  ***********************************************************************/
 void GamMakerInf(void)
 {
-    gam_memset(g_VisScr,0,WK_BLEN);
+    gam_memset(g_VisScr,0,MAX_SCR_BUF_LEN);
     if (call_hook_a("showAbout", NULL) == -1) {
         GamMovie(MAKER_SPE);
         GamDelay(5000, 2);

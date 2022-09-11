@@ -161,7 +161,7 @@ FAR U8 GamConInit(void)
 
     /*虚拟屏幕缓冲指针*/
     g_VisScr = VS_PTR;
-    gam_memset(g_VisScr,0,WK_BLEN);
+    gam_memset(g_VisScr,0,MAX_SCR_BUF_LEN);
 
     /* 从lib读取引擎参数 */
     GamLoadEngineConfig();
