@@ -608,6 +608,7 @@ U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag))
         {
             case VM_CHAR_FUN:
                 touchUpdate(&touch, pMsg);
+                g_AutoUpdateMapXY = true;
                 switch(pMsg.param)
                 {
                     case VK_UP:
@@ -628,12 +629,16 @@ U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag))
                         break;
                     case VK_HELP:
                         FgtShowHlp();
+                        g_AutoUpdateMapXY = false;
                         break;
                     case VK_SEARCH:
                         FgtShowView();
+                        g_AutoUpdateMapXY = false;
+                        break;
+                    default:
+                        g_AutoUpdateMapXY = false;
                         break;
                 }
-                g_AutoUpdateMapXY = true;
                 tflag = false;
                 (*chkcondition)(&tflag);
                 break;
@@ -1039,15 +1044,26 @@ void FgtDealBout(void)
 void FgtRefrashMap(void)
 {
     if (g_AutoUpdateMapXY) {
-        if (g_FoucsX < g_MapSX)
-            g_MapSX -= 1;
-        else if (g_FoucsY < g_MapSY)
-            g_MapSY -= 1;
-        else if (g_FoucsX >= g_MapSX + SCR_MAPWID)
-            g_MapSX += 1;
-        else if (g_FoucsY >= g_MapSY + SCR_MAPHGT)
-            g_MapSY += 1;
-        else
+        U8 changed = false;
+        if (g_FoucsX < g_MapSX) {
+            g_MapSX = g_FoucsX;
+            changed = true;
+        }
+        if (g_FoucsY < g_MapSY) {
+            g_MapSY = g_FoucsY;
+            changed = true;
+        }
+        if (g_FoucsX >= g_MapSX + SCR_MAPWID)
+        {
+            g_MapSX = g_FoucsX - SCR_MAPWID + 1;
+            changed = true;
+        }
+        if (g_FoucsY >= g_MapSY + SCR_MAPHGT)
+        {
+            g_MapSY = g_FoucsY - SCR_MAPHGT + 1;
+            changed = true;
+        }
+        if (!changed)
             return;
     }
     FgtShowMap(g_MapSX,g_MapSY);
