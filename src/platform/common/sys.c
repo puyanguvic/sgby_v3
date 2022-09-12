@@ -663,9 +663,9 @@ FAR void SysScrollingTimerClose(void)
     gam_timer_close(0);
 }
 
-FAR void SysScrollingTimerOpen(U8 times)
+FAR int SysScrollingTimerOpen(int times)
 {
-    gam_timer_open(0, times);
+    return gam_timer_open(0, times);
 }
 
 FAR U8 SysScrollingTimerOn(void) {

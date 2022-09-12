@@ -95,6 +95,18 @@ typedef	struct {
 /*------------------------
   函数
   ------------------------*/
+static inline U8 GamMsgIsKey(GMType msg) {
+  return (msg.type > 0 && msg.type <= VM_CHAR_FUN);
+}
+static inline U8 GamMsgIsKeyOrTouchUp(GMType msg) {
+  return GamMsgIsKey(msg) || (msg.type == VM_TOUCH && msg.param == VT_TOUCH_UP);
+}
+static inline U8 GamMsgIsTimer0(GMType msg) {
+  return (msg.type == VM_TIMER && msg.param == 0);
+}
+static inline U8 GamMsgIsTimer1(GMType msg) {
+  return (msg.type == VM_TIMER && msg.param == 1);
+}
 FAR	U8      GamConInit(void);						/* 游戏系统环境初始化，根据不同环境调用不同的初始化函数 */
 FAR	void	GamConRst(void);						/* 游戏系统环境恢复，根据不同环境调用不同的恢复函数 */
 FAR	void	GamGetMsg(GMType *pMsg);					/* 封装系统的输入，并将其转换成游戏的消息机制 */

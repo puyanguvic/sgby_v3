@@ -929,7 +929,14 @@ FAR U32 GetKingPersons(PersonID king,PersonID *pqueue)
  *		----		----			-----------
  *		陈泽伟		2005-6-21 9:07	基本功能完成
  ******************************************************************************/
-FAR U8 GetCitySet(CitySetType *pos)
+FAR U8 GetCitySetInner(CitySetType *pos);
+FAR U8 GetCitySet(CitySetType *pos) {
+    int prev = SysScrollingTimerOpen(0);
+    U8 rv = GetCitySetInner(pos);
+    SysScrollingTimerOpen(prev);
+    return rv;
+}
+FAR U8 GetCitySetInner(CitySetType *pos)
 {
     U8 showflag,tpicflag;
     U8 city = '\0';

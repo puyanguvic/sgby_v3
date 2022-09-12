@@ -333,7 +333,14 @@ bool GamMainChose(void)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-U8 GamPicMenu(U16 picID,U16 speID, const Rect *buttonsRect, U8 buttonsCount, U8 exitOnOther)
+U8 GamPicMenuInner(U16 picID,U16 speID, const Rect *buttonsRect, U8 buttonsCount, U8 exitOnOther);
+U8 GamPicMenu(U16 picID,U16 speID, const Rect *buttonsRect, U8 buttonsCount, U8 exitOnOther) {
+    int prev = SysScrollingTimerOpen(0);
+    U8 rv = GamPicMenuInner(picID, speID, buttonsRect, buttonsCount, exitOnOther);
+    SysScrollingTimerOpen(prev);
+    return rv;
+}
+U8 GamPicMenuInner(U16 picID,U16 speID, const Rect *buttonsRect, U8 buttonsCount, U8 exitOnOther)
 {
     U8	mIdx;
     GMType	pMsg;
@@ -415,9 +422,9 @@ void GamMakerInf(void)
  ***********************************************************************/
 PersonID GamGetKingInner(PersonID*kings, U32 num);
 PersonID GamGetKing(PersonID*kings, U32 num) {
-    SysScrollingTimerOpen(5);
+    int prev = SysScrollingTimerOpen(5);
     PersonID id = GamGetKingInner(kings, num);
-    SysScrollingTimerClose();
+    SysScrollingTimerOpen(prev);
     return id;
 }
 PersonID GamGetKingInner(PersonID*kings, U32 num)
@@ -578,7 +585,7 @@ moveView:
                     break;
             }
         }
-        else if (pMsg.type == VM_TIMER && pMsg.param == 0)
+        else if (GamMsgIsTimer0(pMsg))
         {
             if (touchUpdate(&touch, pMsg)) {
                 goto moveView;

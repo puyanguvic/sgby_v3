@@ -66,10 +66,16 @@ static void _timer_open(timer_t* timer) {
     }
 }
 
-void gam_timer_open(U8 n, int interval)
+int gam_timer_open(U8 n, int interval)
 {
-    timers[n].interval = interval;
-    _timer_open(&timers[n]);
+    int prev = timers[n].active ? timers[n].interval : 0;
+    if (interval == 0) {
+        gam_timer_close(n);
+    } else {
+        timers[n].interval = interval;
+        _timer_open(&timers[n]);
+    }
+    return prev;
 }
 
 void gam_timer_close(U8 n)

@@ -1155,7 +1155,14 @@ U8 FunctionMenu(void)
  *		----		----			-----------
  *		陈泽伟		2005-6-23 11:43	基本功能完成
  ******************************************************************************/
-FAR U32 NumOperate(U32 min,U32 max, U32 donum)
+FAR U32 NumOperateInner(U32 min,U32 max, U32 donum);
+FAR U32 NumOperate(U32 min,U32 max, U32 donum) {
+    int prev = SysScrollingTimerOpen(0);
+    U32 rv = NumOperateInner(min, max,  donum);
+    SysScrollingTimerOpen(prev);
+    return rv;
+}
+FAR U32 NumOperateInner(U32 min,U32 max, U32 donum)
 {
     U8 str[32];
     U8 showflag,i,bit,maxbit;

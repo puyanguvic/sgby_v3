@@ -966,8 +966,12 @@ FAR void FgtShowView(void)
         if(!key)
             continue;
         MsgType msg;
+    nextMessage:
         GamGetLastMsg(&msg);
     tagProcessMessage:
+        if (GamMsgIsTimer0(msg)) {
+            goto nextMessage;
+        }
         if (VM_CHAR_FUN == msg.type) {
             switch(msg.param)
             {

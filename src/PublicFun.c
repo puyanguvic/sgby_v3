@@ -197,9 +197,9 @@ FAR U8 PlcMovie(U16 speid, U16 index, U8 startfrm,U8 endfrm,U8 keyflag,PT x,PT y
  ***********************************************************************/
 FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf);
 FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf) {
-    SysScrollingTimerOpen(5);
+    int prev = SysScrollingTimerOpen(5);
     U16 rv = PlcSplMenuInner(pRect, pIdx, buf);
-    SysScrollingTimerClose();
+    SysScrollingTimerOpen(prev);
     return rv;
 }
 FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf)
@@ -349,7 +349,7 @@ moveView:
                     break;
             }
             goto UPDATE_UI;
-        } else if (VM_TIMER == pMsg.type && pMsg.param == 0) {
+        } else if (GamMsgIsTimer0(pMsg)) {
             if (touchUpdate(&touch, pMsg)) {
                 goto moveView;
             }

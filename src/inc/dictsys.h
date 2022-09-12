@@ -369,7 +369,7 @@ FAR	void SysSetDay(U16 day);
 
 FAR void SysTimer1Open(U8 times);
 FAR void SysTimer1Close(void);
-FAR void SysScrollingTimerOpen(U8 times);
+FAR int SysScrollingTimerOpen(int times);
 FAR void SysScrollingTimerClose(void);
 FAR U8 SysScrollingTimerOn(void);
 FAR	U8 SysGetTimer1Number(void);

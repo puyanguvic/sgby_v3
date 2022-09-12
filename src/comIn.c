@@ -220,10 +220,14 @@ FAR U8 GamDelay(U16 dly, BOOL keyflag)
     U8	tInt;
     GMType	pMsg;
 
+    int tprev = SysScrollingTimerOpen(0);
     tInt = SysGetTimer1Number();
     SysTimer1Close();
-    if(!dly)
-        GamGetMsg(&pMsg);
+    if(!dly) {
+        do {
+            GamGetMsg(&pMsg);
+        } while (GamMsgIsTimer0(pMsg));
+    }
     else
     {
         SysTimer1Open(TIMER_DLY);
@@ -233,6 +237,8 @@ FAR U8 GamDelay(U16 dly, BOOL keyflag)
             GamGetMsg(&pMsg);
             if(VM_TIMER == pMsg.type && pMsg.param == 1)
                 dly -= 1;
+            else if (GamMsgIsTimer0(pMsg))
+                continue;
             else
             {
                 if(keyflag == true) break;
@@ -251,6 +257,7 @@ FAR U8 GamDelay(U16 dly, BOOL keyflag)
         SysTimer1Close();
         SysTimer1Open(tInt);
     }
+    SysScrollingTimerOpen(tprev);
     return (U8)pMsg.param;
 }
 

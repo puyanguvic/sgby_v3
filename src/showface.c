@@ -262,7 +262,14 @@ U8 ShowGoodsProStr(U8 pro,U8 x,U8 y,U8 wid)
  *		----		----			-----------
  *		陈泽伟		2005/5/18 11:26AM	基本功能完成
  ******************************************************************************/
-FAR ToolID ShowGoodsControl(ToolID *goods,ToolID gcount, ToolID init, U8 x0,U8 y0,U8 x1,U8 y1)
+FAR ToolID ShowGoodsControlInner(ToolID *goods,ToolID gcount, ToolID init, U8 x0,U8 y0,U8 x1,U8 y1);
+FAR ToolID ShowGoodsControl(ToolID *goods,ToolID gcount, ToolID init, U8 x0,U8 y0,U8 x1,U8 y1) {
+    int prev = SysScrollingTimerOpen(0);
+    ToolID rv = ShowGoodsControlInner(goods, gcount, init, x0, y0, x1, y1);
+    SysScrollingTimerOpen(prev);
+    return rv;
+}
+FAR ToolID ShowGoodsControlInner(ToolID *goods,ToolID gcount, ToolID init, U8 x0,U8 y0,U8 x1,U8 y1)
 {
     U32 i,showflag,count,top,set;
     U8 spc,spcv[6];
@@ -755,9 +762,9 @@ U8 ShowPersonProStr(U8 pro,U8 x,U8 y,U8 wid)
  ******************************************************************************/
 FAR PersonID ShowPersonControlInner(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1);
 FAR PersonID ShowPersonControl(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1) {
-    SysScrollingTimerOpen(5);
+    int prev = SysScrollingTimerOpen(5);
     PersonID id = ShowPersonControlInner(person, pcount, initSelected, x0, y0, x1, y1);
-    SysScrollingTimerClose();
+    SysScrollingTimerOpen(prev);
     return id;
 }
 FAR PersonID ShowPersonControlInner(PersonID *person,U32 pcount,PersonID initSelected,U8 x0,U8 y0,U8 x1,U8 y1)
@@ -949,7 +956,7 @@ moveView:
                 default:
                     break;
             }
-        } else if (VM_TIMER == Msg.type && Msg.param == 0) {
+        } else if (GamMsgIsTimer0(Msg)) {
             if (touchUpdate(&touch, Msg)) {
                 goto moveView;
             }
@@ -1134,7 +1141,14 @@ FAR void GetCityState(U8 city,U8 *str)
  *		----		----			-----------
  *		陈泽伟		2005-6-9 17:19	基本功能完成
  ******************************************************************************/
-FAR U8 ShowCityPro(U8 city)
+FAR U8 ShowCityProInner(U8 city);
+FAR U8 ShowCityPro(U8 city) {
+    int prev = SysScrollingTimerOpen(0);
+    U8 rv = ShowCityProInner(city);
+    SysScrollingTimerOpen(prev);
+    return rv;
+}
+FAR U8 ShowCityProInner(U8 city)
 {
     U8 showflag,showtop,i;
     U8 str[128];
