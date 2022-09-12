@@ -589,6 +589,7 @@ U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag))
     Rect searchButton = MakeRect(backButton.right, btnTop, 28, btnH);
     Rect infoButton = MakeRect(searchButton.right, btnTop, SCR_WID - searchButton.right, btnH);
     Rect mapRect = MakeRect(0, 0, SCR_WID, btnTop);
+    Rect statusBarRect = MakeRect(0, btnTop, SCR_WID, btnH);
 
     flag = false;
     while(1)
@@ -666,20 +667,6 @@ U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag))
 
                         I16 x = touch.currentX, y = touch.currentY;
 
-                        if (touchIsPointInRect(x, y, backButton)) {
-                            return 0xFF;
-                        }
-                        if (touchIsPointInRect(x, y, infoButton)) {
-                            pMsg.type = VM_CHAR_FUN;
-                            pMsg.param = VK_HELP;
-                            goto tagHandleMsg;
-                        }
-                        if (touchIsPointInRect(x, y, searchButton)) {
-                            pMsg.type = VM_CHAR_FUN;
-                            pMsg.param = VK_SEARCH;
-                            goto tagHandleMsg;
-                        }
-
                         if (touchIsPointInRect(x, y, mapRect)) {
                             U8 col = x / 16;
                             U8 row = y / 16;
@@ -697,6 +684,33 @@ U8 FgtGetFoucsInner(void (*chkcondition)(bool*flag))
                             tflag = false;
                             g_AutoUpdateMapXY = true; // 避免画面整体刷新
                             (*chkcondition)(&tflag);
+                            break;
+                        }
+
+                        if (touchIsPointInRect(x, y, statusBarRect)) {
+                            int ret = -1;
+                            IF_HAS_HOOK("fightStatusBarTouched") {
+                                BIND_U16(&x);
+                                BIND_U16(&y);
+                                ret = CALL_HOOK_A();
+                            }
+                            if (ret == 0) {
+                                break;
+                            }
+                        }
+
+                        if (touchIsPointInRect(x, y, backButton)) {
+                            return 0xFF;
+                        }
+                        if (touchIsPointInRect(x, y, infoButton)) {
+                            pMsg.type = VM_CHAR_FUN;
+                            pMsg.param = VK_HELP;
+                            goto tagHandleMsg;
+                        }
+                        if (touchIsPointInRect(x, y, searchButton)) {
+                            pMsg.type = VM_CHAR_FUN;
+                            pMsg.param = VK_SEARCH;
+                            goto tagHandleMsg;
                         }
                         break;
                     }
