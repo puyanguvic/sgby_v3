@@ -314,11 +314,6 @@ nextMsg:
                             lastInd = index;
                             break;
                         }
-                        c_ReFlag = true;
-                        c_Sx = WK_SX;
-                        c_Sy = WK_SY;
-                        c_Ex = WK_EX;
-                        c_Ey = WK_EY;
                         goto RET;
                     }
                     break;
@@ -439,28 +434,32 @@ moveView:
             case VK_EXIT:
                 pIdx = 0xFFFF;
             case VK_ENTER:
-                c_ReFlag = true;
-                c_Sx = WK_SX;
-                c_Sy = WK_SY;
-                c_Ex = WK_EX;
-                c_Ey = WK_EY;
                 goto RET;
         }
 UPDATE_UI:
-        if(pageChanged || selChanged) {
-            IF_HAS_HOOK("willChangeMenuSelection") {
-                BIND_U16EX("index", &pIdx);
-                CALL_HOOK();
-            }
-            gam_clrlcd(c_Sx, c_Sy, c_Ex, c_Ey);
-            GamStrShowS(c_Sx,c_Sy,buf + poff);
-            if (pIdx >= pSIdx && pIdx < pSIdx + pICnt) {
-                sy = c_Sy + (pIdx - pSIdx) * ASC_HGT;
-                gam_revlcd(c_Sx,sy,c_Ex,sy + ASC_HGT);
-            }
+#define UPDATE_UI() \
+        if(pageChanged || selChanged) { \
+            IF_HAS_HOOK("willChangeMenuSelection") { \
+                BIND_U16EX("index", &pIdx); \
+                CALL_HOOK(); \
+            } \
+            gam_clrlcd(c_Sx, c_Sy, c_Ex, c_Ey); \
+            GamStrShowS(c_Sx,c_Sy,buf + poff); \
+            if (pIdx >= pSIdx && pIdx < pSIdx + pICnt) { \
+                sy = c_Sy + (pIdx - pSIdx) * ASC_HGT; \
+                gam_revlcd(c_Sx,sy,c_Ex,sy + ASC_HGT); \
+            } \
         }
+
+        UPDATE_UI();
     }
 RET:
+    UPDATE_UI();
+    c_ReFlag = true;
+    c_Sx = WK_SX;
+    c_Sy = WK_SY;
+    c_Ex = WK_EX;
+    c_Ey = WK_EY;
     IF_HAS_HOOK("willCloseMenu") {
         BIND_U16EX("index", &pIdx);
         CALL_HOOK();

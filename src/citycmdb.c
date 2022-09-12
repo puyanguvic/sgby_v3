@@ -41,12 +41,13 @@
 FAR U8 OrderMenu(void)
 {
     U8 rav;
+    U16 ind = 0;
 
     while (1)
     {
         /*GamShowFrame(g_VisScr);*/
         ShowMapClear();
-        switch(MainOrderMenu())
+        switch((ind = MainOrderMenu(ind)))
         {
             case 0:		/*内政指令*/
                 rav = InteriorOrderMenu();
@@ -85,7 +86,7 @@ FAR U8 OrderMenu(void)
  *		----		----			-----------
  *		陈泽伟		2005-6-13 15:33	基本功能完成
  ******************************************************************************/
-U8 MainOrderMenu(void)
+U8 MainOrderMenu(U16 ind)
 {
 
     RECT pRect;
@@ -101,7 +102,7 @@ U8 MainOrderMenu(void)
     else {
         pRect.ey = WK_SY + 10 + ((WK_EY - (WK_SY + 10)) / ASC_HGT) * ASC_HGT;
     }
-    return(PlcSplMenu(&pRect,0,mstr));
+    return(PlcSplMenu(&pRect,ind,mstr));
 
 }
 

@@ -54,7 +54,7 @@ CITYCMD_C U8 OrderExec(OrderType *Order);
 CITYCMD_C void PolicyExec(void);
 
 CITYCMDB_C U8 OrderMenu(void);
-CITYCMDB_C U8 MainOrderMenu(void);
+CITYCMDB_C U8 MainOrderMenu(U16 ind);
 CITYCMDB_C U8 InteriorOrderMenu(void);
 CITYCMDB_C U8 DiplomatismOrderMenu(void);
 CITYCMDB_C U8 ArmamentOrderMenu(void);
