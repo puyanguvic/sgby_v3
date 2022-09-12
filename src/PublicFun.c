@@ -204,7 +204,7 @@ FAR U16 PlcSplMenu(RECT *pRect,U16 pIdx,U8 *buf) {
 }
 FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf)
 {
-    U16	sy,ty,tflag,cflag;
+    U16	sy,ty,pageChanged,selChanged;
     U16	pLen;	/* 每个菜单项字符长度 */
     U16	pItm;	/* 菜单项总数 */
     U16	pSIdx;	/* 显示起始菜单项 */
@@ -262,12 +262,12 @@ FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf)
     sy = c_Sy + (pIdx - pSIdx) * itemHeight;
     gam_revlcd(c_Sx,sy,c_Ex,sy + itemHeight);
     ty = c_Sy;
-    cflag = true;
+    selChanged = true;
     while(1)
     {
         if(pItm > pICnt)
         {
-            if(cflag)
+            if(selChanged)
             {	/* 驱动滚动条 */
                 gam_rectc(c_Ex + 3,ty,c_Ex + 5,ty + 2);
                 gam_putpixel(c_Ex + 4,ty + 1,COLOR_WHITE);
@@ -275,7 +275,7 @@ FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf)
                 tcot /= pItm - 1;
                 ty = tcot * (c_Ey - c_Sy - 3) + c_Sy;
                 gam_rect(c_Ex + 3,ty,c_Ex + 5,ty + 2);
-                cflag = false;
+                selChanged = false;
             }
             gam_revlcd(c_Ex + 3,ty,c_Ex + 5,ty + 2);
         }
@@ -285,7 +285,7 @@ FAR U16 PlcSplMenuInner(RECT *pRect,U16 pIdx,U8 *buf)
             CALL_HOOK();
         }
 
-        tflag = false;
+        pageChanged = false;
 nextMsg:
         GamGetMsg(&pMsg);
 
@@ -304,8 +304,8 @@ nextMsg:
                         I16 index = touchListViewItemIndexAtPoint(touch.currentX, touch.currentY, menuRect, 3, 3, pSIdx, pItm, itemHeight);
                         if (index >= 0 && index != pIdx) {
                             pIdx = index;
-                            tflag = 1;
-                            cflag = 1;
+                            pageChanged = 1;
+                            selChanged = 1;
                         }
                         if (index < 0)
                         {
@@ -338,8 +338,8 @@ moveView:
                     if (startIndex != pSIdx) {
                         pSIdx = startIndex;
                         poff = pSIdx*pLen;
-                        tflag = 1;
-                        cflag = 1;
+                        pageChanged = 1;
+                        selChanged = 1;
                     } else {
                         goto nextMsg;
                     }
@@ -361,27 +361,56 @@ moveView:
         touchUpdate(&touch, pMsg);
         switch(pMsg.param)
         {
+            case VK_SEARCH:
+            case VK_PGUP:
+            {
+                if (pSIdx > pICnt) {
+                    pSIdx -= pICnt;
+                } else if (pSIdx) {
+                    pSIdx = 0;
+                } else {
+                    break;
+                }
+                poff = pSIdx * pLen;
+                pageChanged = true;
+                selChanged = true;
+                break;
+            }
+            case VK_HELP:
+            case VK_PGDN:
+            {
+                if (pSIdx + pICnt < pItm) {
+                    pSIdx += pICnt;
+                } else {
+                    break;
+                }
+                poff = pSIdx * pLen;
+                pageChanged = true;
+                selChanged = true;
+                break;
+            }
+                break;
             case VK_UP:
-                pIdx = limitValueInRange(pIdx, pSIdx, pSIdx + pICnt + 1);
+                pIdx = limitValueInRange(pIdx, pSIdx, pSIdx + pICnt);
                 if(!pIdx)
                 {
                     pIdx = pItm - 1;
                     pSIdx = pItm - pICnt;
                     poff = pSIdx * pLen;
-                    tflag = true;
-                    cflag = true;
+                    pageChanged = true;
+                    selChanged = true;
                     break;
                 }
                 if(pIdx)
                 {
                     pIdx -= 1;
-                    cflag = true;
+                    selChanged = true;
                 }
                 if(pIdx < pSIdx)
                 {
                     pSIdx -= 1;
                     poff -= pLen;
-                    tflag = true;
+                    pageChanged = true;
                 }
                 break;
             case VK_DOWN:
@@ -391,20 +420,20 @@ moveView:
                     pIdx = 0;
                     pSIdx = 0;
                     poff = 0;
-                    tflag = true;
-                    cflag = true;
+                    pageChanged = true;
+                    selChanged = true;
                     break;
                 }
                 if(pIdx < pItm - 1)
                 {
                     pIdx += 1;
-                    cflag = true;
+                    selChanged = true;
                 }
                 if(pIdx - pSIdx >= pICnt)
                 {
                     pSIdx += 1;
                     poff += pLen;
-                    tflag = true;
+                    pageChanged = true;
                 }
                 break;
             case VK_EXIT:
@@ -418,7 +447,7 @@ moveView:
                 goto RET;
         }
 UPDATE_UI:
-        if(tflag || cflag) {
+        if(pageChanged || selChanged) {
             IF_HAS_HOOK("willChangeMenuSelection") {
                 BIND_U16EX("index", &pIdx);
                 CALL_HOOK();
