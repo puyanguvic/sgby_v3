@@ -501,7 +501,7 @@ FAR void PlcGraMsgBox(U8 *buf,U8 delay,U8 line)
     ptr = ResLoadToCon(MSGBOX_PIC,1,g_CBnkPtr);
     PictureHeadType *head = (PictureHeadType *)ptr;
     w = head->wid/AX_SCALE;
-    h = head->wid/AX_SCALE;
+    h = head->hig/AX_SCALE;
     x = (WK_EX - WK_SX - w) / 2;
     x += WK_SX;
     if(line != 0xFF)
