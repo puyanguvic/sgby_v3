@@ -916,7 +916,13 @@ FAR void FgtShowMvRng(void)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR void FgtShowView(void)
+FAR void FgtShowViewInner(void);
+FAR void FgtShowView(void) {
+    int prev = SysScrollingTimerOpen(0);
+    FgtShowViewInner();
+    SysScrollingTimerOpen(prev);
+}
+FAR void FgtShowViewInner(void)
 {
     U8	pForce,pSIdx,pPcnt;		/* 当前将领显示起始序号 每页显示将领个数 */
     U8	sx,sy,idx,pcolor;
@@ -966,12 +972,8 @@ FAR void FgtShowView(void)
         if(!key)
             continue;
         MsgType msg;
-    nextMessage:
         GamGetLastMsg(&msg);
     tagProcessMessage:
-        if (GamMsgIsTimer0(msg)) {
-            goto nextMessage;
-        }
         if (VM_CHAR_FUN == msg.type) {
             switch(msg.param)
             {
