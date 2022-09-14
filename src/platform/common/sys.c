@@ -20,8 +20,8 @@ static void(*_lcd_fluch_cb)(char*buffer);
 
 #define DOT 1
 #define CLR 0
-static char *static_buffer;
-static char *backup_buffer;
+static char *static_buffer = 0;
+static char *backup_buffer = 0;
 static char isLcdDirty = 0;
 static char *buffer;
 static char *scr_buffer;
@@ -298,12 +298,21 @@ void popPaintColor() {
     g_paintColor = g_paintColorBak;
 }
 
+static void screen_buffer_realloc(int size);
+
 void screen_buffer_init(void) {
-    static_buffer = gam_malloc(MAX_SCR_BUF_LEN);
-    backup_buffer = gam_malloc(MAX_SCR_BUF_LEN);
+    screen_buffer_realloc(MAX_SCR_BUF_LEN);
+}
+
+static void screen_buffer_realloc(int size) {
+    gam_free(static_buffer);
+    gam_free(backup_buffer);
+    printf("realloc screen buffer to %d\n", size);
+    static_buffer = gam_malloc(size);
+    backup_buffer = gam_malloc(size);
     buffer = static_buffer;
     scr_buffer = static_buffer;
-    buffer_size = MAX_SCR_BUF_LEN;
+    buffer_size = size;
 }
 
 static U8 _insideScreen(PT x, PT y) {
@@ -328,13 +337,19 @@ static void convert_image(U32* dst, char* src) {
 static void timed_flush_lcd()
 {
     static char* outbuf;
+    static int buflen = 0;
 
-    if (outbuf == NULL) {
-        outbuf = (char*)gam_malloc(MAX_SCR_BUF_LEN*4);
+    int curlen = SCR_H * AX_SCALE * SCR_W * AX_SCALE * 4;
+
+    if (outbuf == NULL || buflen < curlen) {
+        if (outbuf) gam_free(outbuf);
+        printf("realloc 32bit screen buffer size to %d (%dx%d@%d)\n", curlen, SCR_W, SCR_H, AX_SCALE);
+        outbuf = (char*)gam_malloc(curlen);
         if (outbuf == NULL) {
             printf("malloc failed\n");
             return;
         }
+        buflen = curlen;
     }
 
     if (isLcdDirty && _lcd_fluch_cb) {
@@ -684,20 +699,15 @@ FAR void SysRestoreScreen()
 
 FAR void SysAdjustLCDBuffer(int wid, int height)
 {
-    size_t sz = wid * height;
+    size_t sz = wid * height * AX_SCALE * AX_SCALE;
 
     if (sz <= buffer_size) {
         memset(scr_buffer, 0, sz);
         return;
     }
 
-    if (scr_buffer && scr_buffer != static_buffer) {
-        free(scr_buffer);
-    }
-
-    scr_buffer = gam_malloc(sz);
+    screen_buffer_realloc(sz);
     memset(scr_buffer, 0, sz);
-    buffer_size = sz;
 }
 
 FAR void SysSelectScreen(U8*scr)
