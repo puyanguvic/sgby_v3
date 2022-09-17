@@ -57,13 +57,13 @@ int bayeGetCurrentPeriod()
 }
 
 EMSCRIPTEN_KEEPALIVE
-int bayeCityAddGoods(U8 cityIndex, U8 goodsIndex)
+int bayeCityAddGoods(U8 cityIndex, U16 goodsIndex)
 {
     return AddGoodsEx(cityIndex, goodsIndex, 1);
 }
 
 EMSCRIPTEN_KEEPALIVE
-int bayeCityDelGoods(U8 cityIndex, U8 goodsIndex)
+int bayeCityDelGoods(U8 cityIndex, U16 goodsIndex)
 {
     return DelGoods(cityIndex, goodsIndex);
 }
@@ -307,7 +307,7 @@ void bayePutPersonInCity(U8 city, U32 person) {
 }
 
 EMSCRIPTEN_KEEPALIVE
-void bayePutToolInCity(U8 city, U8 tool, U8 hide) {
+void bayePutToolInCity(U8 city, U16 tool, U8 hide) {
     AddGoodsEx(city, tool, !hide);
 }
 
@@ -318,7 +318,7 @@ void bayeDeletePersonInCity(U8 city, U32 person) {
 }
 
 EMSCRIPTEN_KEEPALIVE
-void bayeDeleteToolInCity(U8 city, U8 tool, U8 hide) {
+void bayeDeleteToolInCity(U8 city, U16 tool) {
     DelGoods(city, tool);
 }
 
