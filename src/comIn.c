@@ -226,7 +226,7 @@ FAR U8 GamDelay(U16 dly, BOOL keyflag)
     if(!dly) {
         do {
             GamGetMsg(&pMsg);
-        } while (GamMsgIsTimer0(pMsg));
+        } while (pMsg.type == VM_TIMER);
     }
     else
     {
