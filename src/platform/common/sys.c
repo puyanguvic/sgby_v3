@@ -511,7 +511,7 @@ FAR	void	SysMemInit(U16 start,U16 len)
     gam_timer_init();
     gam_timer_set_callback(0, _timer0cb);
     gam_timer_set_callback(1, _timer1cb);
-    gam_timer2_open(3, timed_flush_lcd);
+    gam_timer2_open(2, timed_flush_lcd);
 }
 
 FAR void DecodePic(U8* dst, const U8*pic, PT w, PT h, U8 scale) {

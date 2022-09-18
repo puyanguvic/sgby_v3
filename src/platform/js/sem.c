@@ -12,33 +12,48 @@
 #include <emscripten.h>
 #include <baye/compa.h>
 
-GAM_SEM gam_sem_create()
-{
-    int* p = (int*)gam_malloc(sizeof(int));
-    *p = 0;
-    return (GAM_SEM)p;
-}
-
-void gam_sem_delete(GAM_SEM sem)
-{
-    gam_free((void*)sem);
-}
-
-void gam_sem_signal(GAM_SEM sem)
-{
-    *((int*)sem) += 1;
-}
-
-void gam_sem_wait(GAM_SEM sem)
-{
-    int *p = (int*)sem;
-    emscripten_sleep(1);
-    while (*p == 0) {
-        emscripten_sleep(10);
+EM_JS(GAM_SEM, gam_sem_create, (), {
+  if (!Module.sems) {
+    Module.sems = []
+  }
+  for (var i = 0;; i++) {
+    if (Module.sems[i] == undefined) {
+      Module.sems[i] = {
+        cnt: 0,
+      };
+      return i;
     }
-    *p -= 1;
-}
+  }
+});
 
+EM_JS(void, gam_sem_delete, (GAM_SEM semid), {
+  Module.sems[semid] = undefined;
+});
+
+
+EM_JS(void, gam_sem_signal, (GAM_SEM semid), {
+  var sem = Module.sems[semid];
+  sem.cnt += 1;
+  if (sem.signal) {
+    sem.signal();
+    sem.signal = null;
+  }
+});
+
+EM_JS(void, gam_sem_wait, (GAM_SEM semid), {
+  return Asyncify.handleSleep(function (wakeUp) {
+    var sem = Module.sems[semid];
+    function signal() {
+        sem.cnt -= 1;
+        setTimeout(wakeUp, 0);
+    }
+    if (sem.cnt > 0) {
+        signal();
+    } else {
+        sem.signal = signal;
+    }
+  });
+});
 
 GAM_LOCK gam_lock_create() {
     return NULL;
