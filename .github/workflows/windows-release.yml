@@ -1,0 +1,83 @@
+name: Windows Build And Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      app_version:
+        description: "Version to package (example: 1.2.3). Leave empty to auto-detect."
+        required: false
+        default: ""
+  push:
+    tags:
+      - "v*"
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          fetch-depth: 0
+
+      - name: Install build dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            cmake \
+            ninja-build \
+            mingw-w64 \
+            zip
+
+      - name: Resolve app version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          version=""
+          if [[ -n "${{ github.event.inputs.app_version || '' }}" ]]; then
+            version="${{ github.event.inputs.app_version }}"
+          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            version="${GITHUB_REF_NAME#v}"
+          else
+            version="0.0.0-${GITHUB_RUN_NUMBER}"
+          fi
+
+          echo "APP_VERSION=${version}" >> "$GITHUB_ENV"
+          echo "Using APP_VERSION=${version}"
+
+      - name: Build Windows portable package
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x ./build_windows_from_ubuntu.sh
+          APP_VERSION="${APP_VERSION}" ./build_windows_from_ubuntu.sh
+
+      - name: Generate checksums
+        shell: bash
+        run: |
+          set -euo pipefail
+          cd release
+          sha256sum ./* > SHA256SUMS.txt
+
+      - name: Upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: iBaye-windows-${{ env.APP_VERSION }}
+          path: |
+            release/iBaye-windows-portable-${{ env.APP_VERSION }}.zip
+            release/SHA256SUMS.txt
+
+      - name: Create GitHub release for tag
+        if: github.ref_type == 'tag'
+        uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: |
+            release/iBaye-windows-portable-${{ env.APP_VERSION }}.zip
+            release/SHA256SUMS.txt
