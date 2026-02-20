@@ -45,7 +45,24 @@ sudo apt install -y nsis
 
 - 安装包：`release/iBaye-Setup-1.0.0.exe`
 
-## 3. Windows 本机构建环境（可选）
+## 3. 本地预检后再发版（强烈建议）
+
+为了避免反复消耗 GitHub Actions，建议每次发版前先本地预检：
+
+```bash
+./scripts/preflight_windows_release.sh --version=1.0.4
+```
+
+如果预检通过，再执行：
+
+```bash
+git tag -a v1.0.4 -m "Release v1.0.4"
+git push origin v1.0.4
+```
+
+这样 CI 只负责“确认并发布”，不再承担试错。
+
+## 4. Windows 本机构建环境（可选）
 
 推荐使用 MSYS2 的 UCRT64 环境（Windows 11 上最稳定）：
 
@@ -57,7 +74,7 @@ pacman -Syu
 pacman -S --needed git mingw-w64-ucrt-x86_64-toolchain mingw-w64-ucrt-x86_64-cmake mingw-w64-ucrt-x86_64-ninja
 ```
 
-## 4. Windows 一键生成安装包（可选）
+## 5. Windows 一键生成安装包（可选）
 
 仓库根目录执行：
 
@@ -73,7 +90,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_windows_inst
 
 - `installer\iBaye-Setup.exe`
 
-## 5. 手动编译 Windows 可执行文件（可选）
+## 6. 手动编译 Windows 可执行文件（可选）
 
 在 `MSYS2 UCRT64` 终端执行：
 
@@ -88,7 +105,7 @@ cmake --build build-win -j
 
 - `build-win/src/baye.exe`
 
-## 6. 准备发布目录（dist）
+## 7. 准备发布目录（dist）
 
 `baye.exe` 启动时会从当前目录读取资源文件，至少需要：
 
@@ -107,7 +124,7 @@ cp src/dat.lib.orig dist/dat.lib
 
 如果需要，也可把自定义 `dat.lib` 放到 `dist/` 覆盖默认版本。
 
-## 7. 复制 MinGW 运行时 DLL（如果缺失）
+## 8. 复制 MinGW 运行时 DLL（如果缺失）
 
 如果双击 `baye.exe` 报缺少 DLL（常见为 `libwinpthread-1.dll`、`libgcc_s_seh-1.dll`、`libstdc++-6.dll`），从以下目录复制到 `dist/`：
 
@@ -121,7 +138,7 @@ cp /ucrt64/bin/libgcc_s_seh-1.dll dist/ || true
 cp /ucrt64/bin/libstdc++-6.dll dist/ || true
 ```
 
-## 8. 使用 Inno Setup 打安装包
+## 9. 使用 Inno Setup 打安装包
 
 1. 安装 Inno Setup 6：<https://jrsoftware.org/isdl.php>
 2. 仓库根目录已有 `installer.iss`，确保 `dist/` 已准备好。
@@ -135,12 +152,12 @@ cp /ucrt64/bin/libstdc++-6.dll dist/ || true
 
 - `installer\iBaye-Setup.exe`
 
-## 9. 运行与权限建议
+## 10. 运行与权限建议
 
 - 安装目录默认使用当前用户目录（`%LOCALAPPDATA%\Programs\iBaye`），避免存档写入权限问题。
 - 存档文件会写在程序当前目录（如 `sango0.sav`、`sango1.sav` 等）。
 
-## 10. CI 自动发布（GitHub Actions）
+## 11. CI 自动发布（GitHub Actions）
 
 仓库已提供工作流：
 
