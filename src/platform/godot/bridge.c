@@ -292,8 +292,8 @@ int ibaye_godot_load_period(int period)
     }
     pthread_mutex_unlock(&g_state_lock);
 
-    LoadPeriod((U8)period);
-    return 0;
+    set_error("load period during runtime is not supported");
+    return -2;
 }
 
 int ibaye_godot_get_city_count(void)

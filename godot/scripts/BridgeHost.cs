@@ -220,34 +220,13 @@ public partial class BridgeHost : Node
             {
                 return false;
             }
+            _status = "启动中（剧本 " + period + "）";
+            return true;
         }
 
-        if (!WaitForEngineReady(EngineReadyWaitMs))
-        {
-            _status = "引擎启动中，请稍后重试";
-            GD.PushWarning(_status);
-            return false;
-        }
-
-        int rc;
-        try
-        {
-            rc = BridgeNative.ibaye_godot_load_period(period);
-        }
-        catch (Exception ex)
-        {
-            MarkNativeFailure("加载剧本失败", ex);
-            return false;
-        }
-        if (rc != 0)
-        {
-            _status = "加载剧本失败: " + BridgeNative.LastError();
-            GD.PushError(_status);
-            return false;
-        }
-
-        _status = "运行中（剧本 " + period + "）";
-        return true;
+        _status = "运行中不支持直接切换剧本，请回到主菜单重新开始";
+        GD.PushWarning(_status);
+        return false;
     }
 
     public void SendKey(int key)
