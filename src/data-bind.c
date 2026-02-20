@@ -92,7 +92,7 @@ void ObjectDef_addFieldF(ObjectDef* def, const char*name, ValueType t, void* ptr
         name += 1;
     }
     field.name = name;
-    field.value.offset = (U32)ptr;
+    field.value.offset = (uintptr_t)ptr;
     switch (t) {
         case ValueTypeU8:
             field.value.def = &_U8_def;

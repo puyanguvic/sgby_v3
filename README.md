@@ -27,7 +27,6 @@ sudo apt install -y \
 cmake --version
 ninja --version
 x86_64-w64-mingw32-gcc --version
-x86_64-w64-mingw32-g++ --version
 x86_64-w64-mingw32-windres --version
 ```
 

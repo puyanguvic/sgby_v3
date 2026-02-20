@@ -11,6 +11,7 @@
 
 #include <baye/compa.h>
 #include <stdio.h>
+#include <stdint.h>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten.h>
@@ -55,7 +56,7 @@ typedef struct ValueDef {
 
 typedef struct Value {
     ValueDef *def;
-    U32 offset;
+    uintptr_t offset;
 } Value;
 
 typedef struct Field {

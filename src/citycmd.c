@@ -1144,7 +1144,7 @@ U8 OrderExec(OrderType *Order)
         static Value context = {.def = &_value_def };
 #undef _ST
 
-        context.offset = (U32)Order;
+        context.offset = (uintptr_t)Order;
         if (call_hook_a("willExecuteOrder", &context) == 0){
             return 0;
         }

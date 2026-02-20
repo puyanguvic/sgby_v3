@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.4)
+cmake_minimum_required(VERSION 3.10)
 
-project(baye)
+project(baye LANGUAGES C)
 
 set (bayelib_SRCS
 FgtCount.c
@@ -58,26 +58,24 @@ platform/win/timer.c
 
 add_library(bayeliba ${bayelib_SRCS})
 
-if (${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	target_sources(bayeliba PRIVATE ${bayelib_js_SRCS})
 	add_executable(baye
 		platform/js/main.c
 		version.c
 	)
-	target_link_libraries(baye bayeliba)
+	target_link_libraries(baye PRIVATE bayeliba)
 	target_include_directories(baye PRIVATE . ./platform/common)
 endif()
 
-if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(bayeliba PRIVATE ${bayelib_win_SRCS})
 	add_executable(baye
 		platform/win/window.c
 		version.c
 	)
-	find_package (Threads)
-	target_link_libraries(baye bayeliba)
-	target_link_libraries(baye ${CMAKE_THREAD_LIBS_INIT})
-	SET_TARGET_PROPERTIES(baye PROPERTIES LINK_FLAGS "-pthread")
+	find_package(Threads REQUIRED)
+	target_link_libraries(baye PRIVATE bayeliba Threads::Threads)
 	target_include_directories(baye PRIVATE . ./platform/common)
 endif()
 
@@ -94,7 +92,7 @@ target_include_directories(bayeliba PRIVATE . ./platform/common)
 
 
 #target_include_directories(bayeliba PRIVATE ${msgpack_SOURCE_DIR}/include)
-if (${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
+if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ASYNCIFY=1")
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ASYNCIFY_IMPORTS=gam_sem_wait")
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s ASSERTIONS=0")
@@ -105,5 +103,4 @@ if (${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -gsource-map")
     set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --source-map-base http://127.0.0.1:8008/js/")
     #set (CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
-endif (${CMAKE_SYSTEM_NAME} STREQUAL Emscripten)
-
+endif ()

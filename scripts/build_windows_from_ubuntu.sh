@@ -84,7 +84,6 @@ done
 need_cmd cmake
 need_cmd ninja
 need_cmd x86_64-w64-mingw32-gcc
-need_cmd x86_64-w64-mingw32-g++
 need_cmd x86_64-w64-mingw32-windres
 need_cmd zip
 if [[ "$WITH_INSTALLER" == "1" ]]; then
@@ -100,7 +99,6 @@ cmake -S . -B "$BUILD_DIR" -G Ninja \
     -DCMAKE_BUILD_TYPE=Release \
     -DCMAKE_SYSTEM_NAME=Windows \
     -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
-    -DCMAKE_CXX_COMPILER=x86_64-w64-mingw32-g++ \
     -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres
 
 echo "Building..."

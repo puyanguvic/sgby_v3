@@ -69,7 +69,7 @@ extern U8 g_asyncActionStringParam[1024*10];
                 .subdef.objDef = &name##_obj_def, \
             }; \
             static Value name = {.def = &name##_value_def}; \
-            name.offset = (U32)p;
+            name.offset = (uintptr_t)p;
 
 #define TEQ(a, b) typedef int _[sizeof(a) == sizeof(b) ? 1 : -1];
 
@@ -84,4 +84,3 @@ extern U8 g_asyncActionStringParam[1024*10];
 #define HOOK_showSkill "showSkill"
 
 #endif /* bind_objects_h */
-

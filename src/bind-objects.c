@@ -184,7 +184,7 @@ void bind_init(void) {
         static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
         static Field arrfield = {"g_Persons", {.def=&arrdef, .offset=0}};
         arrdef.size = _value_def.size * PERSON_MAX;
-        arrfield.value.offset = (U32)g_Persons;
+        arrfield.value.offset = (uintptr_t)g_Persons;
 
         ObjectDef_addField(def, &arrfield);
     }
@@ -224,7 +224,7 @@ void bind_init(void) {
         static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
         static Field arrfield = {"g_Cities", {.def=&arrdef, .offset=0}};
         arrdef.size = _value_def.size * CITY_MAX;
-        arrfield.value.offset = (U32)g_Cities;
+        arrfield.value.offset = (uintptr_t)g_Cities;
 
         ObjectDef_addField(def, &arrfield);
     }
@@ -248,7 +248,7 @@ void bind_init(void) {
         static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
         static Field arrfield = {"g_CityPositions", {.def=&arrdef, .offset=0}};
         arrdef.size = _value_def.size * CITY_MAX;
-        arrfield.value.offset = (U32)cityPos;
+        arrfield.value.offset = (uintptr_t)cityPos;
         ObjectDef_addField(def, &arrfield);
     }
     {
@@ -276,7 +276,7 @@ void bind_init(void) {
         static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
         static Field arrfield = {"g_Tools", {.def=&arrdef, .offset=0}};
         arrdef.size = _value_def.size * GOODS_MAX;
-        arrfield.value.offset = (U32)ResLoadToCon(GOODS_RESID, 1, g_CBnkPtr);
+        arrfield.value.offset = (uintptr_t)ResLoadToCon(GOODS_RESID, 1, g_CBnkPtr);
 
         ObjectDef_addField(def, &arrfield);
     }
@@ -308,7 +308,7 @@ void bind_init(void) {
         static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
         static Field arrfield = {"g_Skills", {.def=&arrdef, .offset=0}};
         arrdef.size = _value_def.size * 2000; // TODO
-        arrfield.value.offset = (U32)ResLoadToCon(SKL_RESID, 1, g_CBnkPtr);
+        arrfield.value.offset = (uintptr_t)ResLoadToCon(SKL_RESID, 1, g_CBnkPtr);
         ObjectDef_addField(def, &arrfield);
     }
     {
@@ -336,7 +336,7 @@ void bind_init(void) {
         static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
         static Field arrfield = {"g_GenAtt", {.def=&arrdef, .offset=0}};
         arrdef.size = _value_def.size * 2;
-        arrfield.value.offset = (U32)g_GenAtt;
+        arrfield.value.offset = (uintptr_t)g_GenAtt;
         ObjectDef_addField(def, &arrfield);
     }
     {
@@ -364,7 +364,7 @@ void bind_init(void) {
         static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
         static Field arrfield = {"g_GenPos", {.def=&arrdef, .offset=0}};
         arrdef.size = _value_def.size * FGTA_MAX;
-        arrfield.value.offset = (U32)g_GenPos;
+        arrfield.value.offset = (uintptr_t)g_GenPos;
         ObjectDef_addField(def, &arrfield);
     }
     {
@@ -390,7 +390,7 @@ void bind_init(void) {
         };
 #undef _ST
         static Field field = {"g_FgtParam", {.def=&_value_def, .offset=0}};
-        field.value.offset = (U32)&g_FgtParam;
+        field.value.offset = (uintptr_t)&g_FgtParam;
         ObjectDef_addField(def, &field);
     }
     {
@@ -458,7 +458,7 @@ void bind_init(void) {
         };
 #undef _ST
         static Field field = {"g_engineConfig", {.def=&_value_def, .offset=0}};
-        field.value.offset = (U32)&g_engineConfig;
+        field.value.offset = (uintptr_t)&g_engineConfig;
         ObjectDef_addField(def, &field);
     }
     {
@@ -487,7 +487,7 @@ void bind_init(void) {
         };
 #undef _ST
         static Field field = {"theme", {.def=&_value_def, .offset=0}};
-        field.value.offset = (U32)&g_engineConfig.theme;
+        field.value.offset = (uintptr_t)&g_engineConfig.theme;
         ObjectDef_addField(def, &field);
     }
     {
@@ -511,7 +511,7 @@ void bind_init(void) {
         };
 #undef _ST
         static Field field = {"g_cityCursorRange", {.def=&_value_def, .offset=0}};
-        field.value.offset = (U32)&g_cityCursorRange;
+        field.value.offset = (uintptr_t)&g_cityCursorRange;
         ObjectDef_addField(def, &field);
     }
     {
@@ -541,7 +541,7 @@ void bind_init(void) {
         static ValueDef arrdef = { .type=ValueTypeArray, .size=0, .subdef.arrDef=&_value_def };
         static Field arrfield = {"g_OrderQueue", {.def=&arrdef, .offset=0}};
         arrdef.size = _value_def.size * ORDER_MAX;
-        arrfield.value.offset = (U32)ORDERQUEUE;
+        arrfield.value.offset = (uintptr_t)ORDERQUEUE;
         ObjectDef_addField(def, &arrfield);
     }
     {
@@ -564,7 +564,7 @@ void bind_init(void) {
         };
 #undef _ST
         static Field field = {"g_CityPos", {.def=&_value_def, .offset=0}};
-        field.value.offset = (U32)&g_CityPos;
+        field.value.offset = (uintptr_t)&g_CityPos;
         ObjectDef_addField(def, &field);
     }
 

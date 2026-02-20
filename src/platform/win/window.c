@@ -1,5 +1,10 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <windows.h>
+
+#undef WM_TIMER
+#undef WM_POWER
+#undef WM_COMMAND
 #include <baye/consdef.h>
 
 #define		BY_VK_PGUP				0x20
@@ -51,12 +56,12 @@ static HBITMAP _createBitmap(int w, int h, DWORD **pBuffer)
     bmp.bmiHeader.biPlanes = 1;
     bmp.bmiHeader.biBitCount = 32;
     bmp.bmiHeader.biCompression = BI_RGB;
-    return CreateDIBSection(NULL, &bmp, DIB_RGB_COLORS, pBuffer, NULL, 0);
+    return CreateDIBSection(NULL, &bmp, DIB_RGB_COLORS, (void **)pBuffer, NULL, 0);
 }
 
 static UserData *_getUserData(HWND hwnd, HDC hDC, int w, int h)
 {
-    UserData *data = GetWindowLongPtr(hwnd, GWLP_USERDATA);
+    UserData *data = (UserData *)(LONG_PTR)GetWindowLongPtr(hwnd, GWLP_USERDATA);
     if (!data)
     {
         data = (UserData *)malloc(sizeof(*data));
@@ -69,7 +74,7 @@ static UserData *_getUserData(HWND hwnd, HDC hDC, int w, int h)
         data->bufferSize = sizeof(DWORD) * w * h;
         
         SelectObject(data->memDC, data->hBmp);
-        SetWindowLongPtr(hwnd, GWLP_USERDATA, data);
+        SetWindowLongPtr(hwnd, GWLP_USERDATA, (LONG_PTR)data);
     }
 
     if (data->h != h || data->w != w)
