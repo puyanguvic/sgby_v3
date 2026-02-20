@@ -10,7 +10,7 @@ WITH_INSTALLER=0
 usage() {
     cat <<'EOF'
 Usage:
-  ./scripts/preflight_windows_release.sh --version=1.0.4 [--with-installer]
+  ./scripts/preflight_windows_release.sh --version=1.0.5 [--with-installer]
 
 What it does:
   1) Build Windows package locally on Ubuntu

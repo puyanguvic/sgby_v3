@@ -33,6 +33,7 @@ data-bind.c
 bind-objects.c
 touch.c
 config.c
+version.c
 miniz.c
 platform/common/bios.c
 platform/common/gui.c
@@ -56,13 +57,21 @@ platform/win/sys.c
 platform/win/timer.c
 )
 
+set (bayelib_godot_SRCS
+platform/godot/fsys.c
+platform/godot/script.c
+platform/godot/sem.c
+platform/godot/sys.c
+platform/godot/timer.c
+)
+
 add_library(bayeliba ${bayelib_SRCS})
+set_target_properties(bayeliba PROPERTIES POSITION_INDEPENDENT_CODE ON)
 
 if (CMAKE_SYSTEM_NAME STREQUAL "Emscripten")
 	target_sources(bayeliba PRIVATE ${bayelib_js_SRCS})
 	add_executable(baye
 		platform/js/main.c
-		version.c
 	)
 	target_link_libraries(baye PRIVATE bayeliba)
 	target_include_directories(baye PRIVATE . ./platform/common)
@@ -72,11 +81,23 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 	target_sources(bayeliba PRIVATE ${bayelib_win_SRCS})
 	add_executable(baye
 		platform/win/window.c
-		version.c
 	)
 	find_package(Threads REQUIRED)
 	target_link_libraries(baye PRIVATE bayeliba Threads::Threads)
 	target_include_directories(baye PRIVATE . ./platform/common)
+endif()
+
+option(BAYE_BUILD_GODOT_BRIDGE "Build shared bridge library for Godot integration" OFF)
+if (BAYE_BUILD_GODOT_BRIDGE)
+	find_package(Threads REQUIRED)
+	add_library(ibaye_godot_bridge SHARED
+		platform/godot/bridge.c
+		${bayelib_godot_SRCS}
+	)
+	target_link_libraries(ibaye_godot_bridge PRIVATE bayeliba Threads::Threads)
+	target_include_directories(ibaye_godot_bridge PUBLIC . ./platform/common ./platform/godot)
+	add_dependencies(ibaye_godot_bridge ver_header)
+	set_target_properties(ibaye_godot_bridge PROPERTIES OUTPUT_NAME ibaye_godot_bridge)
 endif()
 
 add_custom_command(

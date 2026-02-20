@@ -126,7 +126,7 @@ FAR U8 GamConInit(void)
 
         if (version != 1) {
             printf("Unsupported lib version: %d\n", version);
-            abort();
+            return 1;
         }
         g_scale = magic & 0xf;
         printf("g_scale=%d\n", g_scale);
@@ -431,4 +431,3 @@ void gam_gc_check_all()
 }
 
 #endif
-

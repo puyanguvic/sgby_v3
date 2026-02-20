@@ -26,7 +26,7 @@ sudo apt install -y cmake ninja-build mingw-w64 zip
 
 默认产物：
 
-- 便携包：`release/iBaye-windows-portable-1.0.0.zip`
+- 便携包：`release/iBaye-windows-portable-1.0.5.zip`
 
 脚本会自动完成：
 
@@ -43,21 +43,21 @@ sudo apt install -y nsis
 
 会额外生成：
 
-- 安装包：`release/iBaye-Setup-1.0.0.exe`
+- 安装包：`release/iBaye-Setup-1.0.5.exe`
 
 ## 3. 本地预检后再发版（强烈建议）
 
 为了避免反复消耗 GitHub Actions，建议每次发版前先本地预检：
 
 ```bash
-./scripts/preflight_windows_release.sh --version=1.0.4
+./scripts/preflight_windows_release.sh --version=1.0.5
 ```
 
 如果预检通过，再执行：
 
 ```bash
-git tag -a v1.0.4 -m "Release v1.0.4"
-git push origin v1.0.4
+git tag -a v1.0.5 -m "Release v1.0.5"
+git push origin v1.0.5
 ```
 
 这样 CI 只负责“确认并发布”，不再承担试错。

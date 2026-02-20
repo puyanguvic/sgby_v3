@@ -35,18 +35,18 @@ x86_64-w64-mingw32-windres --version
 1. 构建 Windows 便携包
 
 ```bash
-./build_windows_from_ubuntu.sh --version=1.0.4
+./build_windows_from_ubuntu.sh --version=1.0.5
 ```
 
 2. 本地预检（会验证 zip 产物和关键文件）
 
 ```bash
-./scripts/preflight_windows_release.sh --version=1.0.4
+./scripts/preflight_windows_release.sh --version=1.0.5
 ```
 
 产物（通过后）：
 
-- `release/iBaye-windows-portable-1.0.4.zip`
+- `release/iBaye-windows-portable-1.0.5.zip`
 
 ## 本地提交门禁（建议开启）
 
@@ -59,15 +59,17 @@ x86_64-w64-mingw32-windres --version
 ## 发布策略
 
 - 本地先预检通过，再发布
-- 仅在推送 `v*` 标签（例如 `v1.0.4`）时触发 GitHub 发布
+- 仅在推送 `v*` 标签（例如 `v1.0.5`）时触发 GitHub 发布
 
 发布命令：
 
 ```bash
-git tag -a v1.0.4 -m "Release v1.0.4"
-git push origin v1.0.4
+git tag -a v1.0.5 -m "Release v1.0.5"
+git push origin v1.0.5
 ```
 
 更多细节见：
 
 - `BUILD_WINDOWS.md`
+- `GODOT_PORT.md`（Godot 2D 适配阶段记录，当前到第七阶段）
+- `godot/README.md`（含 Ubuntu 一键初始化脚本用法）

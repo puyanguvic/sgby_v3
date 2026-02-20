@@ -23,12 +23,13 @@
 #define		BY_VK_SHIFT			    0x34			/* shift */
 #define		BY_VK_SYM				0x35			/*  符号 */
 
-void bayeStart();
+void bayeStart(void);
+void bayeShowStartupError(const wchar_t* msg);
 void winInitTimer();
 void GamSetLcdFlushCallback(void (*lcd_fluch_cb)(char *buffer));
 void bayeSendKey(int key);
 
-const char g_szClassName[] = "BayeWindowClass";
+static const WCHAR g_szClassName[] = L"BayeWindowClass";
 static HWND hMainWin = 0;
 static char *lcdBuffer = NULL;
 static int lcdDirty = 0;
@@ -196,9 +197,9 @@ LRESULT CALLBACK BayeWindowProc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lPara
 
 void RegisterMainWindow(HINSTANCE hInstance)
 {
-    WNDCLASSEX wc;
+    WNDCLASSEXW wc;
 
-    wc.cbSize = sizeof(WNDCLASSEX);
+    wc.cbSize = sizeof(WNDCLASSEXW);
     wc.style = 0;
     wc.lpfnWndProc = BayeWindowProc;
     wc.cbClsExtra = 0;
@@ -211,9 +212,9 @@ void RegisterMainWindow(HINSTANCE hInstance)
     wc.lpszClassName = g_szClassName;
     wc.hIconSm = LoadIcon(NULL, IDI_APPLICATION);
 
-    if (!RegisterClassEx(&wc))
+    if (!RegisterClassExW(&wc))
     {
-        MessageBox(NULL, "窗口注册失败!", "错误", MB_ICONEXCLAMATION | MB_OK);
+        MessageBoxW(NULL, L"\u7a97\u53e3\u6ce8\u518c\u5931\u8d25\uff01", L"\u9519\u8bef", MB_ICONEXCLAMATION | MB_OK);
         exit(0);
     }
 }
@@ -221,17 +222,17 @@ void RegisterMainWindow(HINSTANCE hInstance)
 HWND CreateMainWindow(HINSTANCE hInstance, int nCmdShow)
 {
     HWND hwnd;
-    hwnd = CreateWindowEx(
+    hwnd = CreateWindowExW(
         WS_EX_CLIENTEDGE,
         g_szClassName,
-        "iBaye 预览版",
+        L"iBaye \u9884\u89c8\u7248",
         WS_OVERLAPPEDWINDOW,
         CW_USEDEFAULT, CW_USEDEFAULT, 450, 300,
         NULL, NULL, hInstance, NULL);
 
     if (hwnd == NULL)
     {
-        MessageBox(NULL, "窗口创建失败!", "错误", MB_ICONEXCLAMATION | MB_OK);
+        MessageBoxW(NULL, L"\u7a97\u53e3\u521b\u5efa\u5931\u8d25\uff01", L"\u9519\u8bef", MB_ICONEXCLAMATION | MB_OK);
         exit(0);
     }
 
@@ -245,6 +246,11 @@ static void _lcd_flush_cb(char *buffer)
     lcdBuffer = buffer;
     lcdDirty = 1;
     InvalidateRect(hMainWin, NULL, FALSE);
+}
+
+void bayeShowStartupError(const wchar_t* msg)
+{
+    MessageBoxW(NULL, msg, L"iBaye Startup Error", MB_OK | MB_ICONERROR);
 }
 
 int main(int argc, char *argv[])

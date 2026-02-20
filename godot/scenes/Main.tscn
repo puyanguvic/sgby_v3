@@ -1,0 +1,468 @@
+[gd_scene load_steps=8 format=3 uid="uid://ibaye_main_scene"]
+
+[ext_resource type="Script" path="res://scripts/ShellUI.cs" id="1_shell"]
+[ext_resource type="Script" path="res://scripts/BridgeHost.cs" id="2_host"]
+[ext_resource type="Script" path="res://scripts/EngineViewport.cs" id="3_view"]
+[ext_resource type="Script" path="res://scripts/CityPanel.cs" id="4_city"]
+[ext_resource type="Script" path="res://scripts/MainMenuPanel.cs" id="5_menu"]
+[ext_resource type="Script" path="res://scripts/BattleHud.cs" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/BootGuardPanel.cs" id="7_boot"]
+
+[node name="Main" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_shell")
+HostPath = NodePath("BridgeHost")
+StatusLabelPath = NodePath("Layout/RootVBox/TopBar/TopRow/Status")
+ClockLabelPath = NodePath("Layout/RootVBox/TopBar/TopRow/Clock")
+FpsLabelPath = NodePath("Layout/RootVBox/TopBar/TopRow/Fps")
+MainMenuPath = NodePath("MainMenu")
+GameplayRootPath = NodePath("Layout/RootVBox/Body")
+BottomBarPath = NodePath("Layout/RootVBox/BottomBar")
+BootGuardPath = NodePath("BootGuard")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0509804, 0.0705882, 0.101961, 1)
+
+[node name="BridgeHost" type="Node" parent="."]
+script = ExtResource("2_host")
+ScreenWidth = 208
+ScreenHeight = 128
+AutoStart = false
+
+[node name="Layout" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 16.0
+offset_top = 16.0
+offset_right = -16.0
+offset_bottom = -16.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/margin_left = 14
+theme_override_constants/margin_top = 14
+theme_override_constants/margin_right = 14
+theme_override_constants/margin_bottom = 14
+
+[node name="RootVBox" type="VBoxContainer" parent="Layout"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="TopBar" type="PanelContainer" parent="Layout/RootVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 56)
+
+[node name="TopRow" type="HBoxContainer" parent="Layout/RootVBox/TopBar"]
+layout_mode = 2
+theme_override_constants/separation = 18
+
+[node name="Title" type="Label" parent="Layout/RootVBox/TopBar/TopRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "iBaye 指挥台"
+
+[node name="MenuBtn" type="Button" parent="Layout/RootVBox/TopBar/TopRow"]
+layout_mode = 2
+text = "菜单"
+
+[node name="Status" type="Label" parent="Layout/RootVBox/TopBar/TopRow"]
+layout_mode = 2
+text = "未启动"
+
+[node name="Clock" type="Label" parent="Layout/RootVBox/TopBar/TopRow"]
+layout_mode = 2
+text = "00:00:00"
+
+[node name="Fps" type="Label" parent="Layout/RootVBox/TopBar/TopRow"]
+layout_mode = 2
+text = "FPS 0"
+
+[node name="Body" type="HSplitContainer" parent="Layout/RootVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+split_offset = 210
+
+[node name="LeftPanel" type="PanelContainer" parent="Layout/RootVBox/Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(230, 0)
+script = ExtResource("4_city")
+HostPath = NodePath("../../../../BridgeHost")
+CityListPath = NodePath("LeftVBox/CityList")
+DetailLabelPath = NodePath("LeftVBox/Detail")
+PeriodOptionPath = NodePath("LeftVBox/PeriodRow/PeriodOption")
+PeriodLoadButtonPath = NodePath("LeftVBox/PeriodRow/PeriodLoad")
+DomesticButtonPath = NodePath("LeftVBox/OpsRow/BtnDomestic")
+MilitaryButtonPath = NodePath("LeftVBox/OpsRow/BtnMilitary")
+DiplomacyButtonPath = NodePath("LeftVBox/OpsRow/BtnDiplomacy")
+OpsLogPath = NodePath("LeftVBox/OpsLog")
+
+[node name="LeftVBox" type="VBoxContainer" parent="Layout/RootVBox/Body/LeftPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="HintTitle" type="Label" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox"]
+layout_mode = 2
+text = "战役面板"
+
+[node name="PeriodRow" type="HBoxContainer" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="PeriodOption" type="OptionButton" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox/PeriodRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="PeriodLoad" type="Button" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox/PeriodRow"]
+layout_mode = 2
+text = "加载"
+
+[node name="CityList" type="ItemList" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox"]
+layout_mode = 2
+size_flags_vertical = 3
+select_mode = 0
+
+[node name="Detail" type="RichTextLabel" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 170)
+bbcode_enabled = true
+fit_content = true
+
+[node name="OpsTitle" type="Label" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox"]
+layout_mode = 2
+text = "城市操作"
+
+[node name="OpsRow" type="HBoxContainer" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox"]
+layout_mode = 2
+theme_override_constants/separation = 6
+
+[node name="BtnDomestic" type="Button" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox/OpsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "内政"
+
+[node name="BtnMilitary" type="Button" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox/OpsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "军备"
+
+[node name="BtnDiplomacy" type="Button" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox/OpsRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "外交"
+
+[node name="OpsLog" type="RichTextLabel" parent="Layout/RootVBox/Body/LeftPanel/LeftVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 110)
+bbcode_enabled = true
+fit_content = true
+
+[node name="CenterPanel" type="PanelContainer" parent="Layout/RootVBox/Body"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="CenterMargin" type="MarginContainer" parent="Layout/RootVBox/Body/CenterPanel"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 10
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 10
+
+[node name="EngineViewport" type="TextureRect" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin"]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+expand_mode = 1
+stretch_mode = 6
+texture_filter = 1
+script = ExtResource("3_view")
+HostPath = NodePath("../../../../../BridgeHost")
+
+[node name="BattleHud" type="PanelContainer" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport"]
+layout_mode = 1
+anchors_preset = 10
+anchor_right = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = 86.0
+grow_horizontal = 2
+mouse_filter = 2
+script = ExtResource("6_hud")
+HostPath = NodePath("../../../../../../BridgeHost")
+ModeLabelPath = NodePath("HudMargin/HudVBox/Row1/Mode")
+PeriodLabelPath = NodePath("HudMargin/HudVBox/Row1/Period")
+LastCommandLabelPath = NodePath("HudMargin/HudVBox/Row2/LastCmd")
+TempoLabelPath = NodePath("HudMargin/HudVBox/Row2/Tempo")
+TempoBarPath = NodePath("HudMargin/HudVBox/TempoBar")
+AlertLabelPath = NodePath("HudMargin/HudVBox/Row1/Alert")
+
+[node name="HudMargin" type="MarginContainer" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud"]
+layout_mode = 2
+theme_override_constants/margin_left = 10
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 10
+theme_override_constants/margin_bottom = 8
+
+[node name="HudVBox" type="VBoxContainer" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin"]
+layout_mode = 2
+theme_override_constants/separation = 4
+
+[node name="Row1" type="HBoxContainer" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin/HudVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Mode" type="Label" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin/HudVBox/Row1"]
+layout_mode = 2
+text = "布阵"
+
+[node name="Period" type="Label" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin/HudVBox/Row1"]
+layout_mode = 2
+text = "剧本 0"
+
+[node name="Alert" type="Label" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin/HudVBox/Row1"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 2
+text = "警报: 正常"
+
+[node name="Row2" type="HBoxContainer" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin/HudVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="LastCmd" type="Label" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin/HudVBox/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "最近指令: 无"
+
+[node name="Tempo" type="Label" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin/HudVBox/Row2"]
+layout_mode = 2
+text = "节奏 0%"
+
+[node name="TempoBar" type="ProgressBar" parent="Layout/RootVBox/Body/CenterPanel/CenterMargin/EngineViewport/BattleHud/HudMargin/HudVBox"]
+layout_mode = 2
+max_value = 100.0
+value = 0.0
+
+[node name="RightPanel" type="PanelContainer" parent="Layout/RootVBox/Body"]
+layout_mode = 2
+custom_minimum_size = Vector2(230, 0)
+
+[node name="RightVBox" type="VBoxContainer" parent="Layout/RootVBox/Body/RightPanel"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="QuickTitle" type="Label" parent="Layout/RootVBox/Body/RightPanel/RightVBox"]
+layout_mode = 2
+text = "快捷操作"
+
+[node name="Row1" type="HBoxContainer" parent="Layout/RootVBox/Body/RightPanel/RightVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnUp" type="Button" parent="Layout/RootVBox/Body/RightPanel/RightVBox/Row1"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "上"
+
+[node name="BtnPgUp" type="Button" parent="Layout/RootVBox/Body/RightPanel/RightVBox/Row1"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "上页"
+
+[node name="Row2" type="HBoxContainer" parent="Layout/RootVBox/Body/RightPanel/RightVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnLeft" type="Button" parent="Layout/RootVBox/Body/RightPanel/RightVBox/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "左"
+
+[node name="BtnEnter" type="Button" parent="Layout/RootVBox/Body/RightPanel/RightVBox/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "确认"
+
+[node name="BtnRight" type="Button" parent="Layout/RootVBox/Body/RightPanel/RightVBox/Row2"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "右"
+
+[node name="Row3" type="HBoxContainer" parent="Layout/RootVBox/Body/RightPanel/RightVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnDown" type="Button" parent="Layout/RootVBox/Body/RightPanel/RightVBox/Row3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "下"
+
+[node name="BtnPgDn" type="Button" parent="Layout/RootVBox/Body/RightPanel/RightVBox/Row3"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "下页"
+
+[node name="Row4" type="HBoxContainer" parent="Layout/RootVBox/Body/RightPanel/RightVBox"]
+layout_mode = 2
+theme_override_constants/separation = 8
+
+[node name="BtnExit" type="Button" parent="Layout/RootVBox/Body/RightPanel/RightVBox/Row4"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "返回"
+
+[node name="BottomBar" type="PanelContainer" parent="Layout/RootVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 52)
+
+[node name="BottomRow" type="HBoxContainer" parent="Layout/RootVBox/BottomBar"]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="BottomHint1" type="Label" parent="Layout/RootVBox/BottomBar/BottomRow"]
+layout_mode = 2
+text = "后续可扩展 F1/F2 映射"
+
+[node name="BottomHint2" type="Label" parent="Layout/RootVBox/BottomBar/BottomRow"]
+layout_mode = 2
+text = "第七阶段：运行态桥接 + 指令序列"
+
+[node name="BottomHint3" type="Label" parent="Layout/RootVBox/BottomBar/BottomRow"]
+layout_mode = 2
+size_flags_horizontal = 3
+horizontal_alignment = 2
+text = "Bridge 模式"
+
+[node name="MainMenu" type="PanelContainer" parent="."]
+visible = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -170.0
+offset_right = 240.0
+offset_bottom = 170.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("5_menu")
+HostPath = NodePath("../BridgeHost")
+PeriodOptionPath = NodePath("MenuVBox/PeriodOption")
+StartButtonPath = NodePath("MenuVBox/Buttons/StartBtn")
+ContinueButtonPath = NodePath("MenuVBox/Buttons/ContinueBtn")
+StatusLabelPath = NodePath("MenuVBox/Status")
+
+[node name="MenuVBox" type="VBoxContainer" parent="MainMenu"]
+layout_mode = 2
+theme_override_constants/separation = 12
+
+[node name="Title" type="Label" parent="MainMenu/MenuVBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "新战役菜单"
+
+[node name="Sub" type="Label" parent="MainMenu/MenuVBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "选择历史时期后开始"
+
+[node name="PeriodOption" type="OptionButton" parent="MainMenu/MenuVBox"]
+layout_mode = 2
+
+[node name="Buttons" type="HBoxContainer" parent="MainMenu/MenuVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="StartBtn" type="Button" parent="MainMenu/MenuVBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "开始"
+
+[node name="ContinueBtn" type="Button" parent="MainMenu/MenuVBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "关闭"
+
+[node name="Status" type="Label" parent="MainMenu/MenuVBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "未启动"
+
+[node name="BootGuard" type="PanelContainer" parent="."]
+visible = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -310.0
+offset_top = -210.0
+offset_right = 310.0
+offset_bottom = 210.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("7_boot")
+HostPath = NodePath("../BridgeHost")
+MessageLabelPath = NodePath("BootVBox/Report")
+FixButtonPath = NodePath("BootVBox/Buttons/FixBtn")
+RetryButtonPath = NodePath("BootVBox/Buttons/RetryBtn")
+ContinueButtonPath = NodePath("BootVBox/Buttons/ContinueBtn")
+
+[node name="BootVBox" type="VBoxContainer" parent="BootGuard"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="BootGuard/BootVBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "启动自检"
+
+[node name="Report" type="RichTextLabel" parent="BootGuard/BootVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 250)
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+text = "正在检查..."
+
+[node name="Buttons" type="HBoxContainer" parent="BootGuard/BootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FixBtn" type="Button" parent="BootGuard/BootVBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "自动修复"
+
+[node name="RetryBtn" type="Button" parent="BootGuard/BootVBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "重新检测"
+
+[node name="ContinueBtn" type="Button" parent="BootGuard/BootVBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "忽略继续"
+
+[connection signal="pressed" from="Layout/RootVBox/Body/RightPanel/RightVBox/Row1/BtnUp" to="." method="OnUpPressed"]
+[connection signal="pressed" from="Layout/RootVBox/Body/RightPanel/RightVBox/Row1/BtnPgUp" to="." method="OnPgUpPressed"]
+[connection signal="pressed" from="Layout/RootVBox/TopBar/TopRow/MenuBtn" to="." method="OnMenuPressed"]
+[connection signal="pressed" from="Layout/RootVBox/Body/RightPanel/RightVBox/Row2/BtnLeft" to="." method="OnLeftPressed"]
+[connection signal="pressed" from="Layout/RootVBox/Body/RightPanel/RightVBox/Row2/BtnEnter" to="." method="OnEnterPressed"]
+[connection signal="pressed" from="Layout/RootVBox/Body/RightPanel/RightVBox/Row2/BtnRight" to="." method="OnRightPressed"]
+[connection signal="pressed" from="Layout/RootVBox/Body/RightPanel/RightVBox/Row3/BtnDown" to="." method="OnDownPressed"]
+[connection signal="pressed" from="Layout/RootVBox/Body/RightPanel/RightVBox/Row3/BtnPgDn" to="." method="OnPgDnPressed"]
+[connection signal="pressed" from="Layout/RootVBox/Body/RightPanel/RightVBox/Row4/BtnExit" to="." method="OnExitPressed"]

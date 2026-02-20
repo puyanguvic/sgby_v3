@@ -4,7 +4,7 @@ set -euo pipefail
 BUILD_DIR="${BUILD_DIR:-build-win-mingw}"
 DIST_DIR="${DIST_DIR:-dist-win}"
 RELEASE_DIR="${RELEASE_DIR:-release}"
-APP_VERSION="${APP_VERSION:-1.0.0}"
+APP_VERSION="${APP_VERSION:-1.0.5}"
 WITH_INSTALLER="${WITH_INSTALLER:-0}"
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -85,6 +85,7 @@ need_cmd cmake
 need_cmd ninja
 need_cmd x86_64-w64-mingw32-gcc
 need_cmd x86_64-w64-mingw32-windres
+need_cmd x86_64-w64-mingw32-objdump
 need_cmd zip
 if [[ "$WITH_INSTALLER" == "1" ]]; then
     need_cmd makensis
@@ -126,10 +127,25 @@ fi
 cp src/font24.cn.* "$DIST_DIR/" 2>/dev/null || true
 cp src/font24.en.* "$DIST_DIR/" 2>/dev/null || true
 
-# MinGW runtime DLLs (best effort: copy when found).
-for dll in libwinpthread-1.dll libgcc_s_seh-1.dll libstdc++-6.dll; do
+# Copy non-system DLLs required by this executable and fail fast on missing deps.
+mapfile -t dll_deps < <(
+    x86_64-w64-mingw32-objdump -p "$EXE_PATH" \
+        | awk '/DLL Name:/ {print $3}' \
+        | sort -u
+)
+
+for dll in "${dll_deps[@]}"; do
+    case "${dll,,}" in
+        kernel32.dll|user32.dll|gdi32.dll|msvcrt.dll|advapi32.dll|shell32.dll|ole32.dll|comdlg32.dll|ws2_32.dll)
+            continue
+            ;;
+    esac
+
     if path="$(find_dll "$dll")"; then
         cp "$path" "$DIST_DIR/$dll"
+    else
+        echo "Missing runtime DLL dependency: $dll" >&2
+        exit 1
     fi
 done
 

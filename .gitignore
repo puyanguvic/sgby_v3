@@ -3,3 +3,26 @@ src/baye/version.h
 /build
 .vscode
 
+# local caches / package managers
+.dotnet-cli/
+.nuget/
+.godot_runtime/
+
+# local build outputs
+build-win-mingw/
+dist-win/
+build-godot-bridge/
+build-godot/
+/tmp/iBaye-build-godot/
+
+# release artifacts
+release/*.zip
+release/*.exe
+release/SHA256SUMS.txt
+
+# Godot local/generated data
+godot/.godot/
+godot/.mono/
+godot/bin/
+godot/obj/
+godot/libibaye_godot_bridge.so
