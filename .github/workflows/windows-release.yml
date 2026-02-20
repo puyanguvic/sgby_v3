@@ -1,12 +1,6 @@
 name: Windows Build And Release
 
 on:
-  workflow_dispatch:
-    inputs:
-      app_version:
-        description: "Version to package (example: 1.2.3). Leave empty to auto-detect."
-        required: false
-        default: ""
   push:
     tags:
       - "v*"
@@ -41,14 +35,11 @@ jobs:
         run: |
           set -euo pipefail
 
-          version=""
-          if [[ -n "${{ github.event.inputs.app_version || '' }}" ]]; then
-            version="${{ github.event.inputs.app_version }}"
-          elif [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
-            version="${GITHUB_REF_NAME#v}"
-          else
-            version="0.0.0-${GITHUB_RUN_NUMBER}"
+          if [[ "${GITHUB_REF_TYPE}" != "tag" ]]; then
+            echo "This workflow only runs for tags."
+            exit 1
           fi
+          version="${GITHUB_REF_NAME#v}"
 
           echo "APP_VERSION=${version}" >> "$GITHUB_ENV"
           echo "Using APP_VERSION=${version}"

@@ -73,7 +73,7 @@ git push origin v1.0.4
 效果：
 
 - 每次 `git commit` 前自动跑脚本语法检查
-- 当提交涉及 Windows 发布链路文件时，自动执行：
+- 每次提交都自动执行一次本地构建预检：
   - `./scripts/preflight_windows_release.sh --version=precommit-local`
 - 未通过则直接拒绝提交
 
@@ -186,11 +186,7 @@ cp /ucrt64/bin/libstdc++-6.dll dist/ || true
 
 触发方式：
 
-1. 手动触发（`workflow_dispatch`）
-- 在 GitHub Actions 页面运行 `Windows Build And Release`
-- 可选输入 `app_version`（如 `1.2.3`）
-
-2. 推送 tag 自动触发
+1. 仅推送 tag 自动触发
 - 推送形如 `v1.2.3` 的 tag
 - 自动生成：
   - `release/iBaye-windows-portable-1.2.3.zip`

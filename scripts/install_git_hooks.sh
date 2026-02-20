@@ -10,6 +10,6 @@ git config core.hooksPath .githooks
 echo "Installed git hooks."
 echo "hooksPath: $(git config --get core.hooksPath)"
 echo ""
-echo "pre-commit now enforces local release checks for Windows-related changes."
+echo "pre-commit now runs one local Windows preflight build on every commit."
 echo "To temporarily skip heavy preflight once:"
 echo "  RUN_FULL_PRECOMMIT_PRECHECK=0 git commit -m \"...\""

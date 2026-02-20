@@ -38,14 +38,12 @@ print("[pre-commit] workflow yaml parse: ok")
 PY
 fi
 
-# For Windows release related changes, enforce a full local preflight.
-if grep -Eq '^(src/platform/win/|scripts/build_windows_from_ubuntu\.sh|build_windows_from_ubuntu\.sh|\.github/workflows/windows-release\.yml|scripts/preflight_windows_release\.sh|installer\.nsi|installer\.iss)' <<< "$changed_files"; then
-    if [[ "${RUN_FULL_PRECOMMIT_PRECHECK:-1}" == "1" ]]; then
-        echo "[pre-commit] Windows release files changed; running local preflight..."
-        ./scripts/preflight_windows_release.sh --version=precommit-local
-    else
-        echo "[pre-commit] RUN_FULL_PRECOMMIT_PRECHECK=0, skip heavy preflight."
-    fi
+# Always run one local Windows build preflight before commit.
+if [[ "${RUN_FULL_PRECOMMIT_PRECHECK:-1}" == "1" ]]; then
+    echo "[pre-commit] Running local Windows preflight build..."
+    ./scripts/preflight_windows_release.sh --version=precommit-local
+else
+    echo "[pre-commit] RUN_FULL_PRECOMMIT_PRECHECK=0, skip heavy preflight."
 fi
 
 echo "[pre-commit] All checks passed."
