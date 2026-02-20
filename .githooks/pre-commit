@@ -1,0 +1,51 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(git rev-parse --show-toplevel)"
+cd "$ROOT_DIR"
+
+changed_files="$(git diff --cached --name-only --diff-filter=ACMR)"
+if [[ -z "$changed_files" ]]; then
+    exit 0
+fi
+
+echo "[pre-commit] Running local checks..."
+
+# Keep shell scripts parseable.
+bash -n build_windows_from_ubuntu.sh
+bash -n scripts/build_windows_from_ubuntu.sh
+bash -n scripts/preflight_windows_release.sh
+bash -n scripts/install_git_hooks.sh
+
+# Validate workflow yaml can be parsed.
+if command -v python3 >/dev/null 2>&1; then
+    python3 - <<'PY'
+import pathlib
+import sys
+
+try:
+    import yaml
+except Exception as exc:
+    print(f"[pre-commit] skip workflow yaml parse: {exc}")
+    sys.exit(0)
+
+path = pathlib.Path(".github/workflows/windows-release.yml")
+if path.exists():
+    data = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(data, dict):
+        raise SystemExit("[pre-commit] workflow yaml is not a mapping")
+print("[pre-commit] workflow yaml parse: ok")
+PY
+fi
+
+# For Windows release related changes, enforce a full local preflight.
+if grep -Eq '^(src/platform/win/|scripts/build_windows_from_ubuntu\.sh|build_windows_from_ubuntu\.sh|\.github/workflows/windows-release\.yml|scripts/preflight_windows_release\.sh|installer\.nsi|installer\.iss)' <<< "$changed_files"; then
+    if [[ "${RUN_FULL_PRECOMMIT_PRECHECK:-1}" == "1" ]]; then
+        echo "[pre-commit] Windows release files changed; running local preflight..."
+        ./scripts/preflight_windows_release.sh --version=precommit-local
+    else
+        echo "[pre-commit] RUN_FULL_PRECOMMIT_PRECHECK=0, skip heavy preflight."
+    fi
+fi
+
+echo "[pre-commit] All checks passed."
