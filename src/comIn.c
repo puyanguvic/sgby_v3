@@ -128,7 +128,15 @@ FAR U8 GamConInit(void)
             printf("Unsupported lib version: %d\n", version);
             return 1;
         }
-        g_scale = magic & 0xf;
+        {
+            U16 parsed_scale = (U16)(magic & 0xf);
+            if (parsed_scale == 0) {
+                U16 fallback_scale = g_scale > 0 ? g_scale : 2;
+                printf("invalid g_scale in lib magic(0x%x), fallback to %d\n", magic, fallback_scale);
+                parsed_scale = fallback_scale;
+            }
+            g_scale = parsed_scale;
+        }
         printf("g_scale=%d\n", g_scale);
 
         void vs_ptr_init(void);

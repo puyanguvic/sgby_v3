@@ -72,8 +72,9 @@ static int copy_path(char *dst, size_t dst_len, const char *src)
 static void lcd_flush_cb(char *buffer)
 {
     int i;
-    int width = (int)g_screenWidth * (int)g_scale;
-    int height = (int)g_screenHeight * (int)g_scale;
+    int scale = (g_scale > 0) ? (int)g_scale : 1;
+    int width = (int)g_screenWidth * scale;
+    int height = (int)g_screenHeight * scale;
     int bytes;
 
     if (width <= 0 || height <= 0) {
