@@ -98,6 +98,9 @@ if (BAYE_BUILD_GODOT_BRIDGE)
 	target_include_directories(ibaye_godot_bridge PUBLIC . ./platform/common ./platform/godot)
 	add_dependencies(ibaye_godot_bridge ver_header)
 	set_target_properties(ibaye_godot_bridge PROPERTIES OUTPUT_NAME ibaye_godot_bridge)
+	if (WIN32)
+		set_target_properties(ibaye_godot_bridge PROPERTIES PREFIX "")
+	endif()
 endif()
 
 add_custom_command(

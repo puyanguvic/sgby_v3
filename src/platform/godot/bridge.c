@@ -32,6 +32,8 @@ void GamSetLcdFlushCallback(void (*lcd_fluch_cb)(char *buffer));
 static pthread_t g_engine_thread;
 static int g_engine_started = 0;
 static int g_engine_running = 0;
+static int g_engine_ready = 0;
+static int g_pending_period = 0;
 
 static pthread_mutex_t g_state_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t g_frame_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -106,10 +108,6 @@ static void *engine_main(void *_)
 {
     (void)_;
 
-    pthread_mutex_lock(&g_state_lock);
-    g_engine_running = 1;
-    pthread_mutex_unlock(&g_state_lock);
-
     GamSetResourcePath((U8 *)g_dat_path, (U8 *)g_font_dir);
     GamSetDataDir((U8 *)g_data_dir);
     GamSetLcdFlushCallback(lcd_flush_cb);
@@ -117,14 +115,29 @@ static void *engine_main(void *_)
     if (GamConInit()) {
         set_error("GamConInit failed (check dat.lib/font.bin paths)");
         pthread_mutex_lock(&g_state_lock);
+        g_engine_ready = 0;
         g_engine_running = 0;
         pthread_mutex_unlock(&g_state_lock);
         return NULL;
     }
 
+    pthread_mutex_lock(&g_state_lock);
+    g_engine_ready = 1;
+    g_engine_running = 1;
+    if (g_pending_period > 0) {
+        int period = g_pending_period;
+        g_pending_period = 0;
+        pthread_mutex_unlock(&g_state_lock);
+        LoadPeriod((U8)period);
+        goto run_engine;
+    }
+    pthread_mutex_unlock(&g_state_lock);
+
+run_engine:
     GamBaYeEng();
 
     pthread_mutex_lock(&g_state_lock);
+    g_engine_ready = 0;
     g_engine_running = 0;
     pthread_mutex_unlock(&g_state_lock);
     return NULL;
@@ -164,6 +177,10 @@ int ibaye_godot_start(void)
         return 0;
     }
     g_engine_started = 1;
+    pthread_mutex_lock(&g_state_lock);
+    g_engine_ready = 0;
+    g_engine_running = 0;
+    pthread_mutex_unlock(&g_state_lock);
 
     if (pthread_create(&g_engine_thread, NULL, engine_main, NULL) != 0) {
         g_engine_started = 0;
@@ -254,10 +271,26 @@ int ibaye_godot_get_current_period(void)
 
 int ibaye_godot_load_period(int period)
 {
+    int started;
+    int ready;
+    int running;
+
     if (period <= 0) {
         set_error("invalid period");
         return -1;
     }
+
+    pthread_mutex_lock(&g_state_lock);
+    started = g_engine_started;
+    ready = g_engine_ready;
+    running = g_engine_running;
+    if (!started || !ready || !running) {
+        g_pending_period = period;
+        pthread_mutex_unlock(&g_state_lock);
+        return 0;
+    }
+    pthread_mutex_unlock(&g_state_lock);
+
     LoadPeriod((U8)period);
     return 0;
 }

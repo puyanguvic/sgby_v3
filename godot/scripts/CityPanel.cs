@@ -217,7 +217,10 @@ public partial class CityPanel : Control
         }
 
         _cityList.Clear();
-        int count = BridgeNative.ibaye_godot_get_city_count();
+        if (!TryGetCityCount(out int count))
+        {
+            return;
+        }
         for (int i = 0; i < count; i++)
         {
             string name = GetCityName((byte)i);
@@ -246,10 +249,14 @@ public partial class CityPanel : Control
             return;
         }
 
-        int period = BridgeNative.ibaye_godot_get_current_period();
+        if (!TryGetCurrentPeriod(out int period))
+        {
+            _detail.Text = "[color=red]读取时期失败[/color]";
+            return;
+        }
         int city = _cityList.GetSelectedItems().Length > 0 ? (int)_cityList.GetSelectedItems()[0] : 0;
 
-        if (BridgeNative.ibaye_godot_get_city_stats(
+        if (!TryGetCityStats(
                 (byte)city,
                 out int belong,
                 out int satrap,
@@ -262,7 +269,7 @@ public partial class CityPanel : Control
                 out int commerce,
                 out int state,
                 out int persons
-            ) != 0)
+            ))
         {
             _detail.Text = "[color=red]城市数据不可用[/color]";
             return;
@@ -284,15 +291,111 @@ public partial class CityPanel : Control
             "状态: " + state + "  武将数: " + persons;
     }
 
-    private static string GetCityName(byte index)
+    private string GetCityName(byte index)
     {
         byte[] buf = new byte[64];
-        int n = BridgeNative.ibaye_godot_get_city_name_bytes(index, buf, buf.Length);
+        int n;
+        try
+        {
+            n = BridgeNative.ibaye_godot_get_city_name_bytes(index, buf, buf.Length);
+        }
+        catch (Exception ex)
+        {
+            ReportNativeException("读取城市名称失败", ex);
+            return string.Empty;
+        }
         if (n <= 0)
         {
             return string.Empty;
         }
         return BridgeNative.DecodeGbk(buf, n);
+    }
+
+    private bool TryGetCityCount(out int count)
+    {
+        count = 0;
+        try
+        {
+            count = BridgeNative.ibaye_godot_get_city_count();
+            return count >= 0;
+        }
+        catch (Exception ex)
+        {
+            ReportNativeException("读取城市数量失败", ex);
+            return false;
+        }
+    }
+
+    private bool TryGetCurrentPeriod(out int period)
+    {
+        period = 0;
+        try
+        {
+            period = BridgeNative.ibaye_godot_get_current_period();
+            return period > 0;
+        }
+        catch (Exception ex)
+        {
+            ReportNativeException("读取时期失败", ex);
+            return false;
+        }
+    }
+
+    private bool TryGetCityStats(
+        byte city,
+        out int belong,
+        out int satrap,
+        out int money,
+        out int food,
+        out int mothballArms,
+        out int population,
+        out int devotion,
+        out int farming,
+        out int commerce,
+        out int state,
+        out int persons
+    )
+    {
+        belong = 0;
+        satrap = 0;
+        money = 0;
+        food = 0;
+        mothballArms = 0;
+        population = 0;
+        devotion = 0;
+        farming = 0;
+        commerce = 0;
+        state = 0;
+        persons = 0;
+        try
+        {
+            return BridgeNative.ibaye_godot_get_city_stats(
+                       city,
+                       out belong,
+                       out satrap,
+                       out money,
+                       out food,
+                       out mothballArms,
+                       out population,
+                       out devotion,
+                       out farming,
+                       out commerce,
+                       out state,
+                       out persons
+                   ) == 0;
+        }
+        catch (Exception ex)
+        {
+            ReportNativeException("读取城市详情失败", ex);
+            return false;
+        }
+    }
+
+    private void ReportNativeException(string action, Exception ex)
+    {
+        string message = action + ": " + ex.GetType().Name + " - " + ex.Message;
+        AppendOpsLog("[color=red]" + message + "[/color]");
+        GD.PushError(message);
     }
 
     private static int[] ParseKeySequence(string spec, int fallbackKey)

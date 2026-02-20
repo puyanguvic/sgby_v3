@@ -27,6 +27,7 @@ public partial class BridgeHost : Node
     [Export] public int ScreenWidth = 208;
     [Export] public int ScreenHeight = 128;
     [Export] public bool AutoStart = true;
+    [Export] public int EngineReadyWaitMs = 3000;
 
     private byte[] _frameBuffer = Array.Empty<byte>();
     private uint _latestFrameId = 0;
@@ -191,15 +192,40 @@ public partial class BridgeHost : Node
 
     public bool LoadPeriod(int period)
     {
+        if (!EnsureNativeAvailable())
+        {
+            return false;
+        }
+
         if (!_startedByHost)
         {
+            int queueRc;
+            try
+            {
+                queueRc = BridgeNative.ibaye_godot_load_period(period);
+            }
+            catch (Exception ex)
+            {
+                MarkNativeFailure("加载剧本失败", ex);
+                return false;
+            }
+            if (queueRc != 0)
+            {
+                _status = "加载剧本失败: " + BridgeNative.LastError();
+                GD.PushError(_status);
+                return false;
+            }
+
             if (!StartEngine())
             {
                 return false;
             }
         }
-        if (!EnsureNativeAvailable())
+
+        if (!WaitForEngineReady(EngineReadyWaitMs))
         {
+            _status = "引擎启动中，请稍后重试";
+            GD.PushWarning(_status);
             return false;
         }
 
@@ -374,6 +400,34 @@ public partial class BridgeHost : Node
             _frameHeight = h;
             _latestFrameId = frameId;
         }
+    }
+
+    private bool WaitForEngineReady(int timeoutMs)
+    {
+        if (IsRunning)
+        {
+            return true;
+        }
+
+        if (timeoutMs <= 0)
+        {
+            return false;
+        }
+
+        ulong start = Time.GetTicksMsec();
+        while ((Time.GetTicksMsec() - start) < (ulong)timeoutMs)
+        {
+            if (IsRunning)
+            {
+                return true;
+            }
+            if (!NativeAvailable)
+            {
+                return false;
+            }
+            OS.DelayMsec(20);
+        }
+        return IsRunning;
     }
 
     public bool Preflight(out string report)
