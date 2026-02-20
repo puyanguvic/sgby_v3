@@ -17,6 +17,35 @@ need_cmd() {
     fi
 }
 
+ensure_font24_assets() {
+    local out_dir="$1"
+    local missing=0
+    local fonts=(
+        "font24.cn.1"
+        "font24.cn.2"
+        "font24.cn.3"
+        "font24.cn.4"
+        "font24.en.1"
+        "font24.en.2"
+    )
+
+    local f
+    for f in "${fonts[@]}"; do
+        if [[ ! -f "$out_dir/$f" ]]; then
+            missing=1
+            break
+        fi
+    done
+    if [[ "$missing" == "0" ]]; then
+        return 0
+    fi
+
+    need_cmd cc
+    local tool="$BUILD_DIR/extract_embedded_fonts"
+    cc -O2 "$ROOT_DIR/scripts/extract_embedded_fonts.c" -o "$tool"
+    "$tool" "$out_dir"
+}
+
 find_dll() {
     local dll="$1"
     local candidates=(
@@ -126,6 +155,7 @@ fi
 # Optional font chunks, copied only when present.
 cp src/font24.cn.* "$DIST_DIR/" 2>/dev/null || true
 cp src/font24.en.* "$DIST_DIR/" 2>/dev/null || true
+ensure_font24_assets "$DIST_DIR"
 
 # Copy non-system DLLs required by this executable and fail fast on missing deps.
 mapfile -t dll_deps < <(
