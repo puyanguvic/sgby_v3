@@ -4,7 +4,7 @@
 
 ## 1. 说明
 
-- `README.md` 里的 `emconfigure cmake ...` 流程是 Emscripten/HTML5 目标（生成 `baye.js`）。
+- 当前仓库已精简为 Windows 发布链路优先，不再保留历史多平台工程目录。
 - Windows 原生目标在 `src/CMakeLists.txt` 的 `if (${CMAKE_SYSTEM_NAME} STREQUAL Windows)` 分支，产物为 `baye.exe`。
 
 ## 2. Ubuntu 一键出包（推荐）
@@ -116,7 +116,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File .\scripts\build_windows_inst
 在 `MSYS2 UCRT64` 终端执行：
 
 ```bash
-git clone --recurse-submodules <your_repo_url> iBaye
+git clone <your_repo_url> iBaye
 cd iBaye
 cmake -S . -B build-win -G Ninja -DCMAKE_BUILD_TYPE=Release
 cmake --build build-win -j

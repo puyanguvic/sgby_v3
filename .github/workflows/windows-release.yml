@@ -16,8 +16,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          # Windows portable build does not require legacy js/* submodules.
-          # Those submodules use inaccessible SSH remotes on public runners.
+          # Keep release checkout minimal.
           submodules: false
           fetch-depth: 0
 
