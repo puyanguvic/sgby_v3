@@ -33,6 +33,7 @@ static pthread_t g_engine_thread;
 static int g_engine_started = 0;
 static int g_engine_running = 0;
 static int g_engine_ready = 0;
+static int g_engine_state = IBAYE_ENGINE_STATE_IDLE;
 static int g_pending_period = 0;
 
 static pthread_mutex_t g_state_lock = PTHREAD_MUTEX_INITIALIZER;
@@ -48,6 +49,26 @@ static int g_frame_cap = 0;
 static int g_frame_width = 0;
 static int g_frame_height = 0;
 static uint32_t g_frame_id = 0;
+
+static const char *engine_state_name(int state)
+{
+    switch (state) {
+    case IBAYE_ENGINE_STATE_IDLE:
+        return "idle";
+    case IBAYE_ENGINE_STATE_BOOTING:
+        return "booting";
+    case IBAYE_ENGINE_STATE_READY:
+        return "ready";
+    case IBAYE_ENGINE_STATE_RUNNING:
+        return "running";
+    case IBAYE_ENGINE_STATE_EXITED:
+        return "exited";
+    case IBAYE_ENGINE_STATE_ERROR:
+        return "error";
+    default:
+        return "unknown";
+    }
+}
 
 static void set_error(const char *msg)
 {
@@ -118,28 +139,37 @@ static void *engine_main(void *_)
         pthread_mutex_lock(&g_state_lock);
         g_engine_ready = 0;
         g_engine_running = 0;
+        g_engine_state = IBAYE_ENGINE_STATE_ERROR;
         pthread_mutex_unlock(&g_state_lock);
         return NULL;
     }
 
     pthread_mutex_lock(&g_state_lock);
     g_engine_ready = 1;
-    g_engine_running = 1;
+    g_engine_running = 0;
+    g_engine_state = IBAYE_ENGINE_STATE_READY;
     if (g_pending_period > 0) {
         int period = g_pending_period;
         g_pending_period = 0;
         pthread_mutex_unlock(&g_state_lock);
         LoadPeriod((U8)period);
-        goto run_engine;
+    } else {
+        pthread_mutex_unlock(&g_state_lock);
     }
+
+    pthread_mutex_lock(&g_state_lock);
+    g_engine_running = 1;
+    g_engine_state = IBAYE_ENGINE_STATE_RUNNING;
     pthread_mutex_unlock(&g_state_lock);
 
-run_engine:
     GamBaYeEng();
 
     pthread_mutex_lock(&g_state_lock);
     g_engine_ready = 0;
     g_engine_running = 0;
+    if (g_engine_state != IBAYE_ENGINE_STATE_ERROR) {
+        g_engine_state = IBAYE_ENGINE_STATE_EXITED;
+    }
     pthread_mutex_unlock(&g_state_lock);
     return NULL;
 }
@@ -181,10 +211,15 @@ int ibaye_godot_start(void)
     pthread_mutex_lock(&g_state_lock);
     g_engine_ready = 0;
     g_engine_running = 0;
+    g_engine_state = IBAYE_ENGINE_STATE_BOOTING;
+    g_last_error[0] = 0;
     pthread_mutex_unlock(&g_state_lock);
 
     if (pthread_create(&g_engine_thread, NULL, engine_main, NULL) != 0) {
         g_engine_started = 0;
+        pthread_mutex_lock(&g_state_lock);
+        g_engine_state = IBAYE_ENGINE_STATE_ERROR;
+        pthread_mutex_unlock(&g_state_lock);
         set_error("failed to create engine thread");
         return -1;
     }
@@ -204,6 +239,20 @@ int ibaye_godot_is_running(void)
 const char *ibaye_godot_last_error(void)
 {
     return g_last_error;
+}
+
+int ibaye_godot_get_engine_state(void)
+{
+    int state;
+    pthread_mutex_lock(&g_state_lock);
+    state = g_engine_state;
+    pthread_mutex_unlock(&g_state_lock);
+    return state;
+}
+
+const char *ibaye_godot_get_engine_state_name(void)
+{
+    return engine_state_name(ibaye_godot_get_engine_state());
 }
 
 void ibaye_godot_send_key(int key)
@@ -272,9 +321,7 @@ int ibaye_godot_get_current_period(void)
 
 int ibaye_godot_load_period(int period)
 {
-    int started;
-    int ready;
-    int running;
+    int state;
 
     if (period <= 0) {
         set_error("invalid period");
@@ -282,18 +329,15 @@ int ibaye_godot_load_period(int period)
     }
 
     pthread_mutex_lock(&g_state_lock);
-    started = g_engine_started;
-    ready = g_engine_ready;
-    running = g_engine_running;
-    if (!started || !ready || !running) {
-        g_pending_period = period;
+    state = g_engine_state;
+    if (state == IBAYE_ENGINE_STATE_RUNNING) {
         pthread_mutex_unlock(&g_state_lock);
-        return 0;
+        set_error("load period during runtime is not supported");
+        return -2;
     }
+    g_pending_period = period;
     pthread_mutex_unlock(&g_state_lock);
-
-    set_error("load period during runtime is not supported");
-    return -2;
+    return 0;
 }
 
 int ibaye_godot_get_city_count(void)

@@ -22,6 +22,13 @@ namespace IBaye.GodotBridge
         public const int KeyPgUp = 0x20;
         public const int KeyPgDn = 0x21;
 
+        public const int EngineStateError = -1;
+        public const int EngineStateIdle = 0;
+        public const int EngineStateBooting = 1;
+        public const int EngineStateReady = 2;
+        public const int EngineStateRunning = 3;
+        public const int EngineStateExited = 4;
+
         [DllImport("ibaye_godot_bridge", CallingConvention = CallingConvention.Cdecl)]
         public static extern int ibaye_godot_set_paths(string datPath, string fontDir, string dataDir);
 
@@ -36,6 +43,12 @@ namespace IBaye.GodotBridge
 
         [DllImport("ibaye_godot_bridge", CallingConvention = CallingConvention.Cdecl)]
         public static extern IntPtr ibaye_godot_last_error();
+
+        [DllImport("ibaye_godot_bridge", CallingConvention = CallingConvention.Cdecl)]
+        public static extern int ibaye_godot_get_engine_state();
+
+        [DllImport("ibaye_godot_bridge", CallingConvention = CallingConvention.Cdecl)]
+        public static extern IntPtr ibaye_godot_get_engine_state_name();
 
         [DllImport("ibaye_godot_bridge", CallingConvention = CallingConvention.Cdecl)]
         public static extern void ibaye_godot_send_key(int key);
@@ -100,6 +113,12 @@ namespace IBaye.GodotBridge
         public static string LastError()
         {
             var ptr = ibaye_godot_last_error();
+            return ptr == IntPtr.Zero ? string.Empty : Marshal.PtrToStringAnsi(ptr) ?? string.Empty;
+        }
+
+        public static string EngineStateName()
+        {
+            var ptr = ibaye_godot_get_engine_state_name();
             return ptr == IntPtr.Zero ? string.Empty : Marshal.PtrToStringAnsi(ptr) ?? string.Empty;
         }
 

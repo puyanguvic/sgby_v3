@@ -35,6 +35,14 @@
 2. 新增调试脚本：`scripts/debug_godot_host.sh`
 3. README 增加 Godot-first 调试路径
 
+## 已落地（第二步，进行中）
+
+1. bridge 暴露统一生命周期状态：
+- `ibaye_godot_get_engine_state()`
+- `ibaye_godot_get_engine_state_name()`
+2. 状态机覆盖 `IDLE/BOOTING/READY/RUNNING/EXITED/ERROR`
+3. Godot `BridgeHost` 使用状态机驱动状态文案
+
 ## 后续改造顺序
 
 1. 收敛平台实现
@@ -52,4 +60,3 @@
 4. 建立回归基线
 - `debug_host` 启动烟测（无 UI）
 - Godot 集成烟测（关键场景）
-

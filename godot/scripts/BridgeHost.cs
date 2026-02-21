@@ -45,19 +45,15 @@ public partial class BridgeHost : Node
     {
         get
         {
-            if (!EnsureNativeAvailable())
-            {
-                return false;
-            }
-            try
-            {
-                return BridgeNative.ibaye_godot_is_running() != 0;
-            }
-            catch (Exception ex)
-            {
-                MarkNativeFailure("查询运行状态失败", ex);
-                return false;
-            }
+            return EngineState == BridgeNative.EngineStateRunning;
+        }
+    }
+    public int EngineState
+    {
+        get
+        {
+            TryGetEngineState(out int state);
+            return state;
         }
     }
     public bool IsStarted => _startedByHost || IsRunning;
@@ -100,6 +96,7 @@ public partial class BridgeHost : Node
 
     public override void _Process(double delta)
     {
+        UpdateStatusFromEngineState();
         PollFrame();
     }
 
@@ -186,7 +183,7 @@ public partial class BridgeHost : Node
         }
 
         _startedByHost = true;
-        _status = "运行中";
+        _status = "启动中";
         return true;
     }
 
@@ -407,6 +404,71 @@ public partial class BridgeHost : Node
             OS.DelayMsec(20);
         }
         return IsRunning;
+    }
+
+    private bool TryGetEngineState(out int state)
+    {
+        state = BridgeNative.EngineStateIdle;
+        if (!EnsureNativeAvailable())
+        {
+            return false;
+        }
+
+        try
+        {
+            state = BridgeNative.ibaye_godot_get_engine_state();
+            return true;
+        }
+        catch (EntryPointNotFoundException)
+        {
+            try
+            {
+                state = BridgeNative.ibaye_godot_is_running() != 0
+                    ? BridgeNative.EngineStateRunning
+                    : BridgeNative.EngineStateIdle;
+                return true;
+            }
+            catch (Exception ex)
+            {
+                MarkNativeFailure("查询运行状态失败", ex);
+                return false;
+            }
+        }
+        catch (Exception ex)
+        {
+            MarkNativeFailure("查询引擎状态失败", ex);
+            return false;
+        }
+    }
+
+    private void UpdateStatusFromEngineState()
+    {
+        if (!_startedByHost || !TryGetEngineState(out int state))
+        {
+            return;
+        }
+
+        string text = state switch
+        {
+            BridgeNative.EngineStateIdle => "未启动",
+            BridgeNative.EngineStateBooting => "启动中",
+            BridgeNative.EngineStateReady => "初始化完成",
+            BridgeNative.EngineStateRunning => "运行中",
+            BridgeNative.EngineStateExited => "已退出",
+            BridgeNative.EngineStateError => "启动失败",
+            _ => "状态未知"
+        };
+
+        if (state == BridgeNative.EngineStateError)
+        {
+            string err = BridgeNative.LastError();
+            if (!string.IsNullOrWhiteSpace(err))
+            {
+                text += ": " + err;
+            }
+        }
+
+        _status = text;
     }
 
     public bool Preflight(out string report)

@@ -42,6 +42,8 @@ cmake --build build-godot-bridge -j
 - `ibaye_godot_start()`
 - `ibaye_godot_is_running()`
 - `ibaye_godot_last_error()`
+- `ibaye_godot_get_engine_state()`
+- `ibaye_godot_get_engine_state_name()`
 - `ibaye_godot_send_key(key)`
 - `ibaye_godot_send_touch(event, x, y)`
 - `ibaye_godot_get_frame_bytes()`

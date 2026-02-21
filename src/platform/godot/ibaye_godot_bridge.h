@@ -23,6 +23,14 @@ extern "C" {
 #define IBAYE_KEY_PGUP 0x20
 #define IBAYE_KEY_PGDN 0x21
 
+/* Engine lifecycle states. */
+#define IBAYE_ENGINE_STATE_ERROR (-1)
+#define IBAYE_ENGINE_STATE_IDLE 0
+#define IBAYE_ENGINE_STATE_BOOTING 1
+#define IBAYE_ENGINE_STATE_READY 2
+#define IBAYE_ENGINE_STATE_RUNNING 3
+#define IBAYE_ENGINE_STATE_EXITED 4
+
 /* Call before start; passing NULL keeps the current/default value. */
 int ibaye_godot_set_paths(const char *dat_path, const char *font_dir, const char *data_dir);
 
@@ -37,6 +45,10 @@ int ibaye_godot_is_running(void);
 
 /* Human-readable last error string. */
 const char *ibaye_godot_last_error(void);
+
+/* Engine lifecycle state and state label for UI/status panels. */
+int ibaye_godot_get_engine_state(void);
+const char *ibaye_godot_get_engine_state_name(void);
 
 /* Input bridge. */
 void ibaye_godot_send_key(int key);
