@@ -20,6 +20,7 @@ void gam_setcustomdata(U8*data);
 U8* gam_getcustomdata();
 void baye_init_for_js(void);
 U8 GamVarInit(void);
+FAR int GamCopyFrameRGBA(U8 *outBuf, int outLen, int *outW, int *outH);
 
 EMSCRIPTEN_KEEPALIVE
 void bayeSendKey(int key)
@@ -444,4 +445,10 @@ U8 bayeSetFontEn(U16 font) {
 EMSCRIPTEN_KEEPALIVE
 void bayeClearFontCache() {
     GamClearFontCache();
+}
+
+EMSCRIPTEN_KEEPALIVE
+int bayeCopyFrameRgba(U8 *outBuf, int outLen, int *outW, int *outH)
+{
+    return GamCopyFrameRGBA(outBuf, outLen, outW, outH);
 }

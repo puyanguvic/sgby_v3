@@ -396,6 +396,30 @@ FAR void flushLcd()
     }
 }
 
+FAR int GamCopyFrameRGBA(U8 *outBuf, int outLen, int *outW, int *outH)
+{
+    int width = SCR_W * AX_SCALE;
+    int height = SCR_H * AX_SCALE;
+    int bytes = width * height * 4;
+
+    if (outW) {
+        *outW = width;
+    }
+    if (outH) {
+        *outH = height;
+    }
+
+    if (bytes <= 0) {
+        return 0;
+    }
+    if (outBuf == NULL || outLen < bytes) {
+        return -bytes;
+    }
+
+    convert_image((U32 *)outBuf, scr_buffer);
+    return bytes;
+}
+
 FAR void logPicture(U8 wid, U8 hgt, U8* pic)
 {
     int x, y;

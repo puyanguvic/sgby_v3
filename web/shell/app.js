@@ -23,6 +23,11 @@
   let droppedCount = 0;
   let firstFrameLogged = false;
   let bootingSince = 0;
+  let pullStarted = false;
+  let pullBufPtr = 0;
+  let pullBufCap = 0;
+  let wPtr = 0;
+  let hPtr = 0;
 
   function setStatus(text) {
     statusEl.textContent = text;
@@ -54,6 +59,29 @@
       return;
     }
     mod._bayeSendKey(code);
+  }
+
+  function writeFrameFromPtr(ptr, bytes) {
+    const mod = window.Module;
+    if (!mod || !mod.HEAPU8) {
+      return false;
+    }
+    if (ptr <= 0 || bytes <= 0 || ptr + bytes > mod.HEAPU8.length) {
+      return false;
+    }
+    const src = mod.HEAPU8.subarray(ptr, ptr + bytes);
+    frameData.data.set(src);
+    for (let i = 3; i < frameData.data.length; i += 4) {
+      frameData.data[i] = 255;
+    }
+    flushCount += 1;
+    if (!firstFrameLogged) {
+      firstFrameLogged = true;
+      setStatus("engine running");
+      appendLog(`[render] first frame size=${frameWidth}x${frameHeight}`);
+    }
+    ctx.putImageData(frameData, 0, 0);
+    return true;
   }
 
   function mapDomKey(e) {
@@ -141,21 +169,51 @@
       return;
     }
 
-    const src = mod.HEAPU8.subarray(ptr, ptr + bytes);
-    frameData.data.set(src);
-    for (let i = 3; i < frameData.data.length; i += 4) {
-      frameData.data[i] = 255;
-    }
-
-    flushCount += 1;
-    if (!firstFrameLogged) {
-      firstFrameLogged = true;
-      setStatus("engine running");
-      appendLog(`[render] first frame ptr=${ptr} size=${frameWidth}x${frameHeight}`);
-    }
-
-    ctx.putImageData(frameData, 0, 0);
+    writeFrameFromPtr(ptr, bytes);
   };
+
+  function startPullLoop() {
+    if (pullStarted) {
+      return;
+    }
+    pullStarted = true;
+
+    const mod = window.Module;
+    if (!mod || typeof mod._bayeCopyFrameRgba !== "function" || typeof mod._malloc !== "function") {
+      appendLog("[warn] bayeCopyFrameRgba API missing");
+      return;
+    }
+
+    wPtr = mod._malloc(4);
+    hPtr = mod._malloc(4);
+    appendLog("[render] pull loop started");
+
+    const step = () => {
+      const needRc = mod._bayeCopyFrameRgba(0, 0, wPtr, hPtr);
+      const width = mod.getValue(wPtr, "i32");
+      const height = mod.getValue(hPtr, "i32");
+      const need = needRc < 0 ? -needRc : needRc;
+
+      if (need > 0 && width > 0 && height > 0) {
+        ensureFrameSize(width, height);
+        if (pullBufCap < need) {
+          if (pullBufPtr) {
+            mod._free(pullBufPtr);
+          }
+          pullBufPtr = mod._malloc(need);
+          pullBufCap = need;
+        }
+        const got = mod._bayeCopyFrameRgba(pullBufPtr, pullBufCap, wPtr, hPtr);
+        if (got > 0) {
+          writeFrameFromPtr(pullBufPtr, got);
+        }
+      }
+
+      window.requestAnimationFrame(step);
+    };
+
+    window.requestAnimationFrame(step);
+  }
 
   window.Module = {
     canvas,
@@ -168,6 +226,7 @@
       if (typeof window.Module._bayeSetLcdSize === "function") {
         window.Module._bayeSetLcdSize(208, 128);
       }
+      startPullLoop();
     },
   };
 })();
