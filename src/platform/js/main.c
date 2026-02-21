@@ -20,8 +20,12 @@ FAR void GamBaYeEng(void);
 void GamSetLcdFlushCallback(void(*lcd_fluch_cb)(char*buffer));
 
 static void _lcd_flush_cb(char*buffer) {
-    EM_ASM_INT ({
-        bayeFlushLcdBuffer($0);
+    EM_ASM({
+        if (typeof window !== "undefined" && window.bayeFlushLcdBuffer) {
+            window.bayeFlushLcdBuffer($0);
+        } else if (typeof globalThis !== "undefined" && globalThis.bayeFlushLcdBuffer) {
+            globalThis.bayeFlushLcdBuffer($0);
+        }
     }, buffer);
 }
 
@@ -36,16 +40,22 @@ void baye_init_for_js(void) {
 int main(int argc, char*argv[])
 {
     EM_ASM({
-        if (window.bayeStart)
-            bayeStart();
+        if (typeof window !== "undefined" && window.bayeStart) {
+            window.bayeStart();
+        } else if (typeof globalThis !== "undefined" && globalThis.bayeStart) {
+            globalThis.bayeStart();
+        }
     });
     emscripten_sleep(1); // give javascript chance to run init
     baye_init_for_js();
     GamBaYeEng();
 
     EM_ASM({
-        if (window.bayeExit)
-            bayeExit();
+        if (typeof window !== "undefined" && window.bayeExit) {
+            window.bayeExit();
+        } else if (typeof globalThis !== "undefined" && globalThis.bayeExit) {
+            globalThis.bayeExit();
+        }
     });
     return 0;
 }

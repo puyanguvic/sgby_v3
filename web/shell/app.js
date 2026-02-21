@@ -19,6 +19,10 @@
   let frameWidth = 416;
   let frameHeight = 256;
   let frameData = ctx.createImageData(frameWidth, frameHeight);
+  let flushCount = 0;
+  let droppedCount = 0;
+  let firstFrameLogged = false;
+  let bootingSince = 0;
 
   function setStatus(text) {
     statusEl.textContent = text;
@@ -85,22 +89,44 @@
     });
   });
 
-  window.bayeStart = () => {
+  function handleEngineLog(text) {
+    appendLog(text);
+    const m = String(text).match(/realloc 32bit screen buffer size to \d+ \((\d+)x(\d+)@(\d+)\)/);
+    if (!m) {
+      return;
+    }
+    const baseW = Number(m[1]) || 0;
+    const baseH = Number(m[2]) || 0;
+    const scale = Number(m[3]) || 1;
+    const outW = baseW * scale;
+    const outH = baseH * scale;
+    if (outW > 0 && outH > 0) {
+      ensureFrameSize(outW, outH);
+    }
+  }
+
+  globalThis.bayeStart = () => {
+    bootingSince = Date.now();
     setStatus("engine booting");
     appendLog("[engine] bayeStart");
+    window.setTimeout(() => {
+      if (flushCount === 0 && bootingSince > 0) {
+        appendLog("[warn] no frame callback received after 3s");
+      }
+    }, 3000);
   };
 
-  window.bayeExit = () => {
+  globalThis.bayeExit = () => {
     setStatus("engine exited");
     appendLog("[engine] bayeExit");
   };
 
-  window.bayeLoadFileContent = (filename) => {
+  globalThis.bayeLoadFileContent = (filename) => {
     const val = window.localStorage.getItem(filename);
     return val || "";
   };
 
-  window.bayeFlushLcdBuffer = (ptr) => {
+  globalThis.bayeFlushLcdBuffer = (ptr) => {
     const mod = window.Module;
     if (!mod || !mod.HEAPU8) {
       return;
@@ -108,21 +134,24 @@
 
     const bytes = frameWidth * frameHeight * 4;
     if (ptr <= 0 || ptr + bytes > mod.HEAPU8.length) {
+      droppedCount += 1;
+      if (droppedCount <= 5) {
+        appendLog(`[warn] drop frame ptr=${ptr} bytes=${bytes} heap=${mod.HEAPU8.length}`);
+      }
       return;
     }
 
-    try {
-      const src32 = new Uint32Array(mod.HEAPU8.buffer, ptr, frameWidth * frameHeight);
-      const dst32 = new Uint32Array(frameData.data.buffer);
-      for (let i = 0; i < dst32.length; i += 1) {
-        dst32[i] = src32[i] | 0xff000000;
-      }
-    } catch {
-      const src = mod.HEAPU8.subarray(ptr, ptr + bytes);
-      frameData.data.set(src);
-      for (let i = 3; i < frameData.data.length; i += 4) {
-        frameData.data[i] = 255;
-      }
+    const src = mod.HEAPU8.subarray(ptr, ptr + bytes);
+    frameData.data.set(src);
+    for (let i = 3; i < frameData.data.length; i += 4) {
+      frameData.data[i] = 255;
+    }
+
+    flushCount += 1;
+    if (!firstFrameLogged) {
+      firstFrameLogged = true;
+      setStatus("engine running");
+      appendLog(`[render] first frame ptr=${ptr} size=${frameWidth}x${frameHeight}`);
     }
 
     ctx.putImageData(frameData, 0, 0);
@@ -130,7 +159,7 @@
 
   window.Module = {
     canvas,
-    print: (text) => appendLog(text),
+    print: (text) => handleEngineLog(text),
     printErr: (text) => appendLog(`[err] ${text}`),
     onRuntimeInitialized: () => {
       setStatus("runtime ready");
