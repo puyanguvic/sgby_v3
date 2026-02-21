@@ -55,7 +55,7 @@ static void AdvancedCmdRng(U8 type,SkillID param,U8 idx);
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FgtPkAi bool FgtGetMCmd(FGTCMD *pcmd)
+FgtPkAi U8 FgtGetMCmd(FGTCMD *pcmd)
 {
     U8	jb;
     U8	sx,sy;
