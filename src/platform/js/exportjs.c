@@ -14,27 +14,23 @@
 #include	"baye/script.h"
 #include	"baye/fundef.h"
 #include	"baye/enghead.h"
-#include    "touch.h"
+#include "frontend_api.h"
 
 void gam_setcustomdata(U8*data);
 U8* gam_getcustomdata();
 void baye_init_for_js(void);
 U8 GamVarInit(void);
-FAR int GamCopyFrameRGBA(U8 *outBuf, int outLen, int *outW, int *outH);
 
 EMSCRIPTEN_KEEPALIVE
 void bayeSendKey(int key)
 {
-    MsgType msg;
-    msg.type = VM_CHAR_FUN;
-    msg.param = key;
-    GuiPushMsg(&msg);
+    GamFrontendSendKey(key);
 }
 
 EMSCRIPTEN_KEEPALIVE
 void bayeSendTouchEvent(int event, int x, int y)
 {
-    touchSendTouchEvent((U16)event, (I16)x, (I16)y);
+    GamFrontendSendTouch(event, x, y);
 }
 
 EMSCRIPTEN_KEEPALIVE
@@ -450,5 +446,5 @@ void bayeClearFontCache() {
 EMSCRIPTEN_KEEPALIVE
 int bayeCopyFrameRgba(U8 *outBuf, int outLen, int *outW, int *outH)
 {
-    return GamCopyFrameRGBA(outBuf, outLen, outW, outH);
+    return GamFrontendCopyFrameRGBA(outBuf, outLen, outW, outH);
 }

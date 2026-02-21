@@ -12,7 +12,7 @@
 #include "baye/paccount.h"
 #include "baye/fight.h"
 #include "inc/dictsys.h"
-#include "touch.h"
+#include "frontend_api.h"
 
 extern U8 g_PIdx;
 extern CityType g_Cities[256];
@@ -257,16 +257,12 @@ const char *ibaye_godot_get_engine_state_name(void)
 
 void ibaye_godot_send_key(int key)
 {
-    MsgType msg;
-    msg.type = VM_CHAR_FUN;
-    msg.param = (U16)key;
-    msg.param2.u32 = 0;
-    GuiPushMsg(&msg);
+    GamFrontendSendKey(key);
 }
 
 void ibaye_godot_send_touch(int event, int x, int y)
 {
-    touchSendTouchEvent((U16)event, (I16)x, (I16)y);
+    GamFrontendSendTouch(event, x, y);
 }
 
 int ibaye_godot_get_frame_bytes(void)

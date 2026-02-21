@@ -39,4 +39,6 @@ Then open:
 
 - JS platform now embeds `dat.lib` + font resources directly in `src/platform/js/fsys.c`
 - No external `font24.*` / `dat.lib` runtime file lookup on the browser path
+- Web shell has pull-based frame rendering (`bayeCopyFrameRgba`), so display is no longer blocked by callback timing
+- Godot/Web now share `platform/common/frontend_api.*` for input + RGBA frame bridge behavior
 - You can capture runtime behavior from browser console and the in-page log window

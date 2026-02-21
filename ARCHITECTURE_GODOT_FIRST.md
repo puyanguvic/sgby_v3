@@ -13,6 +13,10 @@
 2. `Runtime Adapter`（C）
 - 负责输入事件、帧缓冲、文件/计时/线程等平台能力映射
 - 当前主适配器：`platform/godot/*`
+- 跨端前端桥接已抽象到 `platform/common/frontend_api.*`
+  - `GamFrontendSendKey`
+  - `GamFrontendSendTouch`
+  - `GamFrontendCopyFrameRGBA`
 
 3. `UI Shell`（Godot）
 - 界面布局、交互、动画、HUD、面板流程
@@ -48,6 +52,7 @@
 1. 收敛平台实现
 - 将 `fsys/timer/sem/sys/script` 的公共行为抽象到统一 runtime 接口
 - 旧平台代码只保留最低维护
+- Godot/Web 统一走 `frontend_api`，避免各端重复注入输入/拷贝帧逻辑
 
 2. 收敛启动流程
 - 引擎启动状态机（init/load/run/error）统一从 bridge 暴露

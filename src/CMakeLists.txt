@@ -37,6 +37,7 @@ version.c
 miniz.c
 platform/common/bios.c
 platform/common/gui.c
+platform/common/frontend_api.c
 platform/common/sys.c
 )
 
