@@ -20,6 +20,11 @@ FAR void GamBaYeEng(void);
 void GamSetLcdFlushCallback(void(*lcd_fluch_cb)(char*buffer));
 
 static void _lcd_flush_cb(char*buffer) {
+    static int flushed = 0;
+    if (flushed == 0) {
+        printf("[web] first lcd flush callback\n");
+    }
+    flushed += 1;
     EM_ASM({
         if (typeof window !== "undefined" && window.bayeFlushLcdBuffer) {
             window.bayeFlushLcdBuffer($0);

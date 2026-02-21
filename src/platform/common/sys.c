@@ -352,7 +352,15 @@ static void timed_flush_lcd()
         buflen = curlen;
     }
 
-    if (isLcdDirty && _lcd_fluch_cb) {
+    if (_lcd_fluch_cb
+#ifdef __EMSCRIPTEN__
+        // On Web we keep pushing frames periodically to avoid missing
+        // display updates when dirty flags are not propagated perfectly.
+        && 1
+#else
+        && isLcdDirty
+#endif
+    ) {
         convert_image((U32*)outbuf, scr_buffer);
         _lcd_fluch_cb(outbuf);
         isLcdDirty = 0;
