@@ -1,12 +1,12 @@
 [gd_scene load_steps=8 format=3 uid="uid://ibaye_main_scene"]
 
-[ext_resource type="Script" path="res://scripts/ShellUI.cs" id="1_shell"]
-[ext_resource type="Script" path="res://scripts/BridgeHost.cs" id="2_host"]
-[ext_resource type="Script" path="res://scripts/EngineViewport.cs" id="3_view"]
-[ext_resource type="Script" path="res://scripts/CityPanel.cs" id="4_city"]
-[ext_resource type="Script" path="res://scripts/MainMenuPanel.cs" id="5_menu"]
-[ext_resource type="Script" path="res://scripts/BattleHud.cs" id="6_hud"]
-[ext_resource type="Script" path="res://scripts/BootGuardPanel.cs" id="7_boot"]
+[ext_resource type="Script" path="res://scripts/ui/ShellUI.cs" id="1_shell"]
+[ext_resource type="Script" path="res://scripts/core/BridgeHost.cs" id="2_host"]
+[ext_resource type="Script" path="res://scripts/ui/EngineViewport.cs" id="3_view"]
+[ext_resource type="Script" path="res://scripts/ui/CityPanel.cs" id="4_city"]
+[ext_resource type="Script" path="res://scripts/ui/MainMenuPanel.cs" id="5_menu"]
+[ext_resource type="Script" path="res://scripts/ui/BattleHud.cs" id="6_hud"]
+[ext_resource type="Script" path="res://scripts/ui/BootGuardPanel.cs" id="7_boot"]
 
 [node name="Main" type="Control"]
 layout_mode = 3

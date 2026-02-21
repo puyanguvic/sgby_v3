@@ -86,10 +86,10 @@ cmake --build build-godot-bridge -j
 仓库内新增了 Godot 项目骨架：
 
 - `godot/project.godot`
-- `godot/scenes/Main.tscn`
-- `godot/scripts/BridgeHost.cs`
-- `godot/scripts/EngineViewport.cs`
-- `godot/scripts/ShellUI.cs`
+- `godot/scenes/main/Main.tscn`
+- `godot/scripts/core/BridgeHost.cs`
+- `godot/scripts/ui/EngineViewport.cs`
+- `godot/scripts/ui/ShellUI.cs`
 
 定位：
 
@@ -108,7 +108,7 @@ bridge 增加了城市数据接口（`src/platform/godot/ibaye_godot_bridge.h`�
 
 Godot 壳层新增：
 
-- `godot/scripts/CityPanel.cs`
+- `godot/scripts/ui/CityPanel.cs`
 - 主场景左侧改为“时期切换 + 城市列表 + 城市详情”
 
 这使得 UI 重置不再只是皮肤，已经开始承接真实的游戏状态展示。
@@ -117,8 +117,8 @@ Godot 壳层新增：
 
 Godot 新增原生菜单面板：
 
-- `godot/scripts/MainMenuPanel.cs`
-- `godot/scenes/Main.tscn` 中的 `MainMenu` 节点
+- `godot/scripts/ui/MainMenuPanel.cs`
+- `godot/scenes/main/Main.tscn` 中的 `MainMenu` 节点
 
 能力：
 

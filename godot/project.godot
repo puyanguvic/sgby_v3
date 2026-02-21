@@ -6,8 +6,12 @@ config_version=5
 [application]
 
 config/name="iBaye Godot Shell"
-run/main_scene="res://scenes/Main.tscn"
+run/main_scene="res://scenes/main/Main.tscn"
 config/features=PackedStringArray("4.2", "C#", "Forward Plus")
+
+[autoload]
+
+AppBootstrap="*res://scripts/autoload/AppBootstrap.cs"
 
 [display]
 
