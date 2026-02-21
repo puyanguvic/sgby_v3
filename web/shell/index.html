@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>iBaye Web Debug Shell</title>
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <main class="app">
+    <section class="stage">
+      <header class="bar">
+        <h1>iBaye Web Debug</h1>
+        <p id="status">WASM runtime loading...</p>
+      </header>
+      <canvas id="lcd" width="416" height="256"></canvas>
+      <p class="hint">键盘: Enter/Esc/方向键/PageUp/PageDown</p>
+    </section>
+
+    <aside class="panel">
+      <h2>快捷键</h2>
+      <div class="grid">
+        <button data-key="UP">上</button>
+        <button data-key="PGUP">上页</button>
+        <button data-key="LEFT">左</button>
+        <button data-key="ENTER">确认</button>
+        <button data-key="RIGHT">右</button>
+        <button data-key="DOWN">下</button>
+        <button data-key="PGDN">下页</button>
+        <button data-key="EXIT">返回</button>
+      </div>
+      <h2>日志</h2>
+      <pre id="log"></pre>
+    </aside>
+  </main>
+
+  <script src="./app.js"></script>
+  <script src="./baye.js"></script>
+</body>
+</html>

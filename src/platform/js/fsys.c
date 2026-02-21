@@ -112,9 +112,9 @@ static const U8 font24_ascii_1[] =
 static const U8 font24_ascii_2[] =
 #include "font24_ascii.2.c"
 ;
-//static U8 dat[] =
-//#include "dat.lib.c"
-//;
+static const U8 dat[] =
+#include "dat.lib.c"
+;
 
 
 typedef struct {
@@ -235,11 +235,10 @@ static gam_FILE *rom_fopen(const U8 *fname,U8 pmode) {
         fp->length = sizeof(font24_ascii_2);
         return (gam_FILE*)fp;
     } else if (0 == gam_strcmp(fname, "/rom/dat.lib")) {
-//        rom_FILE* fp = rom_fnew();
-//        fp->data = dat;
-//        fp->length = sizeof(dat);
-//        return (gam_FILE*)fp;
-        return NULL;
+        rom_FILE* fp = rom_fnew();
+        fp->data = (U8*)dat;
+        fp->length = sizeof(dat);
+        return (gam_FILE*)fp;
     } else {
         return NULL;
     }
@@ -388,4 +387,3 @@ static gam_FILE *sav_fopen(const U8 *fname, U8 pmode) {
         return NULL;
     }
 }
-

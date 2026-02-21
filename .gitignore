@@ -14,7 +14,9 @@ dist-win/
 build-godot-bridge/
 build-godot/
 build-debug-host/
+build-web-emscripten/
 /tmp/iBaye-build-godot/
+web/dist/
 
 # release artifacts
 release/*.zip

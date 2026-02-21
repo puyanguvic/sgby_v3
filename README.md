@@ -6,6 +6,7 @@
 
 - 发布：Windows 便携包链路（Ubuntu 交叉编译）
 - 开发调试：Godot-first（桥接层 + 原生无 UI debug host）
+- Web 调试：Emscripten（浏览器端快速回归）
 
 ## Godot-first 调试入口（推荐）
 
@@ -22,6 +23,29 @@
 - 可用环境变量覆盖资源路径：`DAT_PATH`、`FONT_DIR`、`DATA_DIR`
 
 Godot 架构改造路线见：`ARCHITECTURE_GODOT_FIRST.md`
+
+## Web 调试入口（优先定位崩溃）
+
+先构建 Web 版本（依赖 emsdk / emcmake）：
+
+```bash
+./scripts/build_web_emscripten.sh
+```
+
+启动本地静态服务：
+
+```bash
+./scripts/serve_web_build.sh
+```
+
+打开 `http://127.0.0.1:8008`。
+
+说明：
+
+- Web 平台已内嵌 `dat.lib`、`font.bin`、`font24.cn.*`、`font24.en.*`，不依赖外部字体文件。
+- 网页壳层 UI 使用浏览器字体（现代字体栈），和引擎内部像素字库是两层系统：
+  - 壳层 UI 文案：可直接替换为任意现代字体。
+  - 引擎帧缓冲文本：仍由旧字库渲染（后续如果彻底 UI/逻辑分离可逐步替换）。
 
 ## Ubuntu 环境配置（本地完整构建）
 
