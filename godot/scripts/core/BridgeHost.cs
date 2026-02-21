@@ -39,6 +39,16 @@ public partial class BridgeHost : Node
     private bool _nativeChecked = false;
     private bool _nativeAvailable = true;
     private string _nativeError = string.Empty;
+    private static readonly string[] RequiredFontFiles = new string[]
+    {
+        "font.bin",
+        "font24.cn.1",
+        "font24.cn.2",
+        "font24.cn.3",
+        "font24.cn.4",
+        "font24.en.1",
+        "font24.en.2"
+    };
 
     public string StatusText => _status;
     public bool IsRunning
@@ -484,12 +494,16 @@ public partial class BridgeHost : Node
         {
             issues.Add("dat.lib 路径无效，请在 BridgeHost.DatPath 指向 dat.lib");
         }
+        else if (!IsDatLibLikelyValid(datPath, out string datIssue))
+        {
+            issues.Add(datIssue);
+        }
 
         string fontDir = ResolvePath(FontDir);
-        string fontFile = string.IsNullOrWhiteSpace(fontDir) ? string.Empty : Path.Combine(fontDir, "font.bin");
-        if (string.IsNullOrWhiteSpace(fontDir) || !Directory.Exists(fontDir) || !File.Exists(fontFile))
+        string fontIssue = GetFontDirIssue(fontDir);
+        if (!string.IsNullOrEmpty(fontIssue))
         {
-            issues.Add("font.bin 路径无效，请在 BridgeHost.FontDir 指向包含 font.bin 的目录");
+            issues.Add(fontIssue);
         }
 
         string saveDir = ResolvePath(SaveDir);
@@ -601,17 +615,16 @@ public partial class BridgeHost : Node
     private bool HasValidDatPath()
     {
         string datPath = ResolvePath(DatPath);
-        return !string.IsNullOrWhiteSpace(datPath) && File.Exists(datPath);
+        return
+            !string.IsNullOrWhiteSpace(datPath) &&
+            File.Exists(datPath) &&
+            IsDatLibLikelyValid(datPath, out _);
     }
 
     private bool HasValidFontDir()
     {
         string fontDir = ResolvePath(FontDir);
-        if (string.IsNullOrWhiteSpace(fontDir) || !Directory.Exists(fontDir))
-        {
-            return false;
-        }
-        return File.Exists(Path.Combine(fontDir, "font.bin"));
+        return string.IsNullOrEmpty(GetFontDirIssue(fontDir));
     }
 
     private static string ResolvePath(string path)
@@ -639,9 +652,27 @@ public partial class BridgeHost : Node
         };
         for (int i = 0; i < candidates.Length; i++)
         {
-            if (File.Exists(candidates[i]))
+            if (File.Exists(candidates[i]) && IsDatLibLikelyValid(candidates[i], out _))
             {
                 return candidates[i];
+            }
+        }
+
+        string exeDir = GetExecutableDir();
+        if (!string.IsNullOrWhiteSpace(exeDir))
+        {
+            string[] runtimeCandidates = new string[]
+            {
+                Path.Combine(exeDir, "dat.lib"),
+                Path.Combine(exeDir, "dist-win", "dat.lib"),
+                Path.Combine(exeDir, "data", "dat.lib")
+            };
+            for (int i = 0; i < runtimeCandidates.Length; i++)
+            {
+                if (File.Exists(runtimeCandidates[i]) && IsDatLibLikelyValid(runtimeCandidates[i], out _))
+                {
+                    return runtimeCandidates[i];
+                }
             }
         }
         return string.Empty;
@@ -660,12 +691,92 @@ public partial class BridgeHost : Node
         };
         for (int i = 0; i < candidates.Length; i++)
         {
-            string f = Path.Combine(candidates[i], "font.bin");
-            if (File.Exists(f))
+            if (string.IsNullOrEmpty(GetFontDirIssue(candidates[i])))
             {
                 return candidates[i];
             }
         }
+
+        string exeDir = GetExecutableDir();
+        if (!string.IsNullOrWhiteSpace(exeDir))
+        {
+            string[] runtimeCandidates = new string[]
+            {
+                exeDir,
+                Path.Combine(exeDir, "dist-win"),
+                Path.Combine(exeDir, "data")
+            };
+            for (int i = 0; i < runtimeCandidates.Length; i++)
+            {
+                if (string.IsNullOrEmpty(GetFontDirIssue(runtimeCandidates[i])))
+                {
+                    return runtimeCandidates[i];
+                }
+            }
+        }
+
         return string.Empty;
+    }
+
+    private static string GetFontDirIssue(string fontDir)
+    {
+        if (string.IsNullOrWhiteSpace(fontDir) || !Directory.Exists(fontDir))
+        {
+            return "字体目录无效，请在 BridgeHost.FontDir 指向包含完整字体资源的目录";
+        }
+
+        var missing = new List<string>();
+        for (int i = 0; i < RequiredFontFiles.Length; i++)
+        {
+            if (!File.Exists(Path.Combine(fontDir, RequiredFontFiles[i])))
+            {
+                missing.Add(RequiredFontFiles[i]);
+            }
+        }
+
+        if (missing.Count == 0)
+        {
+            return string.Empty;
+        }
+
+        return "字体目录缺少文件: " + string.Join(", ", missing) + "；请使用包含完整字体资源的目录（例如 dist-win）";
+    }
+
+    private static bool IsDatLibLikelyValid(string datPath, out string issue)
+    {
+        issue = string.Empty;
+        try
+        {
+            long len = new FileInfo(datPath).Length;
+            if (len < 4096)
+            {
+                issue = "dat.lib 文件过小，可能不是有效资源库: " + datPath;
+                return false;
+            }
+            return true;
+        }
+        catch (Exception ex)
+        {
+            issue = "读取 dat.lib 失败: " + ex.Message;
+            return false;
+        }
+    }
+
+    private static string GetExecutableDir()
+    {
+        try
+        {
+            string exePath = OS.GetExecutablePath();
+            if (string.IsNullOrWhiteSpace(exePath))
+            {
+                return string.Empty;
+            }
+            string dir = Path.GetDirectoryName(exePath);
+            return dir ?? string.Empty;
+        }
+        catch
+        {
+            return string.Empty;
+        }
     }
 }

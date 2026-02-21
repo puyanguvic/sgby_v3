@@ -13,6 +13,7 @@ build-win-mingw/
 dist-win/
 build-godot-bridge/
 build-godot/
+build-debug-host/
 /tmp/iBaye-build-godot/
 
 # release artifacts

@@ -19,8 +19,8 @@ static void usage(const char *prog)
 
 int main(int argc, char **argv)
 {
-    const char *dat_path = "src/dat.lib.orig";
-    const char *font_dir = "src";
+    const char *dat_path = "dist-win/dat.lib";
+    const char *font_dir = "dist-win";
     const char *data_dir = ".";
     int run_engine = 0;
     int i;

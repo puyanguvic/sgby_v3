@@ -1,0 +1,59 @@
+[gd_scene load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/ui/BootGuardPanel.cs" id="1_boot"]
+
+[node name="BootGuard" type="PanelContainer"]
+visible = true
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -310.0
+offset_top = -210.0
+offset_right = 310.0
+offset_bottom = 210.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_boot")
+HostPath = NodePath("../BridgeHost")
+MessageLabelPath = NodePath("BootVBox/Report")
+FixButtonPath = NodePath("BootVBox/Buttons/FixBtn")
+RetryButtonPath = NodePath("BootVBox/Buttons/RetryBtn")
+ContinueButtonPath = NodePath("BootVBox/Buttons/ContinueBtn")
+
+[node name="BootVBox" type="VBoxContainer" parent="."]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Title" type="Label" parent="BootVBox"]
+layout_mode = 2
+horizontal_alignment = 1
+text = "启动自检"
+
+[node name="Report" type="RichTextLabel" parent="BootVBox"]
+layout_mode = 2
+custom_minimum_size = Vector2(0, 250)
+size_flags_vertical = 3
+bbcode_enabled = true
+fit_content = true
+text = "正在检查..."
+
+[node name="Buttons" type="HBoxContainer" parent="BootVBox"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="FixBtn" type="Button" parent="BootVBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "自动修复"
+
+[node name="RetryBtn" type="Button" parent="BootVBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "重新检测"
+
+[node name="ContinueBtn" type="Button" parent="BootVBox/Buttons"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "忽略继续"

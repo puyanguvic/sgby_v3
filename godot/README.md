@@ -10,6 +10,7 @@
 
 - `project.godot`: Godot 项目配置（含 `autoload`）
 - `scenes/main/Main.tscn`: 主场景（流程化菜单 + HUD + 启动自检 + 运行态）
+- `scenes/ui/*.tscn`: 可复用 UI 子场景（主菜单/战斗 HUD/启动自检）
 - `scripts/autoload/AppBootstrap.cs`: 全局启动入口（AutoLoad）
 - `scripts/core/BridgeHost.cs`: 引擎桥接宿主
 - `scripts/core/BridgeNative.cs`: `ibaye_godot_bridge` P/Invoke（含运行态读取）
@@ -21,6 +22,7 @@
 - `scripts/ui/BootGuardPanel.cs`: 启动自检与自动修复面板
 - `scripts/legacy/IBayeBridge.cs`: 第一阶段最小脚本（保留兼容）
 - `scripts/README.md`: 脚本分层说明
+- `addons/README.md`: Godot 插件目录占位
 
 ## 使用方式
 
@@ -55,10 +57,11 @@
 2. 将库文件放到 Godot 项目可加载路径（Linux: `libibaye_godot_bridge.so`）。
 3. 用 Godot 4 打开 `godot/project.godot`。
 4. 打开并运行 `scenes/main/Main.tscn`。
-5. 在 `BridgeHost` 节点里设置：
-   - `DatPath`
-   - `FontDir`
-   - `SaveDir`
+5. 默认 `BridgeHost` 已预设开发路径：
+   - `DatPath = res://../dist-win/dat.lib`
+   - `FontDir = res://../dist-win`
+   - `SaveDir = user://save`
+6. 如目录结构有变化，可在 `BridgeHost` 节点里手工覆盖路径。
 
 ## 当前状态
 
@@ -71,6 +74,7 @@
   - 运行态桥接：玩家势力、光标城市、战斗模式/回合/天气
   - 城市操作指令序列（可按场景配置快捷键组合）
   - 启动自检面板（原生库/资源/存档目录）+ 自动修复入口
+  - 字体完整性校验（`font.bin + font24.cn.1..4 + font24.en.1..2`）
   - 键盘/鼠标输入映射到原引擎
   - 帧缓冲渲染
   - 城市面板：可切换历史时期并读取真实城市数据

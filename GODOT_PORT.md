@@ -26,6 +26,8 @@ cmake --build build-godot-bridge -j
 
 - `dat.lib`
 - `font.bin`
+- `font24.cn.1` ~ `font24.cn.4`
+- `font24.en.1` ~ `font24.en.2`
 
 建议在 Godot 启动时通过 `ibaye_godot_set_paths()` 显式设置：
 

@@ -3,8 +3,8 @@ set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 BUILD_DIR="${BUILD_DIR:-build-debug-host}"
-DAT_PATH="${DAT_PATH:-$ROOT_DIR/src/dat.lib.orig}"
-FONT_DIR="${FONT_DIR:-$ROOT_DIR/src}"
+DAT_PATH="${DAT_PATH:-$ROOT_DIR/dist-win/dat.lib}"
+FONT_DIR="${FONT_DIR:-$ROOT_DIR/dist-win}"
 DATA_DIR="${DATA_DIR:-$ROOT_DIR}"
 MODE="${MODE:-init}"
 
@@ -15,8 +15,8 @@ Usage:
 
 Env vars:
   BUILD_DIR   CMake build dir (default: build-debug-host)
-  DAT_PATH    dat.lib path (default: src/dat.lib.orig)
-  FONT_DIR    font directory (default: src)
+  DAT_PATH    dat.lib path (default: dist-win/dat.lib)
+  FONT_DIR    font directory (default: dist-win)
   DATA_DIR    save/data directory (default: repo root)
   MODE        init|engine (default: init)
 
