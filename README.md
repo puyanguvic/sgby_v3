@@ -2,7 +2,26 @@
 
 步步高电子词典经典游戏《三国霸业》移植版。
 
-当前仓库聚焦于 Windows 发布链路（Ubuntu 交叉编译 + Windows 便携包发布）。
+当前仓库采用双轨：
+
+- 发布：Windows 便携包链路（Ubuntu 交叉编译）
+- 开发调试：Godot-first（桥接层 + 原生无 UI debug host）
+
+## Godot-first 调试入口（推荐）
+
+先跑无 UI 调试端（最快定位引擎崩溃）：
+
+```bash
+./scripts/debug_godot_host.sh
+```
+
+说明：
+
+- 默认只跑 `GamConInit + GamConRst`（启动烟测）
+- 要跑完整引擎主循环：`MODE=engine ./scripts/debug_godot_host.sh`
+- 可用环境变量覆盖资源路径：`DAT_PATH`、`FONT_DIR`、`DATA_DIR`
+
+Godot 架构改造路线见：`ARCHITECTURE_GODOT_FIRST.md`
 
 ## Ubuntu 环境配置（本地完整构建）
 

@@ -88,6 +88,7 @@ if (CMAKE_SYSTEM_NAME STREQUAL "Windows")
 endif()
 
 option(BAYE_BUILD_GODOT_BRIDGE "Build shared bridge library for Godot integration" OFF)
+option(BAYE_BUILD_DEBUG_HOST "Build native headless debug host (Godot platform adapter)" OFF)
 if (BAYE_BUILD_GODOT_BRIDGE)
 	find_package(Threads REQUIRED)
 	add_library(ibaye_godot_bridge SHARED
@@ -101,6 +102,17 @@ if (BAYE_BUILD_GODOT_BRIDGE)
 	if (WIN32)
 		set_target_properties(ibaye_godot_bridge PROPERTIES PREFIX "")
 	endif()
+endif()
+
+if (BAYE_BUILD_DEBUG_HOST)
+	find_package(Threads REQUIRED)
+	add_executable(ibaye_debug_host
+		platform/debug/host.c
+		${bayelib_godot_SRCS}
+	)
+	target_link_libraries(ibaye_debug_host PRIVATE bayeliba Threads::Threads)
+	target_include_directories(ibaye_debug_host PRIVATE . ./platform/common ./platform/godot)
+	add_dependencies(ibaye_debug_host ver_header)
 endif()
 
 add_custom_command(
