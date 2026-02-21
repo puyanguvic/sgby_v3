@@ -128,6 +128,10 @@ FAR U8 GamConInit(void)
             printf("Unsupported lib version: %d\n", version);
             return 1;
         }
+        if (magic == 0) {
+            extern EngineConfig g_engineConfig;
+            g_engineConfig.showStartMovie = 0;
+        }
         {
             U16 parsed_scale = (U16)(magic & 0xf);
             if (parsed_scale == 0) {

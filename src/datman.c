@@ -22,7 +22,67 @@
 /*------------------------------------------*/
 U32	GetResStartAddr(U16 id);
 U32	GetResItem(U32 addr,U16 idx,RCHEAD *reshead,RIDX *rIdx);
-void	ExpDataWithKey(U8 *ptr,U8 key,U16 len);
+void	ExpDataWithKey(U8 *ptr,U8 key,U32 len);
+
+typedef struct {
+    U16 resId;
+    U16 idx;
+    U32 len;
+    U8 *data;
+} ResConCacheItem;
+
+static ResConCacheItem *g_resConCache = NULL;
+static U32 g_resConCacheCount = 0;
+static U32 g_resConCacheCap = 0;
+
+static U8 *ResLoadToConWithKey(U16 ResId, U16 idx)
+{
+    U32 i;
+    U32 len;
+    U8 *buf;
+
+    for (i = 0; i < g_resConCacheCount; i++) {
+        if (g_resConCache[i].resId == ResId && g_resConCache[i].idx == idx) {
+            return g_resConCache[i].data;
+        }
+    }
+
+    len = ResGetItemLen(ResId, idx);
+    if (len == 0) {
+        return (U8 *)NULL;
+    }
+
+    buf = gam_malloc(len + 1);
+    if (buf == NULL) {
+        return (U8 *)NULL;
+    }
+    if (ResLoadToMem(ResId, idx, buf) != 0) {
+        gam_free(buf);
+        return (U8 *)NULL;
+    }
+
+    if (g_resConCacheCount >= g_resConCacheCap) {
+        U32 newCap = g_resConCacheCap ? (g_resConCacheCap << 1) : 16;
+        ResConCacheItem *newCache;
+        if (g_resConCache) {
+            newCache = gam_realloc(g_resConCache, sizeof(*g_resConCache) * newCap);
+        } else {
+            newCache = gam_malloc(sizeof(*g_resConCache) * newCap);
+        }
+        if (newCache == NULL) {
+            return buf;
+        }
+        g_resConCache = newCache;
+        g_resConCacheCap = newCap;
+    }
+
+    g_resConCache[g_resConCacheCount].resId = ResId;
+    g_resConCache[g_resConCacheCount].idx = idx;
+    g_resConCache[g_resConCacheCount].len = len;
+    g_resConCache[g_resConCacheCount].data = buf;
+    g_resConCacheCount++;
+    return buf;
+}
 
 /***********************************************************************
  * 说明:     获取指定资源项的数据长度
@@ -52,6 +112,7 @@ FAR U8 ResItemGet(U16 ResId,U16 idx,U8 *ptr) {
 FAR U8 ResItemGetN(U16 ResId,U16 idx,U8 *ptr, U32 bufsize)
 {
     U32	plen;
+    U32 readLen;
     U32	addr;
     RIDX	rIdx;
     RCHEAD	reshead;
@@ -66,10 +127,11 @@ FAR U8 ResItemGetN(U16 ResId,U16 idx,U8 *ptr, U32 bufsize)
         return 2;
     }
 
+    readLen = bufsize == (U32)-1 ? plen : min(plen, bufsize);
     gam_fseek(g_LibFp,addr,SEEK_SET);
-    gam_fread(ptr, 1, min(plen, bufsize) ,g_LibFp);
+    gam_fread(ptr, 1, readLen ,g_LibFp);
     if(reshead.ResKey)
-        ExpDataWithKey(ptr,reshead.ResKey,plen);
+        ExpDataWithKey(ptr,reshead.ResKey,readLen);
     return 0;
 }
 
@@ -122,6 +184,7 @@ FAR U8 *ResLoadToCon(U16 ResId,U16 idx,U8 *cbnk)
     U32	tmp;
     U32	addr;
     RCHEAD	*reshead;
+
     if(!idx)
         return (U8 *) NULL;
     idx-=1;
@@ -130,8 +193,11 @@ FAR U8 *ResLoadToCon(U16 ResId,U16 idx,U8 *cbnk)
         return (U8 *) NULL;
     ptr=gam_fload(cbnk,addr,g_LibFp);
     reshead=(RCHEAD	*)ptr;
-    if(reshead->ItmCnt <= idx || reshead->ResKey!=0) {
+    if(reshead->ItmCnt <= idx) {
         return (U8 *) NULL;
+    }
+    if (reshead->ResKey != 0) {
+        return ResLoadToConWithKey(ResId, idx + 1);
     }
     if(reshead->ItmLen!=0)
     {
@@ -169,7 +235,7 @@ FAR U8 *ResLoadStringWithId(U16 ResId)
  *             ------          ----------      -------------
  *             高国军          2005.5.18       完成基本功能
  ***********************************************************************/
-void ExpDataWithKey(U8 *ptr,U8 key,U16 len)
+void ExpDataWithKey(U8 *ptr,U8 key,U32 len)
 {
     U32	i;
     for(i=0;i<len;i++)
