@@ -1,0 +1,65 @@
+name: Deploy Web Debug Shell
+
+on:
+  push:
+    branches:
+      - v3
+    paths:
+      - src/**
+      - web/**
+      - scripts/build_web_emscripten.sh
+      - scripts/serve_web_build.sh
+      - .github/workflows/pages-web.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Emscripten SDK
+        uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: latest
+
+      - name: Build web artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          chmod +x ./scripts/build_web_emscripten.sh
+          ./scripts/build_web_emscripten.sh
+
+      - name: Disable Jekyll processing
+        run: touch web/dist/.nojekyll
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: web/dist
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    needs: build
+    runs-on: ubuntu-22.04
+
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
