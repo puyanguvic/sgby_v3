@@ -5,7 +5,9 @@
 #include <string.h>
 #include "consdef.h"
 
-typedef	char bool;
+#ifndef __bool_true_false_are_defined
+typedef char bool;
+#endif
 /*+++++++++++++++
  通用函数的宏替换
  +++++++++++++++*/

@@ -75,9 +75,13 @@ typedef I16 PT;
 //static inline PersonID toPid(U16 pid) { return (PersonID){ pid }; }
 
 #define		TRUE		1
+#ifndef true
 #define		true		1
+#endif
 #define		FALSE		0
+#ifndef false
 #define		false		0
+#endif
 //#define		NULL		0
 
 //#define		FAR			banked
