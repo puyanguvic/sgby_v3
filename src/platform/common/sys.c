@@ -380,6 +380,11 @@ FAR void flushLcd()
 {
     if (_lcd_fluch_cb && buffer == scr_buffer) {
         isLcdDirty = 1;
+#ifdef __EMSCRIPTEN__
+        // Web builds run game/update/render on one thread. Trigger a direct flush
+        // to avoid waiting for async timer callbacks that may be delayed.
+        timed_flush_lcd();
+#endif
     }
 }
 
