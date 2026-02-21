@@ -55,7 +55,7 @@ static void AdvancedCmdRng(U8 type,SkillID param,U8 idx);
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR bool FgtGetMCmd(FGTCMD *pcmd)
+FgtPkAi bool FgtGetMCmd(FGTCMD *pcmd)
 {
     U8	jb;
     U8	sx,sy;
@@ -390,7 +390,7 @@ void FgtCmpMove(U8 idx)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR SkillID FgtGetJNIdx(U8 idx,RECT *pRect)
+FgtPkAi SkillID FgtGetJNIdx(U8 idx,RECT *pRect)
 {
     U8	rngb,inf[10];
     SkillID param;
@@ -552,7 +552,7 @@ void FgtMakeSklNam(SBUF sbuf, SkillID *sklbuf)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR U8 FgtJNChkAim(SkillID param,U8 same, U8 aidx, U8 sidx)
+FgtPkAi U8 FgtJNChkAim(SkillID param,U8 same, U8 aidx, U8 sidx)
 {
     U8	terrain,type;
     SKILLEF *skl;
@@ -730,7 +730,7 @@ static void convert(U8*data, U8 from, U8 to) {
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR void FgtGetCmdRng(U8 type,SkillID sklid,U8 idx)
+FgtPkAi void FgtGetCmdRng(U8 type,SkillID sklid,U8 idx)
 {
     U8 rngb = 0,*ptr;
     U8 tool_rng_data[TOOL_ATT_RANGEUNIT*TOOL_ATT_RANGEUNIT] = {0};
@@ -876,7 +876,7 @@ U8 FgtCntInterval(U8 x1,U8 y1,U8 x2,U8 y2)
  *             ------          ----------      -------------
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
-FAR void FgtShowMvRng(void)
+FgtPkAi void FgtShowMvRng(void)
 {
     U8	x,y,dx,dy;
     U8	tmp;
@@ -917,7 +917,7 @@ FAR void FgtShowMvRng(void)
  *             高国军          2005.5.16       完成基本功能
  ***********************************************************************/
 FAR void FgtShowViewInner(void);
-FAR void FgtShowView(void) {
+FgtPkAi void FgtShowView(void) {
     int prev = SysScrollingTimerOpen(0);
     FgtShowViewInner();
     SysScrollingTimerOpen(prev);
