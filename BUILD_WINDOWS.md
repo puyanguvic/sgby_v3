@@ -178,17 +178,17 @@ cp /ucrt64/bin/libstdc++-6.dll dist/ || true
 - 安装目录默认使用当前用户目录（`%LOCALAPPDATA%\Programs\iBaye`），避免存档写入权限问题。
 - 存档文件会写在程序当前目录（如 `sango0.sav`、`sango1.sav` 等）。
 
-## 12. CI 自动发布（GitHub Actions）
+## 12. 发布策略更新（本地导出后上传）
 
-仓库已提供工作流：
+Windows 二进制不再在 GitHub Actions 上构建。
 
-- `.github/workflows/windows-release.yml`
+推荐做法：
 
-触发方式：
+1. 本地预检并导出（避免 CI 大体积构建链路）
+2. 本地上传到 GitHub Release（tag 对应版本）
 
-1. 仅推送 tag 自动触发
-- 推送形如 `v1.2.3` 的 tag
-- 自动生成：
-  - `release/iBaye-windows-portable-1.2.3.zip`
-  - `release/SHA256SUMS.txt`
-- 并自动创建 GitHub Release，附带以上文件
+Godot 版本可直接使用：
+
+```bash
+./scripts/publish_godot_windows_release.sh --version=1.0.12 --tag=v1.0.12 --push-tag
+```

@@ -126,14 +126,21 @@ x86_64-w64-mingw32-windres --version
 ## 发布策略
 
 - 本地先预检通过，再发布
-- 仅在推送 `v*` 标签（例如 `v1.0.5`）时触发 GitHub 发布
+- Windows 可执行包不再通过 GitHub Actions 构建（避免超大构建链路）
+- 采用“本地导出 + 上传 GitHub Release 资产”
 
 发布命令：
 
 ```bash
-git tag -a v1.0.5 -m "Release v1.0.5"
-git push origin v1.0.5
+./scripts/publish_godot_windows_release.sh --version=1.0.12 --tag=v1.0.12 --push-tag
 ```
+
+脚本会自动：
+
+- 执行 `preflight_godot_windows_export.sh`
+- 生成 `release/godot-win/iBaye-godot-windows-<ver>.zip`
+- 生成 `SHA256SUMS-<ver>.txt`
+- 创建或更新对应 tag 的 GitHub Release 资产
 
 更多细节见：
 

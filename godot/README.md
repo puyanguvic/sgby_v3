@@ -87,6 +87,12 @@
 
 - `release/godot-win/iBaye-godot-windows-0.1.0.zip`
 
+发布到 GitHub Release（本地导出后上传）：
+
+```bash
+./scripts/publish_godot_windows_release.sh --version=1.0.12 --tag=v1.0.12 --push-tag
+```
+
 注意：
 
 - Godot CLI 导出依赖 `godot/export_presets.cfg`（仓库已提供）。

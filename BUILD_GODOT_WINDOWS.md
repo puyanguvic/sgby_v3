@@ -67,3 +67,17 @@ sudo apt install -y cmake ninja-build mingw-w64 zip unzip curl dotnet-sdk-8.0
 3. 导出包缺少 `libwinpthread-1.dll`。
 4. 导出包缺少 `dat.lib` 或字体资源。
 5. Godot / Template / 项目版本不一致。
+
+## 6. 发布到 GitHub（本地导出后上传）
+
+Windows 二进制不再在 GitHub Actions 上编译。推荐流程：
+
+```bash
+./scripts/publish_godot_windows_release.sh --version=1.0.12 --tag=v1.0.12 --push-tag
+```
+
+脚本会自动：
+
+1. 本地预检并导出 Godot Windows 包
+2. 生成 `release/godot-win/SHA256SUMS-<ver>.txt`
+3. 创建/更新 `v<ver>` 对应的 GitHub Release 资产
