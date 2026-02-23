@@ -266,6 +266,31 @@ iBaye Windows First-Run Notes
 EOF
 }
 
+validate_dotnet_export() {
+    local target_dir="$1"
+    local data_dir=""
+
+    data_dir="$(find "$target_dir" -maxdepth 1 -type d -name 'data_*_windows_x86_64' | head -n 1 || true)"
+    if [[ -z "$data_dir" ]]; then
+        echo "导出结果缺少 data_*_windows_x86_64 目录。" >&2
+        echo "当前导出模板很可能不是 .NET 版本，运行时会报: No loader found for resource: *.cs" >&2
+        echo "请确认使用 Godot .NET 编辑器 + 匹配的 Export Templates 后重试。" >&2
+        exit 1
+    fi
+
+    if [[ ! -f "$data_dir/GodotSharp.dll" ]]; then
+        echo "导出结果缺少 $data_dir/GodotSharp.dll。" >&2
+        echo "这通常表示导出时使用了非 .NET 模板，包会在启动阶段崩溃。" >&2
+        exit 1
+    fi
+
+    if ! find "$data_dir" -maxdepth 1 -type f -name '*.runtimeconfig.json' | grep -q .; then
+        echo "导出结果缺少 *.runtimeconfig.json: $data_dir" >&2
+        echo "C# 运行时配置未生成，无法正常加载 C# 脚本。" >&2
+        exit 1
+    fi
+}
+
 need_cmd cmake
 need_cmd ninja
 need_cmd dotnet
@@ -325,6 +350,8 @@ if [[ ! -f "$exe_path" ]]; then
     echo "导出失败: 未找到 $exe_path" >&2
     exit 1
 fi
+
+validate_dotnet_export "$package_dir"
 
 echo "== [4/5] 收集原生库与运行资源 =="
 cp "$bridge_dll" "$package_dir/ibaye_godot_bridge.dll"

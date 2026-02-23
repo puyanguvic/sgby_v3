@@ -72,6 +72,11 @@ sudo apt install -y cmake ninja-build mingw-w64 zip unzip curl dotnet-sdk-8.0
 3. 导出包缺少 `libwinpthread-1.dll`。
 4. 导出包缺少 `dat.lib` 或字体资源。
 5. Godot / Template / 项目版本不一致。
+6. 日志出现 `No loader found for resource: res://*.cs`：
+   - 原因：导出使用了非 .NET 模板（或模板损坏），`iBaye.exe` 不具备 C# 脚本加载器。
+   - 处理：重新安装匹配版本模板并重导：
+     `./scripts/install_godot_export_templates.sh --godot-bin=godot-dotnet`
+     `./scripts/build_godot_windows_export.sh --version=<ver>`
 
 ## 6. SmartScreen 与代码签名
 
