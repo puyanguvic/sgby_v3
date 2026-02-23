@@ -120,8 +120,6 @@ if [[ -z "$GODOT_RELEASE_TAG" ]]; then
     exit 1
 fi
 
-asset_name="Godot_v${GODOT_RELEASE_TAG}_export_templates.tpz"
-asset_url="https://github.com/godotengine/godot/releases/download/${GODOT_RELEASE_TAG}/${asset_name}"
 install_dir="$TEMPLATES_ROOT/$GODOT_TEMPLATE_VERSION"
 
 echo "== 安装 Godot Export Templates =="
@@ -133,9 +131,35 @@ echo "Install Dir: $install_dir"
 tmp_dir="$(mktemp -d)"
 trap 'rm -rf "$tmp_dir"' EXIT
 
-tpz="$tmp_dir/$asset_name"
-echo "下载模板包..."
-curl -fL "$asset_url" -o "$tpz"
+asset_candidates=(
+    "Godot_v${GODOT_RELEASE_TAG}_mono_export_templates.tpz"
+    "Godot_v${GODOT_RELEASE_TAG}_dotnet_export_templates.tpz"
+    "Godot_v${GODOT_RELEASE_TAG}_export_templates.tpz"
+)
+
+download_ok=0
+asset_name=""
+tpz=""
+asset_url=""
+for candidate in "${asset_candidates[@]}"; do
+    candidate_url="https://github.com/godotengine/godot/releases/download/${GODOT_RELEASE_TAG}/${candidate}"
+    candidate_path="$tmp_dir/$candidate"
+    echo "尝试下载模板包: $candidate"
+    if curl -fL "$candidate_url" -o "$candidate_path"; then
+        download_ok=1
+        asset_name="$candidate"
+        tpz="$candidate_path"
+        asset_url="$candidate_url"
+        break
+    fi
+done
+
+if [[ "$download_ok" != "1" ]]; then
+    echo "下载模板失败：尝试了以下资产名但都不可用：" >&2
+    printf '  - %s\n' "${asset_candidates[@]}" >&2
+    exit 1
+fi
+echo "使用模板资产: $asset_name"
 
 echo "解压模板..."
 unzip -q "$tpz" -d "$tmp_dir/unpacked"
@@ -153,6 +177,12 @@ cp -a "$template_payload_dir/." "$install_dir/"
 if [[ ! -f "$install_dir/windows_debug_x86_64.exe" || ! -f "$install_dir/windows_release_x86_64.exe" ]]; then
     echo "模板安装不完整，缺少 Windows 导出模板文件。" >&2
     exit 1
+fi
+
+if ! strings "$install_dir/windows_release_x86_64.exe" | grep -q "CSharpScript"; then
+    echo "警告：模板似乎不包含 C# loader（未检测到 CSharpScript）。" >&2
+    echo "这会导致运行时报: No loader found for resource: res://*.cs" >&2
+    echo "请确认下载了 .NET/mono 导出模板，而不是标准模板。" >&2
 fi
 
 echo "安装完成。"

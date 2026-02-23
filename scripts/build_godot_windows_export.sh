@@ -137,6 +137,14 @@ ensure_export_templates() {
         echo "先执行: ./scripts/install_godot_export_templates.sh --godot-bin=\"$GODOT_PATH\" --template-version=\"$template_ver\"" >&2
         exit 1
     fi
+
+    if ! strings "$release_tpl" | grep -q "CSharpScript"; then
+        echo "模板校验失败：$release_tpl 看起来不包含 C# loader（未命中 CSharpScript）。" >&2
+        echo "这会导致运行时报: No loader found for resource: res://*.cs" >&2
+        echo "请重新安装 .NET/mono 导出模板后重试：" >&2
+        echo "  ./scripts/install_godot_export_templates.sh --godot-bin=\"$GODOT_PATH\" --template-version=\"$template_ver\"" >&2
+        exit 1
+    fi
 }
 
 find_mingw_dll() {

@@ -25,6 +25,7 @@ sudo apt install -y cmake ninja-build mingw-w64 zip unzip curl dotnet-sdk-8.0
 说明：
 
 - 模板版本必须与 `godot-dotnet --version` 匹配。
+- 安装脚本会优先尝试 `*_mono_export_templates.tpz` / `*_dotnet_export_templates.tpz`，并校验模板包含 C# loader。
 - 缺模板时，CLI 导出会报：
   - `windows_debug_x86_64.exe not found`
   - `windows_release_x86_64.exe not found`

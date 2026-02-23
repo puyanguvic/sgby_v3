@@ -17,6 +17,15 @@ func _probe_and_enter_main() -> void:
 	status_label.text = "正在检查 C# 运行环境..."
 	detail_text.text = ""
 
+	var has_csharp_class := ClassDB.class_exists("CSharpScript")
+	if not has_csharp_class:
+		_show_failure([
+			"当前可执行文件未注册 CSharpScript 类（ClassDB.class_exists(\"CSharpScript\") == false）。",
+			"这通常表示导出模板不是 .NET/mono 版本，或 C# 模块初始化失败。",
+			"请重新安装 .NET 导出模板并重导；必要时回传 dotnet_host_trace.log。"
+		])
+		return
+
 	var script: Script = load(PROBE_SCRIPT)
 	if script == null:
 		_show_failure([
