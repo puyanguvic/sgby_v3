@@ -9,9 +9,11 @@
 ## 目录结构（标准化）
 
 - `project.godot`: Godot 项目配置（含 `autoload`）
+- `scenes/bootstrap/BootEntry.tscn`: 启动引导场景（纯 GDScript，先探测 C# 运行环境）
 - `scenes/main/Main.tscn`: 主场景（流程化菜单 + HUD + 启动自检 + 运行态）
 - `scenes/ui/*.tscn`: 可复用 UI 子场景（主菜单/战斗 HUD/启动自检）
-- `scripts/autoload/AppBootstrap.cs`: 全局启动入口（AutoLoad）
+- `scripts/autoload/AppBootstrap.gd`: 全局启动入口（AutoLoad，纯 GDScript）
+- `scripts/bootstrap/BootEntry.gd`: 启动探测与错误引导
 - `scripts/core/BridgeHost.cs`: 引擎桥接宿主
 - `scripts/core/BridgeNative.cs`: `ibaye_godot_bridge` P/Invoke（含运行态读取）
 - `scripts/ui/EngineViewport.cs`: 画面显示与输入映射
@@ -56,7 +58,7 @@
 1. 在仓库根目录先构建桥接库（见 `GODOT_PORT.md`）。
 2. 将库文件放到 Godot 项目可加载路径（Linux: `libibaye_godot_bridge.so`）。
 3. 用 Godot 4 打开 `godot/project.godot`。
-4. 打开并运行 `scenes/main/Main.tscn`。
+4. 打开并运行 `scenes/bootstrap/BootEntry.tscn`（项目默认入口也是该场景）。
 5. 默认 `BridgeHost` 已预设开发路径：
    - `DatPath = res://../dist-win/dat.lib`
    - `FontDir = res://../dist-win`

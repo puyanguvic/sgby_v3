@@ -79,6 +79,21 @@ sudo apt install -y cmake ninja-build mingw-w64 zip unzip curl dotnet-sdk-8.0
      `./scripts/build_godot_windows_export.sh --version=<ver>`
    - 注意：大量 `Shader ... Loading cache ...` 与 `WASAPI ...` 日志是正常信息，不是崩溃根因。
    - 新包可先运行 `Diagnose_Runtime.bat`，确认 `data_iBayeGodotShell_windows_x86_64` 下关键文件齐全。
+   - 若关键文件齐全仍报该错误，常见是系统/安全软件阻止 .NET host 加载。建议：
+     1) 在解压目录执行 `Get-ChildItem -Recurse | Unblock-File`
+     2) 关闭“就地运行压缩包”并重新完整解压到新目录
+     3) 用 `Run_With_Log.bat` 重跑并附上 `logs/ibaye_startup.log`
+
+## 5.1 架构改进建议（根治方向）
+
+当前壳层使用 C#，优点是开发快；缺点是发布链路依赖 .NET host，受系统策略影响较大。  
+如果目标是“发布后几乎不受目标机环境影响”，建议分阶段迁移为：
+
+1. 启动层改为 GDScript（已完成），避免 C# loader 异常时直接崩溃。
+2. 业务桥接从 `DllImport` 迁移到 GDExtension（C/C++），把原生能力暴露为 Godot Class。
+3. UI 层逐步迁移为 GDScript（或 C++），使最终包不再依赖 .NET host。
+
+这样可以从根本上消除 `No loader found for resource: *.cs` 这一类问题。
 
 ## 6. SmartScreen 与代码签名
 
