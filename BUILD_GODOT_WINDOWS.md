@@ -64,6 +64,8 @@ sudo apt install -y cmake ninja-build mingw-w64 zip unzip curl dotnet-sdk-8.0
 
 - 运行导出包内的 `Run_With_Log.bat`
 - 回传 `logs/ibaye_startup.log`
+- 若仍报 C# loader 不可用，再运行 `Run_With_CoreHost_Trace.bat`
+- 额外回传 `logs/dotnet_host_trace.log`
 
 ## 5. 常见闪退根因
 

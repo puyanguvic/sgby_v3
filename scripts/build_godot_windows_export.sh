@@ -243,7 +243,7 @@ if not exist "%DOTNET_DIR%\" (
   echo [iBaye] ERROR: missing folder data_iBayeGodotShell_windows_x86_64
   set "CHECK_OK=0"
 ) else (
-  for %%F in (GodotSharp.dll iBayeGodotShell.dll iBayeGodotShell.runtimeconfig.json hostfxr.dll hostpolicy.dll coreclr.dll) do (
+  for %%F in (GodotSharp.dll iBayeGodotShell.dll iBayeGodotShell.runtimeconfig.json iBayeGodotShell.deps.json hostfxr.dll hostpolicy.dll coreclr.dll) do (
     if not exist "%DOTNET_DIR%\%%F" (
       echo [iBaye] ERROR: missing runtime file data_iBayeGodotShell_windows_x86_64\%%F
       set "CHECK_OK=0"
@@ -272,36 +272,137 @@ pause
 exit /b %EXIT_CODE%
 EOF
 
+    cat >"$target_dir/Run_With_CoreHost_Trace.bat" <<'EOF'
+@echo off
+setlocal
+set "APP_DIR=%~dp0"
+set "LOG_DIR=%APP_DIR%logs"
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
+set "LOG_FILE=%LOG_DIR%\ibaye_startup.log"
+set "HOST_TRACE_FILE=%LOG_DIR%\dotnet_host_trace.log"
+
+set "COREHOST_TRACE=1"
+set "COREHOST_TRACEFILE=%HOST_TRACE_FILE%"
+
+echo [iBaye] starting with COREHOST trace...
+echo [iBaye] app log: "%LOG_FILE%"
+echo [iBaye] host trace: "%HOST_TRACE_FILE%"
+"%APP_DIR%iBaye.exe" --verbose --log-file "%LOG_FILE%"
+set "EXIT_CODE=%ERRORLEVEL%"
+echo.
+echo [iBaye] exit code: %EXIT_CODE%
+echo [iBaye] send both files to developer:
+echo          logs\ibaye_startup.log
+echo          logs\dotnet_host_trace.log
+pause
+exit /b %EXIT_CODE%
+EOF
+
+    cat >"$target_dir/RuntimeProbe.ps1" <<'EOF'
+param(
+    [string]$AppDir = $PSScriptRoot
+)
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
+
+$dotnetDir = Join-Path $AppDir "data_iBayeGodotShell_windows_x86_64"
+$required = @(
+    "GodotSharp.dll",
+    "iBayeGodotShell.dll",
+    "iBayeGodotShell.runtimeconfig.json",
+    "iBayeGodotShell.deps.json",
+    "hostfxr.dll",
+    "hostpolicy.dll",
+    "coreclr.dll"
+)
+
+Write-Host "[iBaye] Runtime diagnostics"
+Write-Host "[iBaye] app dir: $AppDir"
+Write-Host ""
+
+if (-not (Test-Path -LiteralPath $dotnetDir -PathType Container)) {
+    Write-Host "[FAIL] missing folder: data_iBayeGodotShell_windows_x86_64"
+    exit 1
+}
+
+Write-Host "[ OK ] folder exists: data_iBayeGodotShell_windows_x86_64"
+foreach ($f in $required) {
+    $p = Join-Path $dotnetDir $f
+    if (Test-Path -LiteralPath $p -PathType Leaf) {
+        Write-Host "[ OK ] $f"
+    } else {
+        Write-Host "[FAIL] $f"
+    }
+}
+
+try {
+    Get-ChildItem -LiteralPath $AppDir -Recurse -File -ErrorAction Stop | Unblock-File -ErrorAction SilentlyContinue
+    Write-Host "[ OK ] attempted Unblock-File on extracted files"
+} catch {
+    Write-Host "[WARN] Unblock-File scan failed: $($_.Exception.Message)"
+}
+
+$kernel32 = @"
+using System;
+using System.Runtime.InteropServices;
+public static class K32 {
+    [DllImport("kernel32", SetLastError=true, CharSet=CharSet.Unicode)]
+    public static extern IntPtr LoadLibrary(string lpFileName);
+    [DllImport("kernel32", SetLastError=true)]
+    public static extern bool FreeLibrary(IntPtr hModule);
+}
+"@
+Add-Type -TypeDefinition $kernel32 -Language CSharp
+
+function Test-LoadLibrary([string]$dllPath) {
+    $h = [K32]::LoadLibrary($dllPath)
+    if ($h -eq [IntPtr]::Zero) {
+        $code = [Runtime.InteropServices.Marshal]::GetLastWin32Error()
+        Write-Host ("[FAIL] LoadLibrary {0} (Win32={1})" -f (Split-Path $dllPath -Leaf), $code)
+        return $false
+    }
+    [void][K32]::FreeLibrary($h)
+    Write-Host ("[ OK ] LoadLibrary {0}" -f (Split-Path $dllPath -Leaf))
+    return $true
+}
+
+Write-Host ""
+Write-Host "[iBaye] native load probe:"
+$ok1 = Test-LoadLibrary (Join-Path $dotnetDir "hostfxr.dll")
+$ok2 = Test-LoadLibrary (Join-Path $dotnetDir "coreclr.dll")
+
+Write-Host ""
+if ($ok1 -and $ok2) {
+    Write-Host "[iBaye] hostfxr/coreclr load probe passed."
+    exit 0
+}
+Write-Host "[iBaye] hostfxr/coreclr load probe failed."
+Write-Host "[iBaye] usually this means blocked DLL or missing OS runtime dependency."
+exit 2
+EOF
+
     cat >"$target_dir/Diagnose_Runtime.bat" <<'EOF'
 @echo off
 setlocal
 set "APP_DIR=%~dp0"
-set "DOTNET_DIR=%APP_DIR%data_iBayeGodotShell_windows_x86_64"
+set "PROBE_PS1=%APP_DIR%RuntimeProbe.ps1"
 
-echo [iBaye] Runtime diagnostics
-echo [iBaye] app dir: %APP_DIR%
-echo.
-
-if not exist "%DOTNET_DIR%\" (
-  echo [FAIL] missing folder: data_iBayeGodotShell_windows_x86_64
-  goto :END
+if not exist "%PROBE_PS1%" (
+  echo [iBaye] missing RuntimeProbe.ps1
+  pause
+  exit /b 2
 )
 
-echo [ OK ] folder exists: data_iBayeGodotShell_windows_x86_64
-for %%F in (GodotSharp.dll iBayeGodotShell.dll iBayeGodotShell.runtimeconfig.json hostfxr.dll hostpolicy.dll coreclr.dll) do (
-  if exist "%DOTNET_DIR%\%%F" (
-    echo [ OK ] %%F
-  ) else (
-    echo [FAIL] %%F
-  )
-)
+powershell -NoProfile -ExecutionPolicy Bypass -File "%PROBE_PS1%"
+set "EXIT_CODE=%ERRORLEVEL%"
 echo.
-echo [iBaye] If any [FAIL], re-download and re-extract the release zip.
-echo [iBaye] If all [OK] but startup still fails, send logs\ibaye_startup.log to developer.
-
-:END
+echo [iBaye] probe exit code: %EXIT_CODE%
+if not "%EXIT_CODE%"=="0" (
+  echo [iBaye] if startup still fails, run Run_With_CoreHost_Trace.bat and send both logs.
+)
 pause
-exit /b 0
+exit /b %EXIT_CODE%
 EOF
 
     cat >"$target_dir/FIRST_RUN_README.txt" <<'EOF'
@@ -318,6 +419,11 @@ iBaye Windows First-Run Notes
      logs\ibaye_startup.log
    If startup says missing runtime files, run:
      Diagnose_Runtime.bat
+   If C# still cannot load, run:
+     Run_With_CoreHost_Trace.bat
+   Then share:
+     logs\ibaye_startup.log
+     logs\dotnet_host_trace.log
 
 3) Public release requirement
    To remove SmartScreen warning for end users, binaries must be Authenticode-signed
