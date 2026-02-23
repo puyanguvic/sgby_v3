@@ -7,6 +7,41 @@
 - 发布：Windows 便携包链路（Ubuntu 交叉编译）
 - 开发调试：Godot-first（桥接层 + 原生无 UI debug host）
 - Web 调试：Emscripten（浏览器端快速回归）
+- Unity 迁移：Phase 1 壳层脚手架（保留 C 引擎）
+
+## Unity 迁移入口（Phase 1）
+
+当前已新增 Unity 壳层骨架与第三阶段 UI 脚本（主菜单/城市面板/战斗 HUD/启动自检），目标是“保留 C 引擎 + 重建 Unity UI”。
+
+构建 Unity 原生桥接库：
+
+```bash
+./scripts/build_unity_bridge.sh
+```
+
+构建 Unity Windows 原生插件（Ubuntu 交叉编译）：
+
+```bash
+./scripts/build_unity_windows_plugin.sh
+```
+
+构建 Unity Windows 玩家包（需 Unity Editor CLI）：
+
+```bash
+./scripts/build_unity_windows_player.sh --version=0.2.0 --unity-bin=/path/to/Unity
+```
+
+构建并发布 Unity Windows GitHub Release：
+
+```bash
+./scripts/publish_unity_windows_release.sh --version=0.2.0 --unity-bin=/path/to/Unity
+```
+
+核心文档：
+
+- `UNITY_PORT.md`（迁移策略与阶段说明）
+- `unity/README.md`（Unity 项目结构与最小接线方式）
+- Unity 编辑器菜单 `IBaye > Create Default Shell Scene` 可一键生成 `Assets/Scenes/Main.unity`
 
 ## Godot-first 调试入口（推荐）
 

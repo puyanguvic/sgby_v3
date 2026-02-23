@@ -90,6 +90,7 @@ endif()
 
 option(BAYE_BUILD_GODOT_BRIDGE "Build shared bridge library for Godot integration" OFF)
 option(BAYE_BUILD_DEBUG_HOST "Build native headless debug host (Godot platform adapter)" OFF)
+option(BAYE_BUILD_UNITY_BRIDGE "Build shared bridge library for Unity integration" OFF)
 if (BAYE_BUILD_GODOT_BRIDGE)
 	find_package(Threads REQUIRED)
 	add_library(ibaye_godot_bridge SHARED
@@ -102,6 +103,22 @@ if (BAYE_BUILD_GODOT_BRIDGE)
 	set_target_properties(ibaye_godot_bridge PROPERTIES OUTPUT_NAME ibaye_godot_bridge)
 	if (WIN32)
 		set_target_properties(ibaye_godot_bridge PROPERTIES PREFIX "")
+	endif()
+endif()
+
+if (BAYE_BUILD_UNITY_BRIDGE)
+	find_package(Threads REQUIRED)
+	add_library(ibaye_unity_bridge SHARED
+		platform/godot/bridge.c
+		platform/unity/bridge_unity.c
+		${bayelib_godot_SRCS}
+	)
+	target_link_libraries(ibaye_unity_bridge PRIVATE bayeliba Threads::Threads)
+	target_include_directories(ibaye_unity_bridge PUBLIC . ./platform/common ./platform/godot ./platform/unity)
+	add_dependencies(ibaye_unity_bridge ver_header)
+	set_target_properties(ibaye_unity_bridge PROPERTIES OUTPUT_NAME ibaye_unity_bridge)
+	if (WIN32)
+		set_target_properties(ibaye_unity_bridge PROPERTIES PREFIX "")
 	endif()
 endif()
 

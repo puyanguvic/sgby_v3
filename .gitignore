@@ -25,6 +25,7 @@ release/*.zip
 release/*.exe
 release/SHA256SUMS.txt
 release/godot-win/
+release/unity-win/
 
 # Godot local/generated data
 godot/.godot/
@@ -32,3 +33,17 @@ godot/.mono/
 godot/bin/
 godot/obj/
 godot/libibaye_godot_bridge.so
+
+# Unity local/generated data
+unity/Library/
+unity/Temp/
+unity/Obj/
+unity/Build/
+unity/Builds/
+unity/Logs/
+unity/UserSettings/
+unity/*.csproj
+unity/*.sln
+unity/Assets/Plugins/**/*.so
+unity/Assets/Plugins/**/*.dll
+unity/Assets/Plugins/**/*.dylib
