@@ -12,6 +12,8 @@ src/baye/version.h
 build-win-mingw/
 dist-win/
 build-godot-bridge/
+build-godot-win-bridge/
+build-godot-win-export/
 build-godot/
 build-debug-host/
 build-web-emscripten/
@@ -22,6 +24,7 @@ web/dist/
 release/*.zip
 release/*.exe
 release/SHA256SUMS.txt
+release/godot-win/
 
 # Godot local/generated data
 godot/.godot/

@@ -12,6 +12,7 @@ SKIP_APT=0
 SKIP_DOTNET=0
 SKIP_GODOT=0
 SKIP_BRIDGE=0
+INSTALL_EXPORT_TEMPLATES=0
 
 usage() {
     cat <<'EOF'
@@ -27,7 +28,8 @@ usage() {
   --skip-dotnet         跳过 dotnet SDK 安装
   --skip-godot          跳过 Godot .NET 下载
   --skip-bridge         跳过桥接库编译
-  --godot-tag=<tag>     指定 Godot 发布标签(如 4.2.2-stable)
+  --with-export-templates  额外安装 Export Templates（用于 Windows 导出）
+  --godot-tag=<tag>     指定 Godot 发布标签(如 4.6.1-stable)
   -h, --help            显示帮助
 
 环境变量:
@@ -45,6 +47,7 @@ for arg in "$@"; do
         --skip-dotnet) SKIP_DOTNET=1 ;;
         --skip-godot) SKIP_GODOT=1 ;;
         --skip-bridge) SKIP_BRIDGE=1 ;;
+        --with-export-templates) INSTALL_EXPORT_TEMPLATES=1 ;;
         --godot-tag=*) GODOT_RELEASE_TAG="${arg#*=}" ;;
         -h|--help) usage; exit 0 ;;
         *)
@@ -251,6 +254,11 @@ fi
 
 if [[ "$SKIP_BRIDGE" -eq 0 ]]; then
     build_bridge
+fi
+
+if [[ "$INSTALL_EXPORT_TEMPLATES" -eq 1 ]]; then
+    echo "-> 安装 Export Templates..."
+    "$ROOT_DIR/scripts/install_godot_export_templates.sh" --godot-bin="$GODOT_BIN_LINK"
 fi
 
 echo ""

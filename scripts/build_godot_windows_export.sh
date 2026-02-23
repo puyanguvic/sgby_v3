@@ -1,0 +1,324 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+PROJECT_DIR="${PROJECT_DIR:-$ROOT_DIR/godot}"
+BUILD_DIR="${BUILD_DIR:-build-godot-win-export}"
+OUTPUT_DIR="${OUTPUT_DIR:-release/godot-win}"
+APP_VERSION="${APP_VERSION:-dev}"
+PRESET_NAME="${PRESET_NAME:-Windows Desktop}"
+GODOT_BIN="${GODOT_BIN:-godot-dotnet}"
+FORCE_LOCAL_XDG="${FORCE_LOCAL_XDG:-1}"
+RUNTIME_ROOT="${RUNTIME_ROOT:-$ROOT_DIR/.godot_runtime}"
+DOTNET_CLI_HOME="${DOTNET_CLI_HOME:-$ROOT_DIR/.dotnet-cli}"
+NUGET_PACKAGES="${NUGET_PACKAGES:-$ROOT_DIR/.nuget/packages}"
+AUTO_INSTALL_TEMPLATES=0
+
+usage() {
+    cat <<'EOF'
+用途:
+  在 Ubuntu 上一键导出 Godot Windows 包（含 bridge dll + 资源文件）。
+
+用法:
+  ./scripts/build_godot_windows_export.sh [选项]
+
+选项:
+  --version=<ver>         版本号（默认 dev）
+  --preset=<name>         导出预设名（默认 Windows Desktop）
+  --output-dir=<dir>      输出目录（默认 release/godot-win）
+  --godot-bin=<bin>       Godot 可执行文件（默认 godot-dotnet）
+  --install-templates     若缺模板则自动安装
+  -h, --help              显示帮助
+
+产物:
+  release/godot-win/iBaye-godot-windows-<ver>.zip
+EOF
+}
+
+for arg in "$@"; do
+    case "$arg" in
+        --version=*)
+            APP_VERSION="${arg#*=}"
+            ;;
+        --preset=*)
+            PRESET_NAME="${arg#*=}"
+            ;;
+        --output-dir=*)
+            OUTPUT_DIR="${arg#*=}"
+            ;;
+        --godot-bin=*)
+            GODOT_BIN="${arg#*=}"
+            ;;
+        --install-templates)
+            AUTO_INSTALL_TEMPLATES=1
+            ;;
+        -h|--help)
+            usage
+            exit 0
+            ;;
+        *)
+            echo "未知参数: $arg" >&2
+            usage
+            exit 1
+            ;;
+    esac
+done
+
+abspath() {
+    local p="$1"
+    if [[ "$p" = /* ]]; then
+        printf '%s\n' "$p"
+    else
+        printf '%s\n' "$ROOT_DIR/$p"
+    fi
+}
+
+PROJECT_DIR="$(abspath "$PROJECT_DIR")"
+BUILD_DIR="$(abspath "$BUILD_DIR")"
+OUTPUT_DIR="$(abspath "$OUTPUT_DIR")"
+RUNTIME_ROOT="$(abspath "$RUNTIME_ROOT")"
+DOTNET_CLI_HOME="$(abspath "$DOTNET_CLI_HOME")"
+NUGET_PACKAGES="$(abspath "$NUGET_PACKAGES")"
+
+need_cmd() {
+    if ! command -v "$1" >/dev/null 2>&1; then
+        echo "缺少命令: $1" >&2
+        return 1
+    fi
+}
+
+resolve_bin() {
+    local candidate="$1"
+    if [[ "$candidate" == */* ]]; then
+        [[ -x "$candidate" ]] && { echo "$candidate"; return 0; }
+        return 1
+    fi
+    command -v "$candidate" 2>/dev/null || return 1
+}
+
+ensure_runtime_env() {
+    mkdir -p "$RUNTIME_ROOT/data" "$RUNTIME_ROOT/config" "$RUNTIME_ROOT/cache"
+    if [[ "$FORCE_LOCAL_XDG" == "1" ]]; then
+        export XDG_DATA_HOME="$RUNTIME_ROOT/data"
+        export XDG_CONFIG_HOME="$RUNTIME_ROOT/config"
+        export XDG_CACHE_HOME="$RUNTIME_ROOT/cache"
+    fi
+}
+
+godot_template_version() {
+    local raw
+    raw="$("$GODOT_PATH" --version | head -n 1 | tr -d '\r\n')"
+    if [[ "$raw" == *".official."* ]]; then
+        printf '%s\n' "${raw%%.official*}"
+        return 0
+    fi
+    printf '%s\n' "$raw"
+}
+
+ensure_export_templates() {
+    local template_ver="$1"
+    local template_dir="${XDG_DATA_HOME:-$HOME/.local/share}/godot/export_templates/$template_ver"
+    local debug_tpl="$template_dir/windows_debug_x86_64.exe"
+    local release_tpl="$template_dir/windows_release_x86_64.exe"
+
+    if [[ -f "$debug_tpl" && -f "$release_tpl" ]]; then
+        return 0
+    fi
+
+    if [[ "$AUTO_INSTALL_TEMPLATES" == "1" ]]; then
+        "$ROOT_DIR/scripts/install_godot_export_templates.sh" \
+            --godot-bin="$GODOT_PATH" \
+            --template-version="$template_ver" \
+            --templates-root="${XDG_DATA_HOME:-$HOME/.local/share}/godot/export_templates"
+    fi
+
+    if [[ ! -f "$debug_tpl" || ! -f "$release_tpl" ]]; then
+        echo "缺少 Export Templates: $template_dir" >&2
+        echo "先执行: ./scripts/install_godot_export_templates.sh --godot-bin=\"$GODOT_PATH\" --template-version=\"$template_ver\"" >&2
+        exit 1
+    fi
+}
+
+find_mingw_dll() {
+    local dll="$1"
+    local candidates=(
+        "/usr/x86_64-w64-mingw32/lib"
+        "/usr/lib/gcc/x86_64-w64-mingw32"
+        "/usr/lib/gcc/x86_64-w64-mingw32/12-win32"
+        "/usr/lib/gcc/x86_64-w64-mingw32/12-posix"
+        "/usr/lib/gcc/x86_64-w64-mingw32/13-win32"
+        "/usr/lib/gcc/x86_64-w64-mingw32/13-posix"
+        "/usr/lib/gcc/x86_64-w64-mingw32/14-win32"
+        "/usr/lib/gcc/x86_64-w64-mingw32/14-posix"
+    )
+    local dir
+    for dir in "${candidates[@]}"; do
+        if [[ -f "$dir/$dll" ]]; then
+            printf '%s\n' "$dir/$dll"
+            return 0
+        fi
+    done
+    local found
+    found="$(find /usr -type f -name "$dll" 2>/dev/null | head -n 1 || true)"
+    if [[ -n "$found" ]]; then
+        printf '%s\n' "$found"
+        return 0
+    fi
+    return 1
+}
+
+copy_runtime_assets() {
+    local target_dir="$1"
+    local dat_src=""
+    local font_src_dir=""
+
+    for c in "$ROOT_DIR/dist-win/dat.lib" "$ROOT_DIR/src/dat.lib" "$ROOT_DIR/src/dat.lib.orig"; do
+        if [[ -f "$c" ]]; then
+            dat_src="$c"
+            break
+        fi
+    done
+    if [[ -z "$dat_src" ]]; then
+        echo "缺少 dat.lib（尝试路径: dist-win/dat.lib, src/dat.lib, src/dat.lib.orig）" >&2
+        exit 1
+    fi
+
+    for d in "$ROOT_DIR/dist-win" "$ROOT_DIR/src"; do
+        if [[ -f "$d/font.bin" ]]; then
+            font_src_dir="$d"
+            break
+        fi
+    done
+    if [[ -z "$font_src_dir" ]]; then
+        echo "缺少 font.bin（尝试路径: dist-win/, src/）" >&2
+        exit 1
+    fi
+
+    if [[ "$(basename "$dat_src")" == "dat.lib.orig" ]]; then
+        cp "$dat_src" "$target_dir/dat.lib"
+    else
+        cp "$dat_src" "$target_dir/dat.lib"
+    fi
+    cp "$font_src_dir/font.bin" "$target_dir/font.bin"
+
+    local required_fonts=(
+        "font24.cn.1"
+        "font24.cn.2"
+        "font24.cn.3"
+        "font24.cn.4"
+        "font24.en.1"
+        "font24.en.2"
+    )
+    local f
+    for f in "${required_fonts[@]}"; do
+        local found=""
+        for d in "$ROOT_DIR/dist-win" "$ROOT_DIR/src"; do
+            if [[ -f "$d/$f" ]]; then
+                found="$d/$f"
+                break
+            fi
+        done
+        if [[ -z "$found" ]]; then
+            echo "缺少字体资源: $f" >&2
+            exit 1
+        fi
+        cp "$found" "$target_dir/$f"
+    done
+}
+
+need_cmd cmake
+need_cmd ninja
+need_cmd dotnet
+need_cmd x86_64-w64-mingw32-gcc
+need_cmd x86_64-w64-mingw32-windres
+need_cmd x86_64-w64-mingw32-objdump
+need_cmd zip
+
+GODOT_PATH="$(resolve_bin "$GODOT_BIN" || true)"
+if [[ -z "$GODOT_PATH" ]]; then
+    echo "找不到 Godot 可执行文件: $GODOT_BIN" >&2
+    exit 1
+fi
+
+if [[ ! -f "$PROJECT_DIR/export_presets.cfg" ]]; then
+    echo "缺少 $PROJECT_DIR/export_presets.cfg，无法使用 CLI 导出。" >&2
+    exit 1
+fi
+
+ensure_runtime_env
+mkdir -p "$DOTNET_CLI_HOME" "$NUGET_PACKAGES"
+export DOTNET_CLI_HOME
+export NUGET_PACKAGES
+
+template_ver="$(godot_template_version)"
+ensure_export_templates "$template_ver"
+
+echo "== [1/5] 编译 Windows bridge dll =="
+cmake -S "$ROOT_DIR" -B "$BUILD_DIR" -G Ninja \
+    -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_SYSTEM_NAME=Windows \
+    -DCMAKE_C_COMPILER=x86_64-w64-mingw32-gcc \
+    -DCMAKE_RC_COMPILER=x86_64-w64-mingw32-windres \
+    -DBAYE_BUILD_GODOT_BRIDGE=ON
+cmake --build "$BUILD_DIR" -j"$(nproc)" --target ibaye_godot_bridge
+
+bridge_dll="$BUILD_DIR/src/ibaye_godot_bridge.dll"
+if [[ ! -f "$bridge_dll" ]]; then
+    echo "bridge 构建完成但缺少产物: $bridge_dll" >&2
+    exit 1
+fi
+
+echo "== [2/5] 构建 Godot C# 程序集 =="
+dotnet build "$PROJECT_DIR/iBayeGodotShell.csproj" -c Release -v minimal
+
+echo "== [3/5] 执行 Godot Windows 导出 =="
+package_dir="$OUTPUT_DIR/iBaye-godot-win-$APP_VERSION"
+zip_path="$OUTPUT_DIR/iBaye-godot-windows-$APP_VERSION.zip"
+exe_path="$package_dir/iBaye.exe"
+
+rm -rf "$package_dir"
+mkdir -p "$package_dir"
+
+"$GODOT_PATH" --headless --path "$PROJECT_DIR" --export-release "$PRESET_NAME" "$exe_path"
+
+if [[ ! -f "$exe_path" ]]; then
+    echo "导出失败: 未找到 $exe_path" >&2
+    exit 1
+fi
+
+echo "== [4/5] 收集原生库与运行资源 =="
+cp "$bridge_dll" "$package_dir/ibaye_godot_bridge.dll"
+
+mapfile -t dll_deps < <(
+    x86_64-w64-mingw32-objdump -p "$bridge_dll" \
+        | awk '/DLL Name:/ {print $3}' \
+        | sort -u
+)
+for dll in "${dll_deps[@]}"; do
+    case "${dll,,}" in
+        kernel32.dll|user32.dll|gdi32.dll|msvcrt.dll|advapi32.dll|shell32.dll|ole32.dll|comdlg32.dll|ws2_32.dll)
+            continue
+            ;;
+    esac
+    if path="$(find_mingw_dll "$dll")"; then
+        cp "$path" "$package_dir/$dll"
+    else
+        echo "缺少 bridge 依赖 DLL: $dll" >&2
+        exit 1
+    fi
+done
+
+copy_runtime_assets "$package_dir"
+
+echo "== [5/5] 打包 ZIP =="
+mkdir -p "$OUTPUT_DIR"
+rm -f "$zip_path"
+(
+    cd "$package_dir"
+    zip -9 -r "../$(basename "$zip_path")" .
+)
+
+echo ""
+echo "完成。"
+echo "导出目录: $package_dir"
+echo "发布包: $zip_path"

@@ -65,3 +65,16 @@
 4. 建立回归基线
 - `debug_host` 启动烟测（无 UI）
 - Godot 集成烟测（关键场景）
+
+## 当前技术基线与 GDScript 迁移说明
+
+当前基线：
+
+- Godot 4.6 + C# bridge（`BridgeNative.cs` / `BridgeHost.cs`）+ C 动态库 `ibaye_godot_bridge`
+- 该基线用于快速打通 native bridge 与跨平台导出链路
+
+若目标改为“纯 GDScript 标准”：
+
+1. 先补 GDExtension 封装层，把 C API 映射成 Godot 可直接调用的类
+2. 再将 UI 与流程脚本从 C# 逐步迁移到 `.gd`
+3. 保留同一套 bridge C 内核，避免重写引擎逻辑

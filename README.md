@@ -24,6 +24,30 @@
 
 Godot 架构改造路线见：`ARCHITECTURE_GODOT_FIRST.md`
 
+## Godot Windows 导出（标准流程）
+
+1. 安装匹配版本的 Export Templates：
+
+```bash
+./scripts/install_godot_export_templates.sh
+```
+
+2. 一键导出 Godot Windows 包（含 bridge dll 与资源）：
+
+```bash
+./scripts/build_godot_windows_export.sh --version=0.1.0
+```
+
+3. 发布前预检：
+
+```bash
+./scripts/preflight_godot_windows_export.sh --version=0.1.0
+```
+
+产物：
+
+- `release/godot-win/iBaye-godot-windows-0.1.0.zip`
+
 ## Web 调试入口（优先定位崩溃）
 
 先构建 Web 版本（依赖 emsdk / emcmake）：
@@ -114,5 +138,6 @@ git push origin v1.0.5
 更多细节见：
 
 - `BUILD_WINDOWS.md`
+- `BUILD_GODOT_WINDOWS.md`
 - `GODOT_PORT.md`（Godot 2D 适配阶段记录，当前到第七阶段）
-- `godot/README.md`（含 Ubuntu 一键初始化脚本用法）
+- `godot/README.md`（含 Godot 导出与防闪退链路）

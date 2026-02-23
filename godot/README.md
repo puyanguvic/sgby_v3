@@ -1,6 +1,6 @@
 # Godot 第七阶段（运行态桥接 + 指令序列）
 
-本目录现在是一个可直接打开的 Godot 4 C# 项目骨架，目标是：
+本目录现在是一个可直接打开的 Godot 4.x 项目骨架（当前桥接层为 C#），目标是：
 
 - 保留 iBaye 原始 C 引擎逻辑
 - 在 Godot 侧重做 UI/输入层
@@ -48,7 +48,7 @@
 可选：固定 Godot 版本（示例）：
 
 ```bash
-./scripts/setup_godot_dev_ubuntu.sh --godot-tag=4.2.2-stable
+./scripts/setup_godot_dev_ubuntu.sh --godot-tag=4.6.1-stable
 ```
 
 ### 手工方式
@@ -62,6 +62,41 @@
    - `FontDir = res://../dist-win`
    - `SaveDir = user://save`
 6. 如目录结构有变化，可在 `BridgeHost` 节点里手工覆盖路径。
+
+## Windows 导出（防闪退标准流程）
+
+1. 安装 Export Templates（版本必须匹配当前 Godot）：
+
+```bash
+./scripts/install_godot_export_templates.sh
+```
+
+2. 一键导出 Windows 包（含 `ibaye_godot_bridge.dll`、字体和数据资源）：
+
+```bash
+./scripts/build_godot_windows_export.sh --version=0.1.0
+```
+
+3. 发布前本地预检（检查 zip 关键文件完整性）：
+
+```bash
+./scripts/preflight_godot_windows_export.sh --version=0.1.0
+```
+
+默认产物：
+
+- `release/godot-win/iBaye-godot-windows-0.1.0.zip`
+
+注意：
+
+- Godot CLI 导出依赖 `godot/export_presets.cfg`（仓库已提供）。
+- 缺模板时会报错 `windows_debug_x86_64.exe / windows_release_x86_64.exe not found`。
+- 导出包里必须包含 `ibaye_godot_bridge.dll` 和 `libwinpthread-1.dll`，否则 Windows 运行会高概率闪退。
+
+## 关于 GDScript 标准化
+
+当前项目为了调用 `ibaye_godot_bridge` C API，桥接层使用 C#（`BridgeNative.cs` + `BridgeHost.cs`）。  
+如果要做到“纯 GDScript 标准”，需要先补一个 GDExtension 封装层，把 C API 变成 Godot Class/Singleton，再迁移 UI 脚本到 `.gd`。
 
 ## 当前状态
 
