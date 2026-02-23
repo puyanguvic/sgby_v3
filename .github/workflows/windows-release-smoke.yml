@@ -17,13 +17,6 @@ jobs:
   smoke:
     runs-on: windows-2022
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-        with:
-          sparse-checkout: |
-            scripts/ci
-          sparse-checkout-cone-mode: false
-
       - name: Resolve tag
         id: tag
         shell: pwsh
@@ -47,4 +40,38 @@ jobs:
         run: |
           $zip = Get-ChildItem -Path . -Filter "iBaye-godot-windows-*.zip" | Select-Object -First 1
           if (-not $zip) { throw "Release zip not found after download." }
-          ./scripts/ci/windows_smoke_test.ps1 -ZipPath $zip.FullName
+          $work = Join-Path $env:RUNNER_TEMP ("ibaye-smoke-" + [Guid]::NewGuid().ToString("N"))
+          New-Item -ItemType Directory -Path $work | Out-Null
+          Expand-Archive -Path $zip.FullName -DestinationPath $work -Force
+
+          $exe = Join-Path $work "iBaye.exe"
+          $probe = Join-Path $work "RuntimeProbe.ps1"
+          $logDir = Join-Path $work "logs"
+          $ibayeLog = Join-Path $logDir "ibaye_startup.log"
+          $hostTrace = Join-Path $logDir "dotnet_host_trace.log"
+
+          foreach ($f in @($exe, $probe)) {
+            if (-not (Test-Path -LiteralPath $f -PathType Leaf)) { throw "Missing file: $f" }
+          }
+
+          powershell -NoProfile -ExecutionPolicy Bypass -File $probe
+
+          New-Item -ItemType Directory -Path $logDir -Force | Out-Null
+          $cmd = "set COREHOST_TRACE=1 && set COREHOST_TRACEFILE=""$hostTrace"" && ""$exe"" --verbose --log-file ""$ibayeLog"""
+          $p = Start-Process -FilePath "cmd.exe" -ArgumentList "/c", $cmd -PassThru
+          if (-not $p.WaitForExit(20000)) {
+            $p.Kill()
+          }
+
+          if (-not (Test-Path -LiteralPath $ibayeLog -PathType Leaf)) {
+            throw "ibaye_startup.log not found"
+          }
+          $log = Get-Content -LiteralPath $ibayeLog -Raw
+          if ($log -match "No loader found for resource: res://scripts/.+\.cs") {
+            throw "Detected C# loader failure in startup log."
+          }
+          if ($log -match "Failed loading scene: res://scenes/main/Main\.tscn") {
+            throw "Detected main scene loading failure."
+          }
+
+          Write-Host "Smoke passed. ExitCode=$($p.ExitCode)"
