@@ -117,3 +117,5 @@ Windows 二进制不再在 GitHub Actions 上编译。推荐流程：
 1. 本地预检并导出 Godot Windows 包
 2. 生成 `release/godot-win/SHA256SUMS-<ver>.txt`
 3. 创建/更新 `v<ver>` 对应的 GitHub Release 资产
+
+并且仓库新增了 `Windows Release Smoke` 工作流：release 发布后会在 Windows runner 自动启动烟测，减少人工肉眼排查。

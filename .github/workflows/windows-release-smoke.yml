@@ -1,0 +1,47 @@
+name: Windows Release Smoke
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag (e.g. v1.0.17)
+        required: true
+        type: string
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Resolve tag
+        id: tag
+        shell: pwsh
+        run: |
+          if ("${{ github.event_name }}" -eq "release") {
+            "tag=${{ github.event.release.tag_name }}" >> $env:GITHUB_OUTPUT
+          } else {
+            "tag=${{ inputs.tag }}" >> $env:GITHUB_OUTPUT
+          }
+
+      - name: Download release zip
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: pwsh
+        run: |
+          $tag = "${{ steps.tag.outputs.tag }}"
+          gh release download $tag -R "${{ github.repository }}" -p "iBaye-godot-windows-*.zip" -D .
+
+      - name: Run smoke test
+        shell: pwsh
+        run: |
+          $zip = Get-ChildItem -Path . -Filter "iBaye-godot-windows-*.zip" | Select-Object -First 1
+          if (-not $zip) { throw "Release zip not found after download." }
+          ./scripts/ci/windows_smoke_test.ps1 -ZipPath $zip.FullName
+
