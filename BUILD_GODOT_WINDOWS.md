@@ -60,6 +60,11 @@ sudo apt install -y cmake ninja-build mingw-w64 zip unzip curl dotnet-sdk-8.0
 
 预检会校验 zip 中关键文件是否齐全，避免“打包成功但运行缺文件”。
 
+若 Windows 端仍闪退：
+
+- 运行导出包内的 `Run_With_Log.bat`
+- 回传 `logs/ibaye_startup.log`
+
 ## 5. 常见闪退根因
 
 1. 缺少 Export Templates（导出阶段就失败）。
@@ -68,7 +73,13 @@ sudo apt install -y cmake ninja-build mingw-w64 zip unzip curl dotnet-sdk-8.0
 4. 导出包缺少 `dat.lib` 或字体资源。
 5. Godot / Template / 项目版本不一致。
 
-## 6. 发布到 GitHub（本地导出后上传）
+## 6. SmartScreen 与代码签名
+
+未签名的 Windows 可执行文件会被 SmartScreen 标记为“未验证开发者”。
+
+- 内部测试可手动选择“仍要运行”
+- 正式发布要去除警告，需对 `iBaye.exe` 与关键 DLL 做 Authenticode 签名（OV/EV 证书）
+## 7. 发布到 GitHub（本地导出后上传）
 
 Windows 二进制不再在 GitHub Actions 上编译。推荐流程：
 

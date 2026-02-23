@@ -86,6 +86,7 @@
 默认产物：
 
 - `release/godot-win/iBaye-godot-windows-0.1.0.zip`
+- 包内包含 `Run_With_Log.bat`（用于 Windows 闪退日志采集）
 
 发布到 GitHub Release（本地导出后上传）：
 
@@ -98,6 +99,7 @@
 - Godot CLI 导出依赖 `godot/export_presets.cfg`（仓库已提供）。
 - 缺模板时会报错 `windows_debug_x86_64.exe / windows_release_x86_64.exe not found`。
 - 导出包里必须包含 `ibaye_godot_bridge.dll` 和 `libwinpthread-1.dll`，否则 Windows 运行会高概率闪退。
+- 未签名构建会出现“未验证开发者”提示；正式发布需进行 Authenticode 代码签名。
 
 ## 关于 GDScript 标准化
 

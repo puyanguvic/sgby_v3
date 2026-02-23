@@ -226,6 +226,46 @@ copy_runtime_assets() {
     done
 }
 
+write_windows_runtime_helpers() {
+    local target_dir="$1"
+
+    cat >"$target_dir/Run_With_Log.bat" <<'EOF'
+@echo off
+setlocal
+set "APP_DIR=%~dp0"
+set "LOG_DIR=%APP_DIR%logs"
+if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
+set "LOG_FILE=%LOG_DIR%\ibaye_startup.log"
+echo [iBaye] starting with verbose log...
+echo [iBaye] log file: "%LOG_FILE%"
+"%APP_DIR%iBaye.exe" --verbose --log-file "%LOG_FILE%"
+set "EXIT_CODE=%ERRORLEVEL%"
+echo.
+echo [iBaye] exit code: %EXIT_CODE%
+echo [iBaye] if startup failed, send "%LOG_FILE%" to developer.
+pause
+exit /b %EXIT_CODE%
+EOF
+
+    cat >"$target_dir/FIRST_RUN_README.txt" <<'EOF'
+iBaye Windows First-Run Notes
+=============================
+
+1) SmartScreen warning (unverified publisher)
+   If Windows shows "protected your PC", this is expected for unsigned builds.
+   For internal test builds:
+     More info -> Run anyway
+
+2) Crash or immediate exit
+   Run "Run_With_Log.bat" in this folder and share:
+     logs\ibaye_startup.log
+
+3) Public release requirement
+   To remove SmartScreen warning for end users, binaries must be Authenticode-signed
+   with a trusted OV/EV code signing certificate.
+EOF
+}
+
 need_cmd cmake
 need_cmd ninja
 need_cmd dotnet
@@ -309,6 +349,7 @@ for dll in "${dll_deps[@]}"; do
 done
 
 copy_runtime_assets "$package_dir"
+write_windows_runtime_helpers "$package_dir"
 
 echo "== [5/5] 打包 ZIP =="
 mkdir -p "$OUTPUT_DIR"

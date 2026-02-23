@@ -65,6 +65,8 @@ required_files=(
     "data_iBayeGodotShell_windows_x86_64/iBayeGodotShell.dll"
     "data_iBayeGodotShell_windows_x86_64/GodotSharp.dll"
     "data_iBayeGodotShell_windows_x86_64/iBayeGodotShell.runtimeconfig.json"
+    "Run_With_Log.bat"
+    "FIRST_RUN_README.txt"
     "dat.lib"
     "font.bin"
     "font24.cn.1"

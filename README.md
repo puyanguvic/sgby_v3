@@ -47,6 +47,12 @@ Godot 架构改造路线见：`ARCHITECTURE_GODOT_FIRST.md`
 产物：
 
 - `release/godot-win/iBaye-godot-windows-0.1.0.zip`
+- 包内含 `Run_With_Log.bat`，用于 Windows 闪退日志采集
+
+签名说明（Windows SmartScreen）：
+
+- 未签名构建会出现“未验证开发者/Windows 保护你的电脑”提示，这是系统正常行为。
+- 对外发布要消除该提示，必须使用受信任代码签名证书（OV/EV）做 Authenticode 签名。
 
 ## Web 调试入口（优先定位崩溃）
 
