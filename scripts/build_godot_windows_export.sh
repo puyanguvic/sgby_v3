@@ -233,9 +233,34 @@ write_windows_runtime_helpers() {
 @echo off
 setlocal
 set "APP_DIR=%~dp0"
+set "DOTNET_DIR=%APP_DIR%data_iBayeGodotShell_windows_x86_64"
 set "LOG_DIR=%APP_DIR%logs"
+set "CHECK_OK=1"
 if not exist "%LOG_DIR%" mkdir "%LOG_DIR%"
 set "LOG_FILE=%LOG_DIR%\ibaye_startup.log"
+
+if not exist "%DOTNET_DIR%\" (
+  echo [iBaye] ERROR: missing folder data_iBayeGodotShell_windows_x86_64
+  set "CHECK_OK=0"
+) else (
+  for %%F in (GodotSharp.dll iBayeGodotShell.dll iBayeGodotShell.runtimeconfig.json hostfxr.dll hostpolicy.dll coreclr.dll) do (
+    if not exist "%DOTNET_DIR%\%%F" (
+      echo [iBaye] ERROR: missing runtime file data_iBayeGodotShell_windows_x86_64\%%F
+      set "CHECK_OK=0"
+    )
+  )
+)
+
+if "%CHECK_OK%"=="0" (
+  echo.
+  echo [iBaye] startup aborted because required .NET runtime files are missing.
+  echo [iBaye] run Diagnose_Runtime.bat and send the output to developer.
+  echo [iBaye] tip: re-extract zip to a new folder, then run this script again.
+  echo [iBaye] tip: if zip was downloaded from browser, unblock zip before extracting.
+  pause
+  exit /b 2
+)
+
 echo [iBaye] starting with verbose log...
 echo [iBaye] log file: "%LOG_FILE%"
 "%APP_DIR%iBaye.exe" --verbose --log-file "%LOG_FILE%"
@@ -245,6 +270,38 @@ echo [iBaye] exit code: %EXIT_CODE%
 echo [iBaye] if startup failed, send "%LOG_FILE%" to developer.
 pause
 exit /b %EXIT_CODE%
+EOF
+
+    cat >"$target_dir/Diagnose_Runtime.bat" <<'EOF'
+@echo off
+setlocal
+set "APP_DIR=%~dp0"
+set "DOTNET_DIR=%APP_DIR%data_iBayeGodotShell_windows_x86_64"
+
+echo [iBaye] Runtime diagnostics
+echo [iBaye] app dir: %APP_DIR%
+echo.
+
+if not exist "%DOTNET_DIR%\" (
+  echo [FAIL] missing folder: data_iBayeGodotShell_windows_x86_64
+  goto :END
+)
+
+echo [ OK ] folder exists: data_iBayeGodotShell_windows_x86_64
+for %%F in (GodotSharp.dll iBayeGodotShell.dll iBayeGodotShell.runtimeconfig.json hostfxr.dll hostpolicy.dll coreclr.dll) do (
+  if exist "%DOTNET_DIR%\%%F" (
+    echo [ OK ] %%F
+  ) else (
+    echo [FAIL] %%F
+  )
+)
+echo.
+echo [iBaye] If any [FAIL], re-download and re-extract the release zip.
+echo [iBaye] If all [OK] but startup still fails, send logs\ibaye_startup.log to developer.
+
+:END
+pause
+exit /b 0
 EOF
 
     cat >"$target_dir/FIRST_RUN_README.txt" <<'EOF'
@@ -259,6 +316,8 @@ iBaye Windows First-Run Notes
 2) Crash or immediate exit
    Run "Run_With_Log.bat" in this folder and share:
      logs\ibaye_startup.log
+   If startup says missing runtime files, run:
+     Diagnose_Runtime.bat
 
 3) Public release requirement
    To remove SmartScreen warning for end users, binaries must be Authenticode-signed

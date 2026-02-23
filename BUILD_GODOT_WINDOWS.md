@@ -77,6 +77,8 @@ sudo apt install -y cmake ninja-build mingw-w64 zip unzip curl dotnet-sdk-8.0
    - 处理：重新安装匹配版本模板并重导：
      `./scripts/install_godot_export_templates.sh --godot-bin=godot-dotnet`
      `./scripts/build_godot_windows_export.sh --version=<ver>`
+   - 注意：大量 `Shader ... Loading cache ...` 与 `WASAPI ...` 日志是正常信息，不是崩溃根因。
+   - 新包可先运行 `Diagnose_Runtime.bat`，确认 `data_iBayeGodotShell_windows_x86_64` 下关键文件齐全。
 
 ## 6. SmartScreen 与代码签名
 
